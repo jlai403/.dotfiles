@@ -1,0 +1,5 @@
+# === AUTO-GENERATED INCLUDES (DO NOT EDIT) ===
+Include ~/.ssh/config.d/*.conf
+Include ~/.ssh/config.privated/*.conf
+# === END AUTO-GENERATED ===
+

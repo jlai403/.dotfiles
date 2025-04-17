@@ -1,0 +1,89 @@
+[user]
+	name = joey 
+	email = 3282127+jlai403@users.noreply.github.com
+
+[url "ssh://git@github.com"]
+	insteadOf = "gh:"
+
+[url "ssh://git@ghjlai/jlai403/"]
+	insteadOf = "ghjlai:"
+
+[url "ssh://git@ghstellar/stellaralgo/"]
+	insteadOf = "ghstellar:"
+
+[init]
+	defaultBranch = main
+
+[status]
+	branch = true
+	showStash = true
+	showUntrackedFiles = all
+
+[core]
+	compression = 9
+	whitespace = error
+	preloadindex = true
+
+[diff]
+	context = 3
+	renames = copies
+	interHunkContext = 10
+
+[pager]
+	diff = diff-so-fancy | $pager
+
+[diff-so-fancy]
+	markEmptyLines = false
+
+[color "diff"]
+	meta = black bold
+	frag = magenta
+	context = white
+	whitespace = yellow reverse
+	old = red
+
+[push]
+	autoSetupRemote = true
+	default = current
+	followTags = true
+
+[pull]
+	default = current
+	rebase = true
+
+[rebase]
+	autostash = true
+	missingCommitsCheck = warn
+
+[log]
+	abbrevCommit = true
+	graphColors = blue,yellow,cyan,magenta,green,red
+
+[color "decorate"]
+	HEAD = red
+	branch = blue
+	tag = yellow
+	remoteBranch = magenta
+
+[color "branch"]
+	current = magenta
+	local = default
+	remote = yellow
+	upstream = green
+	plain = blue
+
+[branch]
+	sort = -committerdate
+
+[tag]
+	sort = -committerdate
+
+[pager]
+	branch = false
+	tag = false
+
+[alias]
+	co = checkout
+	ci = commit
+	br = branch
+	st = status
