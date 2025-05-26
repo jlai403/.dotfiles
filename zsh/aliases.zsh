@@ -30,3 +30,6 @@ alias svenv='source .venv/bin/activate'
 
 # docker
 alias dc='docker-compose'
+
+# dev
+alias lg=lazygit
