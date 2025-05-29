@@ -10,6 +10,7 @@ brew "diff-so-fancy"
 brew "docker-compose", link: false
 brew "dotnet", link: false
 brew "e2fsprogs"
+brew "eza"
 brew "fzf"
 brew "git"
 brew "git-lfs"
