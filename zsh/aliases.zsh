@@ -32,6 +32,7 @@ alias svenv='source .venv/bin/activate'
 alias dc='docker-compose'
 
 # dev
+alias v=nvim
 alias cd=z
 alias cdi=zi
 alias ls=eza

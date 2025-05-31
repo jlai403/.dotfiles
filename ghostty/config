@@ -1,2 +1,2 @@
 command = ~/.config/ghostty/ghostty-tmux.sh
-theme = catppuccin-mocha
+theme = tokyonight_moon  

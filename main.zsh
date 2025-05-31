@@ -105,6 +105,11 @@ fi
 
 mkdir -p ~/.config
 
+# aerospace symlink script
+rm -rf ~/.aerospace.toml
+ln -s "$(pwd)/.aerospace.toml" ~/.aerospace.toml
+echo "${GREEN}Symlink updated for $(pwd)/aerosapce.toml -> ~/.aerospace.toml${NC}"
+
 # git symlink script
 rm -rf ~/.config/git
 ln -s "$(pwd)/git" ~/.config/git
@@ -114,6 +119,11 @@ echo "${GREEN}Symlink updated for $(pwd)/git -> ~/.config/git ${NC}"
 rm -rf ~/.config/nvim  # Remove existing symlink or directory
 ln -s "$(pwd)/nvim" ~/.config/nvim
 echo "${GREEN}Symlink updated for $(pwd)/nvim -> ~/.config/nvim ${NC}"
+
+# sketchybar symlink script
+rm -rf ~/.config/sketchybar  # Remove existing symlink or directory
+ln -s "$(pwd)/sketchybar" ~/.config/sketchybar
+echo "${GREEN}Symlink updated for $(pwd)/sketchybar -> ~/.config/sketchybar ${NC}"
 
 # ghostty symlink script
 ln -sf "$(pwd)/ghostty" ~/.config/ghostty
