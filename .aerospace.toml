@@ -78,6 +78,10 @@ run = 'layout floating'
 if.app-name-regex-substring = 'SwiftBar'
 run = 'layout floating'
 
+[[on-window-detected]]
+if.app-name-regex-substring = 'Activity Monitor'
+run = 'layout floating'
+
 # 'main' binding mode declaration
 # See: https://nikitabobko.github.io/AeroSpace/guide#binding-modes
 # 'main' binding mode must be always presented
@@ -209,6 +213,7 @@ run = 'layout floating'
     alt-cmd-ctrl-shift-semicolon = 'mode apps'
 
 [mode.apps.binding]
+    w = ['exec-and-forget open /Applications/WhatsApp.app', 'mode main']
     s = ['exec-and-forget open /Applications/Slack.app', 'mode main']
     g = ['exec-and-forget open /Applications/Ghostty.app', 'mode main']
     c = ['exec-and-forget open /Applications/Google\ Chrome.app', 'mode main']
