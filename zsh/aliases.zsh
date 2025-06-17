@@ -23,8 +23,12 @@ function av() {
 alias tgf='terragrunt hcl format && terraform fmt --recursive'
 alias tgt='TG_TF_PATH=$(which terraform) terragrunt'
 alias tgo='TG_TF_PATH=$(which tofu) terragrunt'
-alias cleartf='rm -rf .terraform* .terragrunt-cache'
-
+cleartf() {
+  local dirpath="${1:-.}"
+  find "$dirpath" \
+    \( -type d -name '.terraform' -o -type d -name '.terragrunt-cache' -o -type f -name '.terraform.lock.hcl' \) \
+    -print -exec rm -rf {} +
+}
 # python
 alias svenv='source .venv/bin/activate'
 

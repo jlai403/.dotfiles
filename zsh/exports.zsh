@@ -1,4 +1,4 @@
-export PATH=/usr/local/opt/e2fsprogs/bin:/usr/local/opt/e2fsprogs/sbin:~/Library/Python/3.6/bin:/usr/local/sbin:/usr/local/bin:$PATH
+export PATH=/usr/local/opt/e2fsprogs/bin:/usr/local/opt/e2fsprogs/sbin:~/Library/Python/3.6/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:$PATH
 export NVM_DIR="$HOME/.nvm"
 
 load-nvm() {
