@@ -5,10 +5,10 @@
 [url "ssh://git@github.com"]
 	insteadOf = "gh:"
 
-[url "ssh://git@github.com/jlai403/"]
+[url "ssh://git@ghjlai/jlai403/"]
 	insteadOf = "ghjlai:"
 
-[url "ssh://git@github.com/stellaralgo/"]
+[url "ssh://git@ghstellar/stellaralgo/"]
 	insteadOf = "ghstellar:"
 
 [init]
