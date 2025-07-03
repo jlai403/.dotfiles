@@ -19,8 +19,8 @@ after-startup-command = [
 start-at-login = true 
 
 # Normalizations. See: https://nikitabobko.github.io/AeroSpace/guide#normalization
-enable-normalization-flatten-containers = true
-enable-normalization-opposite-orientation-for-nested-containers = true
+enable-normalization-flatten-containers = true  
+enable-normalization-opposite-orientation-for-nested-containers = true 
 
 # See: https://nikitabobko.github.io/AeroSpace/guide#layouts
 # The 'accordion-padding' specifies the size of accordion padding
@@ -41,6 +41,7 @@ default-root-container-orientation = 'auto'
 # See https://nikitabobko.github.io/AeroSpace/commands#move-mouse
 # Fallback value (if you omit the key): on-focused-monitor-changed = []
 on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
+on-focus-changed = ['move-mouse window-lazy-center']
 
 # You can effectively turn off macOS "Hide application" (cmd-h) feature by toggling this flag
 # Useful if you don't use this macOS feature, but accidentally hit cmd-h or cmd-alt-h key
@@ -91,6 +92,9 @@ run = 'layout floating'
 [[on-window-detected]]
 if.app-name-regex-substring = 'GitHub'
 run = 'layout floating'
+
+[workspace-to-monitor-force-assignment]
+  external = 'secondary'
 
 # 'main' binding mode declaration
 # See: https://nikitabobko.github.io/AeroSpace/guide#binding-modes
@@ -157,6 +161,7 @@ run = 'layout floating'
     alt-7 = 'workspace 7'
     alt-8 = 'workspace 8'
     alt-9 = 'workspace 9'
+    alt-e = 'workspace external'
     # alt-a = 'workspace A' # In your config, you can drop workspace bindings that you don't need
     # alt-b = 'workspace B'
     # alt-c = 'workspace C'
@@ -190,6 +195,7 @@ run = 'layout floating'
     alt-cmd-ctrl-7 = 'move-node-to-workspace 7'
     alt-cmd-ctrl-8 = 'move-node-to-workspace 8'
     alt-cmd-ctrl-9 = 'move-node-to-workspace 9'
+    alt-cmd-ctrl-e = 'move-node-to-workspace external'
     # alt-cmd-ctrl-shift-a = 'move-node-to-workspace A'
     # alt-cmd-ctrl-shift-b = 'move-node-to-workspace B'
     # alt-cmd-ctrl-shift-c = 'move-node-to-workspace C'
