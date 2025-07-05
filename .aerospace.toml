@@ -236,6 +236,7 @@ run = 'layout floating'
     g = ['exec-and-forget open /Applications/Ghostty.app', 'mode main']
     c = ['exec-and-forget open /Applications/Google\ Chrome.app', 'mode main']
     v = ['exec-and-forget open /Applications/Visual\ Studio\ Code.app', 'mode main']
+    m = ['exec-and-forget open /Applications/Spotify.app', 'mode main']
 
 
 # 'service' binding mode declaration.
