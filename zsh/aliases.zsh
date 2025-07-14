@@ -22,6 +22,7 @@ function av() {
 # terragrunt
 alias tgf='terragrunt hcl format && terraform fmt --recursive'
 alias tgt='TG_TF_PATH=$(which terraform) terragrunt'
+alias tgts='TG_TF_PATH=$(~/Developer/binaries/terraform@1.9.8/terraform) terragrunt'
 alias tgo='TG_TF_PATH=$(which tofu) terragrunt'
 cleartf() {
   local dirpath="${1:-.}"
