@@ -151,9 +151,9 @@ run = 'layout floating'
     alt-4 = 'workspace 4'
     alt-5 = 'workspace 5'
     # specific worksppaces
-    alt-e = 'workspace external'
-    alt-w = 'workspace whatsapp'
-    alt-c = 'workspace code'
+    alt-e = 'workspace e'
+    alt-w = 'workspace w'
+    alt-c = 'workspace c'
 
     # See: https://nikitabobko.github.io/AeroSpace/commands#move-node-to-workspace
     alt-cmd-ctrl-1 = 'move-node-to-workspace 1'
@@ -162,9 +162,9 @@ run = 'layout floating'
     alt-cmd-ctrl-4 = 'move-node-to-workspace 4'
     alt-cmd-ctrl-5 = 'move-node-to-workspace 5'
     # specific workspaces
-    alt-cmd-ctrl-e = 'move-node-to-workspace external'
-    alt-cmd-ctrl-w = 'move-node-to-workspace whatsapp'
-    alt-cmd-ctrl-c = 'move-node-to-workspace code'
+    alt-cmd-ctrl-e = 'move-node-to-workspace e'
+    alt-cmd-ctrl-w = 'move-node-to-workspace w' 
+    alt-cmd-ctrl-c = 'move-node-to-workspace c'
 
     # See: https://nikitabobko.github.io/AeroSpace/commands#workspace-back-and-forth
     alt-tab = 'workspace-back-and-forth'
