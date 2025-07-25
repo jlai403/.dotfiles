@@ -86,6 +86,11 @@ run = 'layout floating'
 if.app-name-regex-substring = 'GitHub'
 run = 'layout floating'
 
+[[on-window-detected]]
+if.app-name-regex-substring = 'Calendar'
+run = 'layout floating'
+
+
 [workspace-to-monitor-force-assignment]
   external = 'secondary'
 
