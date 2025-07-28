@@ -92,7 +92,7 @@ run = 'layout floating'
 
 
 [workspace-to-monitor-force-assignment]
-  external = 'secondary'
+  e = 'secondary'
 
 # 'main' binding mode declaration
 # See: https://nikitabobko.github.io/AeroSpace/guide#binding-modes
