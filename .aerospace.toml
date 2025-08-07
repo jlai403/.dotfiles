@@ -159,6 +159,7 @@ run = 'layout floating'
     alt-e = 'workspace e'
     alt-w = 'workspace w'
     alt-c = 'workspace c'
+    alt-n = 'workspace n'    
 
     # See: https://nikitabobko.github.io/AeroSpace/commands#move-node-to-workspace
     alt-cmd-ctrl-1 = 'move-node-to-workspace 1'
@@ -170,6 +171,7 @@ run = 'layout floating'
     alt-cmd-ctrl-e = 'move-node-to-workspace e'
     alt-cmd-ctrl-w = 'move-node-to-workspace w' 
     alt-cmd-ctrl-c = 'move-node-to-workspace c'
+    alt-cmd-ctrl-n = 'move-node-to-workspace n'
 
     # See: https://nikitabobko.github.io/AeroSpace/commands#workspace-back-and-forth
     alt-tab = 'workspace-back-and-forth'
