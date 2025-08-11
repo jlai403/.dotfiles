@@ -1,6 +1,7 @@
 tap "1password/tap"
 tap "felixkratz/formulae"
 tap "hashicorp/tap"
+tap "homebrew/bundle"
 tap "nikitabobko/tap"
 brew "aws-vault"
 brew "awscli", link: false
@@ -8,6 +9,7 @@ brew "azure-cli"
 brew "deno"
 brew "diff-so-fancy"
 brew "dotnet", link: false
+brew "duckdb"
 brew "e2fsprogs"
 brew "eza"
 brew "fzf"
