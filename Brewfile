@@ -6,6 +6,7 @@ tap "nikitabobko/tap"
 brew "aws-vault"
 brew "awscli", link: false
 brew "azure-cli"
+brew "bruno"
 brew "deno"
 brew "diff-so-fancy"
 brew "dotnet", link: false
