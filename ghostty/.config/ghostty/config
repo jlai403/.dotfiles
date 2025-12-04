@@ -1,2 +1,2 @@
-command = ~/.config/ghostty/ghostty-tmux.sh
+command = /bin/zsh -i -c ~/.config/ghostty/ghostty-tmux.sh
 theme = TokyoNight Moon 
