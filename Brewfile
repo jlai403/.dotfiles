@@ -1,7 +1,6 @@
 tap "1password/tap"
 tap "felixkratz/formulae"
 tap "hashicorp/tap"
-tap "homebrew/bundle"
 tap "nikitabobko/tap"
 brew "aws-vault"
 brew "awscli", link: false
