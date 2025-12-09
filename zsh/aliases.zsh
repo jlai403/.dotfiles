@@ -1,5 +1,48 @@
 alias cls=clear
 
+function orphaned_symlinks() {
+  local dry_run=false
+  local paths=()
+
+  # Parse args
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      -n|--dry-run)
+        dry_run=true
+        shift
+        ;;
+      -h|--help)
+        echo "Usage: orphaned_symlinks [-n|--dry-run] [path ...]"
+        echo ""
+        echo "Examples:"
+        echo "  orphaned_symlinks                     # scan default Homebrew paths"
+        echo "  orphaned_symlinks -n /usr/local/bin   # dry run on path"
+        echo "  orphaned_symlinks /some/path          # delete orphaned links"
+        return 0
+        ;;
+      *)
+        paths+=("$1")
+        shift
+        ;;
+    esac
+  done
+
+  # Default paths (Intel + ARM Homebrew bins)
+  if [[ ${#paths[@]} -eq 0 ]]; then
+    paths=(/usr/local/bin /opt/homebrew/bin)
+  fi
+
+  # Run
+  if $dry_run; then
+    echo "DRY RUN — showing broken symlinks in: ${paths[*]}"
+    find "${paths[@]}" -type l ! -exec test -e {} \; -exec echo rm {} \;
+  else
+    echo "Removing broken symlinks in: ${paths[*]}"
+    find "${paths[@]}" -type l ! -exec test -e {} \; -exec rm {} \;
+  fi
+}
+
+
 # git aliases
 alias gi='git init'
 alias gcl='git clone'
