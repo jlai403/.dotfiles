@@ -107,6 +107,7 @@ _stow ghostty
 _stow git
 _stow nvim
 _stow tmux
+_stow starship
 
 # ssh
 mkdir -p ~/.ssh
