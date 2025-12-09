@@ -1,2 +1,4 @@
 command = /bin/zsh -i -c ~/.config/ghostty/ghostty-tmux.sh
-theme = TokyoNight Moon 
+theme = TokyoNight Moon
+window-show-tab-bar = never
+keybind = cmd+t=unbind 
