@@ -42,7 +42,6 @@ function orphaned_symlinks() {
   fi
 }
 
-
 # aws
 function av() {
 	aws-vault exec "$1" -- zsh -i
