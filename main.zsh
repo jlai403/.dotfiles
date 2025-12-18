@@ -59,6 +59,7 @@ done
 #################################
 if [[ "$UPDATE_APPS" == "true" ]]; then
   _update_apps
+  bun add -g btca
 fi
 
 #################################
