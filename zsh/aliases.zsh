@@ -69,3 +69,9 @@ alias cd=z
 alias cdi=zi
 alias ls=eza
 alias lg=lazygit
+
+# suffix aliases
+if [[ "$SHELL" == *"zsh"* ]]; then
+  alias -s {md,txt,json,yaml,yml,toml,conf,ini}=nvim
+  alias -s log="tail -f"
+fi
