@@ -2,5 +2,6 @@
   "plugin": [
     "opencode-antigravity-auth@beta"
   ],
+  "share": "disabled",
   "$schema": "https://opencode.ai/config.json"
 }
