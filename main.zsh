@@ -111,6 +111,7 @@ _stow git
 _stow nvim
 _stow tmux
 _stow starship
+_stow opencode
 
 # ssh
 mkdir -p ~/.ssh

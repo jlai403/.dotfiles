@@ -1,4 +1,5 @@
-# Agent Guidelines for Dotfiles Repository
+# AGENTS.md
+> **INSTRUCTION:** Combine the project specifics below with the coding standards in `./.agent/AI_RULES.md`.
 
 ## Build/Test Commands
 - Test setup script: Run `./main.zsh` in a clean environment or VM
