@@ -83,7 +83,7 @@ fi
 
 if ! grep -q 'eval "$(starship init zsh)"' ~/.zshrc; then
   echo '
-# Load starship prompt
+# Load starship
 eval "$(starship init zsh)"
 ' >> ~/.zshrc
   echo "${GREEN}Added starship prompt to ~/.zshrc ${NC}"
@@ -93,12 +93,22 @@ fi
 
 if ! grep -q 'eval "$(zoxide init zsh)"' ~/.zshrc; then
   echo '
-# Load starship prompt
+# Load zoxide
 eval "$(zoxide init zsh)"
 ' >> ~/.zshrc
   echo "${GREEN}Added zoxide to ~/.zshrc ${NC}"
 else
   echo "${YELLOW}zoxide already in ~/.zshrc ${NC}"
+fi
+
+if ! grep -q 'eval "$(mise activate zsh)"' ~/.zshrc; then
+  echo '
+# Load mise
+eval "$(mise activate zsh)"
+' >> ~/.zshrc
+  echo "${GREEN}Added mise to ~/.zshrc ${NC}"
+else
+  echo "${YELLOW}mise already in ~/.zshrc ${NC}"
 fi
 
 #################################
