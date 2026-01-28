@@ -1,1 +1,1 @@
-/Users/jlai/Developer/GitHub/jlai/agents/AI_RULES.md
+/Users/jlai/Developer/agents/AI_RULES.md
