@@ -22,7 +22,7 @@ function git() {
   if [[ $last_exit_code -eq 0 && "$1" == "checkout" ]]; then
     if [[ "$2" == "main" || "$2" == "master" ]]; then
       printf "${NL_BGREEN}✓ Checked out %s. Pulling latest changes...${NC_NL}" "$2"
-      command git pull
+      command git pull --prune
     fi
   fi
   
