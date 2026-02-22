@@ -1,0 +1,3 @@
+[submodule "opencode/.config/opencode/superpowers"]
+	path = opencode/.config/opencode/superpowers
+	url = https://github.com/obra/superpowers

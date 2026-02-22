@@ -1,1 +1,0 @@
-/Users/jlai/Developer/agents/AI_RULES.md

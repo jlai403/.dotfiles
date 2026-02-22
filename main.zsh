@@ -56,6 +56,9 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+git submodule update --recursive
+echo "${YELLOW}Update submodules ${NC}"
+
 #################################
 # install brew app
 #################################
@@ -121,6 +124,10 @@ _stow git
 _stow nvim
 _stow tmux
 _stow starship
+
+cp -rf opencode/.config/opencode/superpowers/.opencode/plugins/superpowers.js opencode/.config/opencode/plugins/superpowers.js
+cp -rf opencode/.config/opencode/superpowers/skills opencode/.config/opencode/skills
+echo "${YELLOW} Copy superpowers ${NC}"
 _stow opencode
 
 # ssh
