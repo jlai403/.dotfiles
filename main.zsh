@@ -125,9 +125,16 @@ _stow nvim
 _stow tmux
 _stow starship
 
+echo "${YELLOW} Rebuilding skills${NC}"
+rm -rf opencode./config/opencode/skills
+
 cp -rf opencode/.config/opencode/superpowers/.opencode/plugins/superpowers.js opencode/.config/opencode/plugins/superpowers.js
 cp -rf opencode/.config/opencode/superpowers/skills opencode/.config/opencode/skills
 echo "${YELLOW} Copy superpowers ${NC}"
+
+
+cp -rf opencode/.config/opencode/excalidraw-diagram-skill opencode/.config/opencode/skills/excalidraw-diagram
+echo "${YELLOW} Copy excalidraw-diagram-skill${NC}"
 _stow opencode
 
 # ssh
