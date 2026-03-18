@@ -1,6 +1,6 @@
-[submodule "opencode/.config/opencode/superpowers"]
-	path = opencode/.config/opencode/superpowers
+[submodule "skills/superpowers"]
+	path = skills/superpowers
 	url = https://github.com/obra/superpowers
-[submodule "opencode/.config/opencode/excalidraw-diagram-skill"]
-	path = opencode/.config/opencode/excalidraw-diagram-skill
+[submodule "skills/excalidraw-diagram"]
+	path = skills/excalidraw-diagram
 	url = https://github.com/coleam00/excalidraw-diagram-skill.git

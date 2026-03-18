@@ -10,6 +10,18 @@ BYELLOW='\033[1;33m'
 BBLUE='\033[1;34m'
 NC='\033[0m' # No Color
 
+echo "${BBLUE}"
+cat << 'EOF'
+       _  __        _          __        __   ____ _  __           
+      (_)/ /____ _ (_)    ____/ /____   / /_ / __/(_)/ /___   _____
+     / // // __ `// /    / __  // __ \ / __// /_ / // // _ \ / ___/
+    / // // /_/ // /  _ / /_/ // /_/ // /_ / __// // //  __/(__  ) 
+ __/ //_/ \__,_//_/  (_)\__,_/ \____/ \__//_/  /_//_/ \___//____/  
+/___/
+EOF
+echo "${NC}"
+echo ""
+
 DOTS_DIR="$(pwd)"
 PRIVATE_DOTS_DIR="$(pwd)/../.dotfiles_private"
 
@@ -125,17 +137,22 @@ _stow nvim
 _stow tmux
 _stow starship
 
-echo "${YELLOW} Rebuilding skills${NC}"
-rm -rf opencode./config/opencode/skills
+echo "${YELLOW}Updating skills submodules...${NC}"
+git submodule update --recursive --init skills/superpowers skills/excalidraw-diagram
 
-cp -rf opencode/.config/opencode/superpowers/.opencode/plugins/superpowers.js opencode/.config/opencode/plugins/superpowers.js
-cp -rf opencode/.config/opencode/superpowers/skills opencode/.config/opencode/skills
-echo "${YELLOW} Copy superpowers ${NC}"
+echo "${YELLOW}Stowing skills to gemini...${NC}"
+rm -rf ~/.gemini/antigravity/skills
+mkdir -p ~/.gemini/antigravity/skills
+stow -v -d skills/superpowers/skills -t ~/.gemini/antigravity/skills .
+mkdir -p ~/.gemini/antigravity/skills/excalidraw-diagram
+ln -sf "$(pwd)/skills/excalidraw-diagram/SKILL.md" ~/.gemini/antigravity/skills/excalidraw-diagram/SKILL.md
 
+echo "${YELLOW}Stowing excalidraw to opencode...${NC}"
+mkdir -p ~/.config/opencode/skills/excalidraw-diagram
+ln -sf "$(pwd)/skills/excalidraw-diagram/SKILL.md" ~/.config/opencode/skills/excalidraw-diagram/SKILL.md
 
-cp -rf opencode/.config/opencode/excalidraw-diagram-skill opencode/.config/opencode/skills/excalidraw-diagram
-echo "${YELLOW} Copy excalidraw-diagram-skill${NC}"
 _stow opencode
+_stow gemini
 
 # ssh
 mkdir -p ~/.ssh
