@@ -140,10 +140,10 @@ _stow starship
 echo "${YELLOW}Updating skills submodules...${NC}"
 git submodule update --recursive --init skills/superpowers skills/excalidraw-diagram
 
-echo "${YELLOW}Stowing skills to gemini...${NC}"
+echo "${YELLOW}Linking skills to gemini...${NC}"
 rm -rf ~/.gemini/antigravity/skills
 mkdir -p ~/.gemini/antigravity/skills
-stow -v -d skills/superpowers/skills -t ~/.gemini/antigravity/skills .
+ln -sf "$(pwd)/skills/superpowers/skills/"* ~/.gemini/antigravity/skills/
 mkdir -p ~/.gemini/antigravity/skills/excalidraw-diagram
 ln -sf "$(pwd)/skills/excalidraw-diagram/SKILL.md" ~/.gemini/antigravity/skills/excalidraw-diagram/SKILL.md
 
