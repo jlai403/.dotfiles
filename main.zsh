@@ -136,6 +136,7 @@ _stow git
 _stow nvim
 _stow tmux
 _stow starship
+_stow television
 
 echo "${YELLOW}Updating skills submodules...${NC}"
 git submodule update --recursive --init skills/superpowers skills/excalidraw-diagram
