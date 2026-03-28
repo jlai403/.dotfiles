@@ -147,6 +147,14 @@ mkdir -p ~/.gemini/antigravity/skills
 ln -sf "$(pwd)/skills/superpowers/skills/"* ~/.gemini/antigravity/skills/
 mkdir -p ~/.gemini/antigravity/skills/excalidraw-diagram
 ln -sf "$(pwd)/skills/excalidraw-diagram/SKILL.md" ~/.gemini/antigravity/skills/excalidraw-diagram/SKILL.md
+
+echo "${YELLOW}Linking global agent rules...${NC}"
+mkdir -p ~/.claude
+mkdir -p ~/.config/opencode
+mkdir -p ~/.gemini
+ln -sf "$(pwd)/global-agent-rules.md" ~/.claude/CLAUDE.md
+ln -sf "$(pwd)/global-agent-rules.md" ~/.config/opencode/AGENTS.md
+ln -sf "$(pwd)/global-agent-rules.md" ~/.gemini/AGENTS.md
 ln -sf "$(pwd)/skills/duckdb-skills/skills/"* ~/.gemini/antigravity/skills/
 
 echo "${YELLOW}Linking skills to opencode...${NC}"
