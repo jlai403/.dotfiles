@@ -138,6 +138,14 @@ _stow tmux
 _stow starship
 _stow television
 
+echo "${YELLOW}Linking global agent rules...${NC}"
+mkdir -p ~/.claude
+mkdir -p ~/.config/opencode
+mkdir -p ~/.gemini
+ln -sf "$(pwd)/global-agent-rules.md" ~/.claude/CLAUDE.md
+ln -sf "$(pwd)/global-agent-rules.md" ~/.config/opencode/AGENTS.md
+ln -sf "$(pwd)/global-agent-rules.md" ~/.gemini/AGENTS.md
+
 echo "${YELLOW}Updating skills submodules...${NC}"
 git submodule update --recursive --init skills/superpowers skills/excalidraw-diagram skills/duckdb-skills
 
@@ -158,6 +166,9 @@ ln -sf "$(pwd)/global-agent-rules.md" ~/.gemini/AGENTS.md
 ln -sf "$(pwd)/skills/duckdb-skills/skills/"* ~/.gemini/antigravity/skills/
 
 echo "${YELLOW}Linking skills to opencode...${NC}"
+
+echo "${YELLOW}Linking skills to opencode...${NC}"
+rm -rf ~/.config/opencode/skills
 mkdir -p ~/.config/opencode/skills/excalidraw-diagram
 ln -sf "$(pwd)/skills/excalidraw-diagram/SKILL.md" ~/.config/opencode/skills/excalidraw-diagram/SKILL.md
 ln -sf "$(pwd)/skills/duckdb-skills/skills/"* ~/.config/opencode/skills/
