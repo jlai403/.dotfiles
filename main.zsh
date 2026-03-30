@@ -139,7 +139,7 @@ _stow starship
 _stow television
 
 echo "${YELLOW}Updating skills submodules...${NC}"
-git submodule update --recursive --init skills/superpowers skills/excalidraw-diagram
+git submodule update --recursive --init skills/superpowers skills/excalidraw-diagram skills/duckdb-skills
 
 echo "${YELLOW}Linking skills to gemini...${NC}"
 rm -rf ~/.gemini/antigravity/skills
@@ -147,10 +147,12 @@ mkdir -p ~/.gemini/antigravity/skills
 ln -sf "$(pwd)/skills/superpowers/skills/"* ~/.gemini/antigravity/skills/
 mkdir -p ~/.gemini/antigravity/skills/excalidraw-diagram
 ln -sf "$(pwd)/skills/excalidraw-diagram/SKILL.md" ~/.gemini/antigravity/skills/excalidraw-diagram/SKILL.md
+ln -sf "$(pwd)/skills/duckdb-skills/skills/"* ~/.gemini/antigravity/skills/
 
-echo "${YELLOW}Stowing excalidraw to opencode...${NC}"
+echo "${YELLOW}Linking skills to opencode...${NC}"
 mkdir -p ~/.config/opencode/skills/excalidraw-diagram
 ln -sf "$(pwd)/skills/excalidraw-diagram/SKILL.md" ~/.config/opencode/skills/excalidraw-diagram/SKILL.md
+ln -sf "$(pwd)/skills/duckdb-skills/skills/"* ~/.config/opencode/skills/
 
 _stow opencode
 _stow gemini

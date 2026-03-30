@@ -4,3 +4,6 @@
 [submodule "skills/excalidraw-diagram"]
 	path = skills/excalidraw-diagram
 	url = https://github.com/coleam00/excalidraw-diagram-skill.git
+[submodule "skills/duckdb-skills"]
+	path = skills/duckdb-skills
+	url = https://github.com/duckdb/duckdb-skills.git
