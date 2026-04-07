@@ -63,6 +63,17 @@ configure_macos_defaults() {
 	dockutil --add "$HOME/Downloads" --view list --display folder
 	killall Dock
 
+	# --- Menu Bar Clock ---
+	defaults write com.apple.menuextra.clock ShowAMPM -bool true
+	defaults write com.apple.menuextra.clock ShowDate -bool true
+	defaults write com.apple.menuextra.clock ShowDayOfWeek -bool false
+
+	# --- Control Center ---
+	# Bluetooth: show in menu bar (default: Control Center only)
+	defaults write ~/Library/Preferences/ByHost/com.apple.controlcenter.plist Bluetooth -int 2
+	# Battery: Control Center only — Stats handles battery display (default: menu bar)
+	defaults write ~/Library/Preferences/ByHost/com.apple.controlcenter.plist Battery -int 8
+
 	# --- Apps ---
 	# Stats - menu bar system monitor
 	defaults import eu.exelban.Stats "$(pwd)/stats-menu/Stats.plist"
