@@ -125,12 +125,15 @@ fi
 #################################
 
 _stow aerospace
+_stow borders
 _stow ghostty
 _stow git
 _stow nvim
 _stow tmux
 _stow starship
 _stow television
+
+brew services start borders
 
 echo "${YELLOW}Linking global agent rules...${NC}"
 mkdir -p ~/.claude

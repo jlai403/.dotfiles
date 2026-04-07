@@ -1,1 +1,0 @@
-/Users/jlai/.dotfiles/skills/excalidraw-diagram/SKILL.md
