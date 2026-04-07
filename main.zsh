@@ -26,14 +26,8 @@ DOTS_DIR="$(pwd)"
 PRIVATE_DOTS_DIR="$(pwd)/../.dotfiles_private"
 
 _configure_osx() {
-  echo "${BGREEN}Configuring OSX settings...${NC}"
-  # enable press and hold for special characters in VSCode
-  defaults write com.microsoft.VSCode ApplePressAndHoldEnabled -bool false
-  defaults write com.google.antigravity ApplePressAndHoldEnabled -bool false
-
-  # reduce motion when switching desktops
-  sudo defaults write com.apple.universalaccess reduceMotion -bool true && killall Dock
-  echo "${GREEN}OSX settings configured${NC}"
+  source "$(pwd)/macos/defaults.zsh"
+  configure_macos_defaults
 }
 
 _update_apps() {
