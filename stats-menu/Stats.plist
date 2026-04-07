@@ -20,6 +20,10 @@
 	<integer>1</integer>
 	<key>Battery_mini_position</key>
 	<integer>2</integer>
+	<key>Battery_notifications_high</key>
+	<string></string>
+	<key>Battery_notifications_low</key>
+	<string>low</string>
 	<key>Battery_timeFormat</key>
 	<string>short</string>
 	<key>Battery_widget</key>
@@ -57,13 +61,19 @@
 	<key>CPU_widget</key>
 	<string>mini</string>
 	<key>Clock_label_position</key>
-	<integer>0</integer>
-	<key>Clock_stack_position</key>
 	<integer>1</integer>
+	<key>Clock_list</key>
+	<data>
+	W3siZW5hYmxlZCI6dHJ1ZSwiZm9ybWF0IjoiTU0tZGQgSEg6bW0iLCJpZCI6IkQwOUIy
+	QzM2LTEzQ0YtNENBMi1BMDVCLTNFODczQ0U2OEYzRCIsInR6IjoibG9jYWwiLCJuYW1l
+	IjoiTG9jYWwgdGltZSJ9XQ==
+	</data>
+	<key>Clock_stack_position</key>
+	<integer>0</integer>
 	<key>Clock_state</key>
-	<true/>
+	<false/>
 	<key>Clock_widget</key>
-	<string></string>
+	<string>sensors</string>
 	<key>Disk_barChart_position</key>
 	<integer>2</integer>
 	<key>Disk_label_position</key>
@@ -127,21 +137,21 @@
 	AAAAAAAAF/AAACwAAAAAAAAAIvAAAIgBAAAAAAAA
 	</data>
 	<key>NSStatusItem Preferred Position Battery_battery</key>
-	<real>401</real>
+	<real>269</real>
 	<key>NSStatusItem Preferred Position CPU_mini</key>
-	<real>725</real>
+	<real>452</real>
 	<key>NSStatusItem Preferred Position Disk_mini</key>
-	<real>584</real>
+	<real>311</real>
 	<key>NSStatusItem Preferred Position GPU_mini</key>
-	<real>678</real>
-	<key>NSStatusItem Preferred Position Network_speed</key>
-	<real>513</real>
+	<real>405</real>
 	<key>NSStatusItem Preferred Position RAM_mini</key>
-	<real>631</real>
+	<real>358</real>
 	<key>NSStatusItem Preferred Position Sensors_mini</key>
-	<real>772</real>
+	<real>564</real>
 	<key>NSStatusItem Restore Position Clock_sensors</key>
 	<integer>178</integer>
+	<key>NSStatusItem Restore Position Network_speed</key>
+	<integer>305</integer>
 	<key>NSToolbar Configuration eu.exelban.Stats.Settings.Toolbar</key>
 	<dict>
 		<key>TB Display Mode</key>
@@ -155,6 +165,8 @@
 	</dict>
 	<key>NSWindow Frame NSNavPanelAutosaveName</key>
 	<string>624 534 800 448 0 0 2048 1255 </string>
+	<key>NSWindow Frame eu.exelban.Stats.Settings.WindowFrame</key>
+	<string>668 484 723 480 0 0 2056 1285 </string>
 	<key>Network_publicIP</key>
 	<true/>
 	<key>Network_speed_icon</key>
@@ -167,6 +179,8 @@
 	<false/>
 	<key>Network_speed_valueColor</key>
 	<string>transparent</string>
+	<key>Network_state</key>
+	<false/>
 	<key>RAM_mini_color</key>
 	<string>utilization</string>
 	<key>RAM_updateInterval</key>
@@ -208,14 +222,14 @@
 	<key>setupProcess</key>
 	<true/>
 	<key>support_ts</key>
-	<integer>1751476062</integer>
+	<integer>1773431551</integer>
 	<key>telemetry</key>
 	<false/>
 	<key>temperature_units</key>
 	<string>celsius</string>
 	<key>updater_check_ts</key>
-	<integer>1751495540</integer>
+	<integer>1775277130</integer>
 	<key>version</key>
-	<string>2.11.45</string>
+	<string>2.12.7</string>
 </dict>
 </plist>

@@ -64,6 +64,9 @@ configure_macos_defaults() {
 	killall Dock
 
 	# --- Apps ---
+	# Stats - menu bar system monitor
+	defaults import eu.exelban.Stats "$(pwd)/stats-menu/Stats.plist"
+
 	# Enable press and hold for special characters
 	defaults write com.microsoft.VSCode ApplePressAndHoldEnabled -bool false
 	defaults write com.google.antigravity ApplePressAndHoldEnabled -bool false
