@@ -183,9 +183,13 @@ fi
 _stow ssh
 
 if [ -d $PRIVATE_DOTS_DIR ]; then
-    echo "Symlinking private dotfiles ssh"
-    cd $PRIVATE_DOTS_DIR && _stow ssh
-    cd $DOTS_DIR
+  echo "Symlinking private dotfiles ssh"
+  cd $PRIVATE_DOTS_DIR && _stow ssh
+  if [ -f "$PRIVATE_DOTS_DIR/main.zsh" ]; then
+    echo "${YELLOW}Running private dotfiles setup...${NC}"
+    source "$PRIVATE_DOTS_DIR/main.zsh"
+  fi
+  cd $DOTS_DIR
 fi
 
 #################################
