@@ -48,9 +48,22 @@ function av() {
 }
 
 function av_add_role() {
+	local profile_name role_arn source_profile
+	local config_file="${HOME}/.aws/config"
+
 	read "profile_name?Profile name: "
+	if [[ -z "$profile_name" ]]; then
+		echo "Error: profile name cannot be empty"
+		return 1
+	fi
+
 	read "role_arn?Role ARN: "
+
 	read "source_profile?Source (base) profile: "
+	if [[ -z "$source_profile" ]]; then
+		echo "Error: source profile cannot be empty"
+		return 1
+	fi
 
 	# Validate role ARN format
 	if [[ ! "$role_arn" =~ ^arn:aws:iam::[0-9]{12}:role/.+ ]]; then
@@ -58,13 +71,11 @@ function av_add_role() {
 		return 1
 	fi
 
-	local config_file="${HOME}/.aws/config"
-
 	# Create config file if it doesn't exist
 	[[ ! -f "$config_file" ]] && mkdir -p "$(dirname "$config_file")" && touch "$config_file"
 
 	# Check for duplicate profile
-	if grep -q "^\[profile ${profile_name}\]" "$config_file"; then
+	if grep -qF "[profile ${profile_name}]" "$config_file"; then
 		echo "Error: profile '${profile_name}' already exists in ${config_file}"
 		return 1
 	fi
