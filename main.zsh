@@ -53,11 +53,14 @@ _zen_profile_dir() {
 _zen_backup() {
   local profile
   profile=$(_zen_profile_dir) || return 1
-  local files=(zen-keyboard-shortcuts.json zen-themes.json prefs.js containers.json)
+  local files=(zen-keyboard-shortcuts.json zen-themes.json containers.json)
   mkdir -p "${DOTS_DIR}/zen"
   for f in $files; do
-    cp "${profile}${f}" "${DOTS_DIR}/zen/${f}"
-    echo "${GREEN}Backed up ${f}${NC}"
+    if cp "${profile}${f}" "${DOTS_DIR}/zen/${f}"; then
+      echo "${GREEN}Backed up ${f}${NC}"
+    else
+      echo "${RED}Failed to back up ${f}${NC}"
+    fi
   done
   echo "${BGREEN}Zen config backed up to dotfiles${NC}"
 }
@@ -65,7 +68,8 @@ _zen_backup() {
 _zen_restore() {
   local profile
   profile=$(_zen_profile_dir) || return 1
-  local files=(zen-keyboard-shortcuts.json zen-themes.json prefs.js containers.json)
+  mkdir -p "${profile}"
+  local files=(zen-keyboard-shortcuts.json zen-themes.json containers.json)
   for f in $files; do
     if [[ ! -f "${DOTS_DIR}/zen/${f}" ]]; then
       echo "${YELLOW}Skipping ${f} — not found in dotfiles${NC}"
@@ -245,6 +249,11 @@ fi
 #################################
 
 desktoppr "$(pwd)/wallpaper/tokyo-night.jpg"
+
+if [[ "$ZEN_BACKUP" == "true" && "$ZEN_RESTORE" == "true" ]]; then
+  echo "${RED}Error: --zen-backup and --zen-restore are mutually exclusive${NC}" >&2
+  exit 1
+fi
 
 [[ "$ZEN_BACKUP" == "true" ]] && _zen_backup
 [[ "$ZEN_RESTORE" == "true" ]] && _zen_restore
