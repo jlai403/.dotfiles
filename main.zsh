@@ -40,6 +40,43 @@ _stow() {
   echo "${GREEN}Symlink updated for ${1}${NC}"
 }
 
+_zen_profile_dir() {
+  local base=~/Library/Application\ Support/zen
+  local rel=$(awk -F= '/^\[Install/{f=1} f && /^Default=/{print $2; exit}' "${base}/profiles.ini")
+  if [[ -z "$rel" ]]; then
+    echo "${RED}Error: could not resolve Zen profile from profiles.ini${NC}" >&2
+    return 1
+  fi
+  echo "${base}/${rel}/"
+}
+
+_zen_backup() {
+  local profile
+  profile=$(_zen_profile_dir) || return 1
+  local files=(zen-keyboard-shortcuts.json zen-themes.json prefs.js containers.json)
+  mkdir -p "${DOTS_DIR}/zen"
+  for f in $files; do
+    cp "${profile}${f}" "${DOTS_DIR}/zen/${f}"
+    echo "${GREEN}Backed up ${f}${NC}"
+  done
+  echo "${BGREEN}Zen config backed up to dotfiles${NC}"
+}
+
+_zen_restore() {
+  local profile
+  profile=$(_zen_profile_dir) || return 1
+  local files=(zen-keyboard-shortcuts.json zen-themes.json prefs.js containers.json)
+  for f in $files; do
+    if [[ ! -f "${DOTS_DIR}/zen/${f}" ]]; then
+      echo "${YELLOW}Skipping ${f} — not found in dotfiles${NC}"
+      continue
+    fi
+    cp "${DOTS_DIR}/zen/${f}" "${profile}${f}"
+    echo "${GREEN}Restored ${f}${NC}"
+  done
+  echo "${BGREEN}Zen config restored to profile${NC}"
+}
+
 #################################
 # script start
 #################################
@@ -54,6 +91,14 @@ while [[ $# -gt 0 ]]; do
       ;;
     --apps)
       UPDATE_APPS=true
+      shift
+      ;;
+    --zen-backup)
+      ZEN_BACKUP=true
+      shift
+      ;;
+    --zen-restore)
+      ZEN_RESTORE=true
       shift
       ;;
     *)
@@ -200,6 +245,9 @@ fi
 #################################
 
 desktoppr "$(pwd)/wallpaper/tokyo-night.jpg"
+
+[[ "$ZEN_BACKUP" == "true" ]] && _zen_backup
+[[ "$ZEN_RESTORE" == "true" ]] && _zen_restore
 
 if [[ "$CONFIGURE_OSX" == "true" ]]; then
   _configure_osx
