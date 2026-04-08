@@ -80,6 +80,12 @@ function av_add_role() {
 		return 1
 	fi
 
+	# Verify source profile exists
+	if ! grep -qF "[profile ${source_profile}]" "$config_file"; then
+		echo "Error: source profile '${source_profile}' does not exist in ${config_file}"
+		return 1
+	fi
+
 	# Append profile block
 	printf '\n[profile %s]\nrole_arn = %s\nsource_profile = %s\n' \
 		"$profile_name" "$role_arn" "$source_profile" >> "$config_file"
