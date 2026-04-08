@@ -48,7 +48,7 @@ function av() {
 }
 
 function av_add_role() {
-	local profile_name role_arn source_profile
+	local profile_name role_arn source_profile region
 	local config_file="${HOME}/.aws/config"
 
 	read "profile_name?Profile name: "
@@ -64,6 +64,8 @@ function av_add_role() {
 		echo "Error: source profile cannot be empty"
 		return 1
 	fi
+
+	read "region?Region (optional, press Enter to skip): "
 
 	# Validate role ARN format
 	if [[ ! "$role_arn" =~ ^arn:aws:iam::[0-9]{12}:role/.+ ]]; then
@@ -87,8 +89,13 @@ function av_add_role() {
 	fi
 
 	# Append profile block
-	printf '\n[profile %s]\nrole_arn = %s\nsource_profile = %s\n' \
-		"$profile_name" "$role_arn" "$source_profile" >> "$config_file"
+	if [[ -n "$region" ]]; then
+		printf '\n[profile %s]\nrole_arn = %s\nsource_profile = %s\nregion = %s\n' \
+			"$profile_name" "$role_arn" "$source_profile" "$region" >> "$config_file"
+	else
+		printf '\n[profile %s]\nrole_arn = %s\nsource_profile = %s\n' \
+			"$profile_name" "$role_arn" "$source_profile" >> "$config_file"
+	fi
 
 	echo "Added profile '${profile_name}' to ${config_file}"
 }
