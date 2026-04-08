@@ -47,6 +47,35 @@ function av() {
 	aws-vault exec "$1" -- zsh -i
 }
 
+function av_add_role() {
+	read "profile_name?Profile name: "
+	read "role_arn?Role ARN: "
+	read "source_profile?Source (base) profile: "
+
+	# Validate role ARN format
+	if [[ ! "$role_arn" =~ ^arn:aws:iam::[0-9]{12}:role/.+ ]]; then
+		echo "Error: invalid role ARN format. Expected: arn:aws:iam::<account-id>:role/<role-name>"
+		return 1
+	fi
+
+	local config_file="${HOME}/.aws/config"
+
+	# Create config file if it doesn't exist
+	[[ ! -f "$config_file" ]] && mkdir -p "$(dirname "$config_file")" && touch "$config_file"
+
+	# Check for duplicate profile
+	if grep -q "^\[profile ${profile_name}\]" "$config_file"; then
+		echo "Error: profile '${profile_name}' already exists in ${config_file}"
+		return 1
+	fi
+
+	# Append profile block
+	printf '\n[profile %s]\nrole_arn = %s\nsource_profile = %s\n' \
+		"$profile_name" "$role_arn" "$source_profile" >> "$config_file"
+
+	echo "Added profile '${profile_name}' to ${config_file}"
+}
+
 # terragrunt
 alias tgf='terragrunt hcl format && terraform fmt --recursive'
 alias tgt='TG_TF_PATH=$(which terraform) terragrunt'
