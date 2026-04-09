@@ -1,0 +1,137 @@
+{
+  "workbench.colorTheme": "Tokyo Night",
+  "window.newWindowDimensions": "default",
+  "window.restoreFullscreen": false,
+  "git.autofetch": true,
+  "workbench.iconTheme": "seti",
+  "workbench.settings.openDefaultKeybindings": true,
+  "explorer.confirmDelete": false,
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "editor.stickyScroll.enabled": true,
+  "workbench.startupEditor": "none",
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "explorer.confirmDragAndDrop": false,
+  "git.confirmSync": false,
+  "github.gitAuthentication": false,
+  "git.enableSmartCommit": true,
+  "editor.wordSeparators": "`~!@#$%^&*()=+[{]}\\|;:'\",.<>/?",
+  "editor.cursorSurroundingLines": 8,
+  "editor.lineNumbers": "relative",
+  "editor.minimap.autohide": "mouseover",
+  "editor.renderWhitespace": "all",
+  "editor.tabSize": 2,
+  "editor.fontFamily": "'JetBrainsMono Nerd Font', Menlo, Monaco, 'Courier New', monospace",
+  "editor.fontLigatures": true,
+  "editor.accessibilitySupport": "off",
+  "workbench.editor.showTabs": "single",
+  "workbench.editor.limit.enabled": true,
+  "workbench.editor.limit.perEditorGroup": true,
+  "workbench.editor.limit.value": 1,
+  "workbench.editor.labelFormat": "short",
+  "[python]": {
+    "editor.formatOnType": true,
+    "editor.formatOnSave": true,
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true
+  },
+  "workbench.editorAssociations": {
+    "*.csv": "default"
+  },
+  "csv-preview.hasHeaders": false,
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "git.openRepositoryInParentFolders": "always",
+  "redhat.telemetry.enabled": true,
+  "testing.coverageToolbarEnabled": true,
+  "jest.runMode": "on-demand",
+  "workbench.settings.applyToAllProfiles": [
+    "github.copilot.editor.enableAutoCompletions",
+    "projectManager.projectsLocation"
+  ],
+  "github.copilot.enable": {
+    "typescript": true
+  },
+  "zenMode.centerLayout": false,
+  "zenMode.hideActivityBar": false,
+  "zenMode.hideLineNumbers": false,
+  "zenMode.showTabs": "single",
+  "window.commandCenter": false,
+  "workbench.sideBar.location": "right",
+  "extensions.experimental.affinity": {
+    "asvetliakov.vscode-neovim": 1
+  },
+  "workbench.activityBar.location": "top",
+  "vscode_custom_css.imports": [
+    "https://gist.githubusercontent.com/jlai403/9c6f2a19ed54179702cd93032875e638/raw/190fdae70547fed550aa2450bf3e229299c9761d/vscode-custom.css"
+  ],
+  "chat.agent.enabled": true,
+  "eslint.format.enable": true,
+  "[typescript]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  "chat.commandCenter.enabled": false,
+  "[javascript]": {
+    "editor.defaultFormatter": "rvest.vs-code-prettier-eslint"
+  },
+  "yaml.schemas": {
+    "/Users/jlai/.vscode/extensions/continue.continue-1.0.7-darwin-arm64/config-yaml-schema.json": [
+      ".continue/**/*.yaml"
+    ]
+  },
+  "terminal.external.osxExec": "Ghostty.app",
+  "terminal.integrated.defaultProfile.osx": "tmux-shell",
+  "terminal.integrated.fontLigatures.enabled": true,
+  "terminal.integrated.profiles.osx": {
+    "tmux-shell": {
+      "path": "tmux",
+      "args": [
+        "new-session",
+        "-A",
+        "-s",
+        "vscode:${workspaceFolder}"
+      ]
+    }
+  },
+  "[json]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "window.title": "${dirty}${activeEditorMedium}${separator}${rootName}${separator}${profileName}",
+  "docker.extension.enableComposeLanguageServer": false,
+  "vim.insertModeKeyBindingsNonRecursive": [
+    {
+      "before": [
+        "<Esc>"
+      ],
+      "after": [
+        "<Esc>"
+      ],
+      "commands": [
+        "workbench.action.files.save"
+      ]
+    }
+  ],
+  "[dockercompose]": {
+    "editor.insertSpaces": true,
+    "editor.tabSize": 2,
+    "editor.autoIndent": "advanced",
+    "editor.quickSuggestions": {
+      "other": true,
+      "comments": false,
+      "strings": true
+    },
+    "editor.defaultFormatter": "redhat.vscode-yaml"
+  },
+  "[github-actions-workflow]": {
+    "editor.defaultFormatter": "redhat.vscode-yaml"
+  },
+  "workbench.editor.enablePreview": false,
+  "files.associations": {
+    "*.sql": "jinja-sql"
+  },
+  "projectManager.projectsLocation": "~/Developer/workspaces",
+  "[markdown]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "antigravity.agent.openOnStartup": false
+}

@@ -40,47 +40,6 @@ _stow() {
   echo "${GREEN}Symlink updated for ${1}${NC}"
 }
 
-_zen_profile_dir() {
-  local base=~/Library/Application\ Support/zen
-  local rel=$(awk -F= '/^\[Install/{f=1} f && /^Default=/{print $2; exit}' "${base}/profiles.ini")
-  if [[ -z "$rel" ]]; then
-    echo "${RED}Error: could not resolve Zen profile from profiles.ini${NC}" >&2
-    return 1
-  fi
-  echo "${base}/${rel}/"
-}
-
-_zen_backup() {
-  local profile
-  profile=$(_zen_profile_dir) || return 1
-  local files=(zen-keyboard-shortcuts.json zen-themes.json containers.json)
-  mkdir -p "${DOTS_DIR}/zen"
-  for f in $files; do
-    if cp "${profile}${f}" "${DOTS_DIR}/zen/${f}"; then
-      echo "${GREEN}Backed up ${f}${NC}"
-    else
-      echo "${RED}Failed to back up ${f}${NC}"
-    fi
-  done
-  echo "${BGREEN}Zen config backed up to dotfiles${NC}"
-}
-
-_zen_restore() {
-  local profile
-  profile=$(_zen_profile_dir) || return 1
-  mkdir -p "${profile}"
-  local files=(zen-keyboard-shortcuts.json zen-themes.json containers.json)
-  for f in $files; do
-    if [[ ! -f "${DOTS_DIR}/zen/${f}" ]]; then
-      echo "${YELLOW}Skipping ${f} — not found in dotfiles${NC}"
-      continue
-    fi
-    cp "${DOTS_DIR}/zen/${f}" "${profile}${f}"
-    echo "${GREEN}Restored ${f}${NC}"
-  done
-  echo "${BGREEN}Zen config restored to profile${NC}"
-}
-
 #################################
 # script start
 #################################
@@ -95,14 +54,6 @@ while [[ $# -gt 0 ]]; do
       ;;
     --apps)
       UPDATE_APPS=true
-      shift
-      ;;
-    --zen-backup)
-      ZEN_BACKUP=true
-      shift
-      ;;
-    --zen-restore)
-      ZEN_RESTORE=true
       shift
       ;;
     *)
@@ -175,14 +126,16 @@ fi
 
 _stow aerospace
 _stow borders
+mkdir -p ~/.local/bin
+cp "${DOTS_DIR}/borders/bin/borders" ~/.local/bin/borders
+chmod +x ~/.local/bin/borders
+echo "${GREEN}Installed vendored borders binary to ~/.local/bin/borders${NC}"
 _stow ghostty
 _stow git
 _stow nvim
 _stow tmux
 _stow starship
 _stow television
-
-brew services start borders
 
 echo "${YELLOW}Linking global agent rules...${NC}"
 mkdir -p ~/.claude
@@ -249,14 +202,6 @@ fi
 #################################
 
 desktoppr "$(pwd)/wallpaper/tokyo-night.jpg"
-
-if [[ "$ZEN_BACKUP" == "true" && "$ZEN_RESTORE" == "true" ]]; then
-  echo "${RED}Error: --zen-backup and --zen-restore are mutually exclusive${NC}" >&2
-  exit 1
-fi
-
-[[ "$ZEN_BACKUP" == "true" ]] && _zen_backup
-[[ "$ZEN_RESTORE" == "true" ]] && _zen_restore
 
 if [[ "$CONFIGURE_OSX" == "true" ]]; then
   _configure_osx

@@ -1,0 +1,78 @@
+version: '3'
+
+vars:
+  DOTS_DIR: "{{.ROOT_DIR}}"
+  ANTIGRAVITY_SRC: "{{.HOME}}/Library/Application Support/Antigravity/User"
+  ANTIGRAVITY_CLI: "{{.HOME}}/.antigravity/antigravity/bin/antigravity"
+  ZEN_BASE: "{{.HOME}}/Library/Application Support/zen"
+
+tasks:
+  antigravity:backup:
+    desc: Back up Antigravity settings, keybindings, and extensions to dotfiles
+    cmds:
+      - mkdir -p "{{.DOTS_DIR}}/antigravity"
+      - cp "{{.ANTIGRAVITY_SRC}}/keybindings.json" "{{.DOTS_DIR}}/antigravity/keybindings.json"
+      - echo "Backed up keybindings.json"
+      - |
+        python3 -c "
+        import re, sys
+        content = sys.stdin.read()
+        content = re.sub(r'(?m)^\s*//.*\n', '', content)
+        content = re.sub(r',(\s*[}\]])', r'\1', content)
+        print(content)
+        " < "{{.ANTIGRAVITY_SRC}}/settings.json" \
+          | jq 'del(.["mssql.connections"], .["mssql.connectionGroups"])' \
+          > "{{.DOTS_DIR}}/antigravity/settings.json"
+      - echo "Backed up settings.json (SQL connections stripped)"
+      - "{{.ANTIGRAVITY_CLI}} --list-extensions 2>/dev/null > {{.DOTS_DIR}}/antigravity/extensions.txt"
+      - echo "Backed up extensions.txt"
+
+  antigravity:restore:
+    desc: Restore Antigravity settings, keybindings, and extensions from dotfiles
+    cmds:
+      - mkdir -p "{{.ANTIGRAVITY_SRC}}"
+      - |
+        for f in settings.json keybindings.json; do
+          if [ ! -f "{{.DOTS_DIR}}/antigravity/$f" ]; then
+            echo "Skipping $f — not found in dotfiles"
+            continue
+          fi
+          cp "{{.DOTS_DIR}}/antigravity/$f" "{{.ANTIGRAVITY_SRC}}/$f"
+          echo "Restored $f"
+        done
+      - |
+        if [ -f "{{.DOTS_DIR}}/antigravity/extensions.txt" ]; then
+          while IFS= read -r ext; do
+            "{{.ANTIGRAVITY_CLI}}" --install-extension "$ext"
+          done < "{{.DOTS_DIR}}/antigravity/extensions.txt"
+          echo "Restored extensions"
+        fi
+
+  zen:backup:
+    desc: Back up Zen browser config to dotfiles
+    vars:
+      ZEN_PROFILE:
+        sh: awk -F= '/^\[Install/{f=1} f && /^Default=/{print $2; exit}' "{{.ZEN_BASE}}/profiles.ini"
+    cmds:
+      - mkdir -p "{{.DOTS_DIR}}/zen"
+      - |
+        for f in zen-keyboard-shortcuts.json zen-themes.json containers.json; do
+          cp "{{.ZEN_BASE}}/{{.ZEN_PROFILE}}/$f" "{{.DOTS_DIR}}/zen/$f" && echo "Backed up $f" || echo "Failed to back up $f"
+        done
+
+  zen:restore:
+    desc: Restore Zen browser config from dotfiles
+    vars:
+      ZEN_PROFILE:
+        sh: awk -F= '/^\[Install/{f=1} f && /^Default=/{print $2; exit}' "{{.ZEN_BASE}}/profiles.ini"
+    cmds:
+      - mkdir -p "{{.ZEN_BASE}}/{{.ZEN_PROFILE}}"
+      - |
+        for f in zen-keyboard-shortcuts.json zen-themes.json containers.json; do
+          if [ ! -f "{{.DOTS_DIR}}/zen/$f" ]; then
+            echo "Skipping $f — not found in dotfiles"
+            continue
+          fi
+          cp "{{.DOTS_DIR}}/zen/$f" "{{.ZEN_BASE}}/{{.ZEN_PROFILE}}/$f"
+          echo "Restored $f"
+        done

@@ -69,10 +69,16 @@ configure_macos_defaults() {
 	defaults write com.apple.menuextra.clock ShowDayOfWeek -bool false
 
 	# --- Control Center ---
-	# Bluetooth: show in menu bar (default: Control Center only)
-	defaults write ~/Library/Preferences/ByHost/com.apple.controlcenter.plist Bluetooth -int 2
-	# Battery: Control Center only — Stats handles battery display (default: menu bar)
-	defaults write ~/Library/Preferences/ByHost/com.apple.controlcenter.plist Battery -int 8
+	# Bluetooth: show in menu bar (2 = show in menu bar)
+	defaults -currentHost write com.apple.controlcenter Bluetooth -int 2
+	# Battery: Control Center only — Stats handles battery display (8 = Control Center only)
+	defaults -currentHost write com.apple.controlcenter Battery -int 8
+	# Sound: always show in menu bar (18 = always show)
+	defaults -currentHost write com.apple.controlcenter Sound -int 18
+	# Spotlight: hide from menu bar (default on macOS Sequoia+, no writable key needed)
+
+	# --- Finder ---
+	defaults write com.apple.finder FXPreferredViewStyle -string "Nlsv"
 
 	# --- Apps ---
 	# Stats - menu bar system monitor
