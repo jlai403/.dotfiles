@@ -3,10 +3,7 @@ alefragnani.project-manager
 altimateai.vscode-altimate-mcp-server
 anjali.clipboard-history
 asvetliakov.vscode-neovim
-bastienboutonnet.vscode-dbt
-be5invis.vscode-custom-css
 bierner.markdown-mermaid
-boto3typed.boto3-ide
 bruno-api-client.bruno
 dbaeumer.vscode-eslint
 denoland.vscode-deno
@@ -20,10 +17,7 @@ gruntfuggly.todo-tree
 hashicorp.terraform
 hbenl.vscode-test-explorer
 minodisk.bigquery-runner
-ms-mssql.data-workspace-vscode
 ms-mssql.mssql
-ms-mssql.sql-bindings-vscode
-ms-mssql.sql-database-projects-vscode
 ms-python.black-formatter
 ms-python.debugpy
 ms-python.isort
@@ -32,12 +26,9 @@ ms-python.vscode-python-envs
 ms-vscode.makefile-tools
 ms-vscode.test-adapter-converter
 orta.vscode-jest
-patricknasralla.tokyo-night-moon
-qinjia.seti-icons
 redhat.vscode-yaml
 rvest.vs-code-prettier-eslint
 samuelcolvin.jinjahtml
 tamasfe.even-better-toml
-tobias-z.vscode-harpoon
 vue.volar
 zhuangtongfa.material-theme

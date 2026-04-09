@@ -42,9 +42,11 @@ tasks:
         done
       - |
         if [ -f "{{.DOTS_DIR}}/antigravity/extensions.txt" ]; then
+          args=()
           while IFS= read -r ext; do
-            "{{.ANTIGRAVITY_CLI}}" --install-extension "$ext"
+            args+=(--install-extension "$ext")
           done < "{{.DOTS_DIR}}/antigravity/extensions.txt"
+          "{{.ANTIGRAVITY_CLI}}" "${args[@]}" --force || true
           echo "Restored extensions"
         fi
 
