@@ -1,4 +1,8 @@
 #!/bin/bash
+# borders binary is vendored in dotfiles/borders/bin/ (brew install broken on macOS 26)
+# Requires manual approval in System Settings > Privacy & Security:
+#   - Accessibility
+#   - Screen & System Audio Recording
 
 options=(
 	active_color=0xff00cfe6
