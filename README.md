@@ -1,43 +1,86 @@
 # Dotfiles
 
-This repository contains my personal configuration files (dotfiles) for macOS. It includes settings for Zsh, Neovim, and other tools I use daily.
+GNU Stow-based dotfiles for macOS. Configurations for Zsh, Neovim, Ghostty, AeroSpace, tmux, and more.
+
+## Prerequisites
+
+- [Homebrew](https://brew.sh/)
+- [GNU Stow](https://www.gnu.org/software/stow/) (`brew install stow`)
 
 ## Installation
 
-1. Clone this repository to your home directory:
+```bash
+git clone https://github.com/jlai403/dotfiles.git ~/.dotfiles
+cd ~/.dotfiles
+./main.zsh
+```
 
-   ```bash
-   git clone https://github.com/jlai403/dotfiles.git ~/.dotfiles
-   ```
+### Flags
 
-2. Navigate to the cloned directory:
+| Flag | Description |
+|------|-------------|
+| (none) | Stow all packages, update `.zshrc`, set wallpaper |
+| `--apps` | Install Homebrew packages from `Brewfile` + global bun packages |
+| `--osx` | Apply macOS defaults (Dock, trackpad, keyboard, login items) |
 
-   ```bash
-   cd ~/.dotfiles
-   ```
+### Backup/Restore
 
-3. Run the `main.zsh` script to set up the dotfiles:
+Uses [Task](https://taskfile.dev) for non-stowed app configs:
 
-   ```bash
-   ./main.zsh
-   ```
-
-   This script will:
-   - Install applications and tools using Homebrew.
-   - Update your `~/.zshrc` file to load custom Zsh configurations and the Starship prompt.
-   - Create a symlink for Neovim configuration.
-   - Enable press-and-hold for special characters in VSCode.
+```bash
+task antigravity:backup   # Back up Antigravity (VS Code fork) settings
+task antigravity:restore  # Restore Antigravity settings
+task zen:backup           # Back up Zen browser config
+task zen:restore          # Restore Zen browser config
+```
 
 ## Structure
 
-- `zsh/`: Contains Zsh configuration files, such as aliases and exports.
-- `nvim/`: Neovim configuration files.
-- `Brewfile`: List of Homebrew packages to install.
-- `main.zsh`: Main setup script.
+### Stow Packages
 
-## Notes
+Symlinked to home/config directories via GNU Stow:
 
-- Ensure you have Homebrew installed before running the setup script. You can install it from [brew.sh](https://brew.sh/).
-- The script assumes macOS as the operating system.
+| Package | What it configures |
+|---------|--------------------|
+| `aerospace` | Tiling window manager |
+| `borders` | Window border highlight |
+| `gemini` | Gemini CLI |
+| `ghostty` | Terminal emulator |
+| `git` | Git global config |
+| `nvim` | Neovim (LazyVim) |
+| `opencode` | OpenCode AI tool |
+| `ssh` | SSH config |
+| `starship` | Prompt theme |
+| `stow` | GNU Stow ignore rules |
+| `television` | TUI fuzzy finder |
+| `tmux` | Tmux |
 
-Feel free to customize the configurations to suit your needs!
+### Shell (Zsh)
+
+Modular configs sourced from `~/.zshrc`:
+
+- `zsh/exports.zsh` — environment variables, PATH, tool init (pyenv, NVM lazy-load)
+- `zsh/aliases.zsh` — aliases and utility functions
+- `zsh/sources.zsh` — plugin sourcing (autosuggestions, syntax-highlighting)
+- `zsh/hooks.zsh` — hooks (auto-ls on cd, git auto-pull on checkout main)
+
+### Non-stowed Configs
+
+Backed up manually or via `Taskfile.yml`:
+
+- `antigravity/` — VS Code fork settings, keybindings, extensions
+- `zen/` — Zen browser themes, shortcuts, containers
+- `macos/` — macOS system defaults
+- `wallpaper/` — desktop wallpaper
+- `raycast/` — Raycast scripts
+- `stats-menu/` — Stats.app menu bar config
+
+### Other
+
+- `Brewfile` — Homebrew brews and casks
+- `global-agent-rules.md` — shared AI agent rules (symlinked to Claude, OpenCode, Gemini configs)
+- `skills/` — git submodules for AI agent workflow skills
+
+## Private Dotfiles
+
+Optional companion repo at `~/.dotfiles_private`. If present, `main.zsh` will stow its `ssh/` package and run its `main.zsh`. Shell configs also source `~/.dotfiles_private/zsh/private.zsh` if it exists.
