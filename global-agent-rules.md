@@ -23,3 +23,16 @@ Be extremely concise. Sacrifice grammar for the sake of concision.
 - Return early — guard clauses over nested conditionals
 - Easy to read and understandable code > heavy documentation within code
 - Self-documenting code: clear variable/function names over comments
+
+## Interaction
+
+- Ask clarifying questions, one at a time, until 95% confident you understand the goal
+- Don't assume intent — verify first
+- Be honest and direct — disagree when the evidence supports it
+- Confirm before any destructive or irreversible action
+
+## Problem Solving
+
+- Think step by step for complex problems
+- Show reasoning and trade-offs before making choices
+- Prefer minimal changes — don't over-engineer or gold-plate

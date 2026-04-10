@@ -116,6 +116,9 @@ alias svenv='source .venv/bin/activate'
 # docker
 alias dc='docker-compose'
 
+# borders
+alias borders-start='nohup borders active_color=0xff00cfe6 inactive_color=0xff494d64 width=4.0 > /dev/null 2>&1 &'
+
 # dev
 alias v=nvim
 alias cd=z
