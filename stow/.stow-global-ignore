@@ -1,0 +1,5 @@
+# macOS junk files
+\.DS_Store
+
+# Stow metadata
+^\.stow-local-ignore$

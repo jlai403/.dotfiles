@@ -124,6 +124,7 @@ fi
 # update dotfiles via symlinks
 #################################
 
+_stow stow
 _stow aerospace
 _stow borders
 mkdir -p ~/.local/bin

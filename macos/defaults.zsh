@@ -92,5 +92,33 @@ configure_macos_defaults() {
 	# Reduce motion when switching desktops
 	sudo defaults write com.apple.universalaccess reduceMotion -bool true
 
+	# --- Login Items ---
+	configure_login_items
+
 	echo "${GREEN}macOS settings configured${NC}"
+}
+
+configure_login_items() {
+	echo "${BGREEN}Configuring Login Items...${NC}"
+
+	local login_items=(
+		"/Applications/AeroSpace.app"
+		"/Applications/Hyperkey.app"
+		"/Applications/Stats.app"
+		"/Applications/Raycast.app"
+		"/Applications/OneDrive.app"
+	)
+
+	osascript -e 'tell application "System Events" to delete every login item'
+
+	for app in "${login_items[@]}"; do
+		if [[ ! -d "$app" ]]; then
+			echo "${YELLOW}Skipping $(basename "$app" .app) (not installed)${NC}"
+			continue
+		fi
+		local name=$(basename "$app" .app)
+		osascript -e "tell application \"System Events\" to make login item at end with properties {path:\"$app\", hidden:false, name:\"$name\"}"
+	done
+
+	echo "${GREEN}Login Items configured${NC}"
 }
