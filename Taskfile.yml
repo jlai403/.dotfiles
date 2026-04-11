@@ -62,6 +62,19 @@ tasks:
           cp "{{.ZEN_BASE}}/{{.ZEN_PROFILE}}/$f" "{{.DOTS_DIR}}/zen/$f" && echo "Backed up $f" || echo "Failed to back up $f"
         done
 
+  doll:backup:
+    desc: Back up Doll app preferences to dotfiles
+    cmds:
+      - mkdir -p "{{.DOTS_DIR}}/doll"
+      - defaults export com.xiaogd.Doll "{{.DOTS_DIR}}/doll/com.xiaogd.Doll.plist"
+      - echo "Backed up com.xiaogd.Doll.plist"
+
+  doll:restore:
+    desc: Restore Doll app preferences from dotfiles
+    cmds:
+      - defaults import com.xiaogd.Doll "{{.DOTS_DIR}}/doll/com.xiaogd.Doll.plist"
+      - echo "Restored com.xiaogd.Doll.plist"
+
   skills:update:
     desc: Update vendored skills using tiged
     cmds:
@@ -77,7 +90,7 @@ tasks:
     cmds:
       - mkdir -p "{{.ZEN_BASE}}/{{.ZEN_PROFILE}}"
       - |
-        for f in zen-keyboard-shortcuts.json zen-themes.json containers.json; do
+        for f in zen-keyboard-shortcuts.json zen-themes.json containers.json user.js; do
           if [ ! -f "{{.DOTS_DIR}}/zen/$f" ]; then
             echo "Skipping $f — not found in dotfiles"
             continue

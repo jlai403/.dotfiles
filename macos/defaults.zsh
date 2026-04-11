@@ -95,6 +95,12 @@ configure_macos_defaults() {
 	# --- Login Items ---
 	configure_login_items
 
+	# --- App Restore Reminders ---
+	echo "${YELLOW}Run app restore tasks to apply backed-up configs:${NC}"
+	echo "  task antigravity:restore  # Antigravity settings"
+	echo "  task doll:restore         # Doll preferences"
+	echo "  task zen:restore          # Zen browser config"
+
 	echo "${GREEN}macOS settings configured${NC}"
 }
 
@@ -103,10 +109,11 @@ configure_login_items() {
 
 	local login_items=(
 		"/Applications/AeroSpace.app"
+		"/Applications/Doll.app"
 		"/Applications/Hyperkey.app"
-		"/Applications/Stats.app"
-		"/Applications/Raycast.app"
 		"/Applications/OneDrive.app"
+		"/Applications/Raycast.app"
+		"/Applications/Stats.app"
 	)
 
 	osascript -e 'tell application "System Events" to delete every login item'
