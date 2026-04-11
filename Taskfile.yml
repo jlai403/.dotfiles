@@ -62,6 +62,13 @@ tasks:
           cp "{{.ZEN_BASE}}/{{.ZEN_PROFILE}}/$f" "{{.DOTS_DIR}}/zen/$f" && echo "Backed up $f" || echo "Failed to back up $f"
         done
 
+  skills:update:
+    desc: Update vendored skills using tiged
+    cmds:
+      - rm -rf "{{.DOTS_DIR}}/skills/notion-cli"
+      - bunx tiged 4ier/notion-cli/skills/notion-cli "{{.DOTS_DIR}}/skills/notion-cli"
+      - echo "Updated notion-cli"
+
   zen:restore:
     desc: Restore Zen browser config from dotfiles
     vars:

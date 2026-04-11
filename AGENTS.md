@@ -9,7 +9,7 @@ GNU Stow-based dotfiles repo for macOS. Each top-level directory is a stow packa
   - `--apps` — install Homebrew packages from `Brewfile` + global bun packages
   - `--osx` — apply macOS defaults from `macos/defaults.zsh`
 - `Brewfile` — Homebrew brews and casks
-- `Taskfile.yml` — backup/restore tasks for Antigravity (VS Code fork) and Zen browser
+- `Taskfile.yml` — backup/restore tasks for Antigravity (VS Code fork), Zen browser, and skill updates (`task skills:update`)
 - `global-agent-rules.md` — shared AI agent rules, symlinked to `~/.claude/CLAUDE.md`, `~/.config/opencode/AGENTS.md`, `~/.gemini/AGENTS.md`
 
 ### Stow Packages (managed by `main.zsh`)
@@ -36,11 +36,14 @@ GNU Stow-based dotfiles repo for macOS. Each top-level directory is a stow packa
 - `raycast/` — Raycast scripts
 - `stats-menu/` — Stats.app menu bar plist
 
-### Skills Submodules
+### Skills
 Git submodules under `skills/`, linked to gemini and opencode config dirs during setup:
-- `skills/superpowers` — agent workflow skills
-- `skills/excalidraw-diagram` — diagram generation
-- `skills/duckdb-skills` — DuckDB query/read skills
+- `skills/superpowers` — agent workflow skills (git submodule)
+- `skills/excalidraw-diagram` — diagram generation (git submodule)
+- `skills/duckdb-skills` — DuckDB query/read skills (git submodule)
+
+Vendored skills (pulled via `tiged`, update with `task skills:update`):
+- `skills/notion-cli` — Notion CLI workspace automation
 
 ### Private Dotfiles (`~/.dotfiles_private`)
 Optional companion repo at `../.dotfiles_private` (sibling directory). If present, `main.zsh` will:

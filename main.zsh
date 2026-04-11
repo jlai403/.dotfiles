@@ -156,6 +156,8 @@ ln -sf "$(pwd)/skills/superpowers/skills/"* ~/.gemini/antigravity/skills/
 mkdir -p ~/.gemini/antigravity/skills/excalidraw-diagram
 ln -sf "$(pwd)/skills/excalidraw-diagram/SKILL.md" ~/.gemini/antigravity/skills/excalidraw-diagram/SKILL.md
 ln -sf "$(pwd)/skills/duckdb-skills/skills/"* ~/.gemini/antigravity/skills/
+mkdir -p ~/.gemini/antigravity/skills/notion-cli
+ln -sf "$(pwd)/skills/notion-cli/SKILL.md" ~/.gemini/antigravity/skills/notion-cli/SKILL.md
 
 
 echo "${YELLOW}Linking skills to opencode...${NC}"
@@ -163,6 +165,8 @@ rm -rf ~/.config/opencode/skills
 mkdir -p ~/.config/opencode/skills/excalidraw-diagram
 ln -sf "$(pwd)/skills/excalidraw-diagram/SKILL.md" ~/.config/opencode/skills/excalidraw-diagram/SKILL.md
 ln -sf "$(pwd)/skills/duckdb-skills/skills/"* ~/.config/opencode/skills/
+mkdir -p ~/.config/opencode/skills/notion-cli
+ln -sf "$(pwd)/skills/notion-cli/SKILL.md" ~/.config/opencode/skills/notion-cli/SKILL.md
 
 _stow opencode
 _stow gemini
