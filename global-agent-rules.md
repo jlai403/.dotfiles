@@ -39,8 +39,9 @@ Be extremely concise. Sacrifice grammar for the sake of concision.
 
 ## Tools
 
-- rg — content search
-- bat — file viewing
-- sd — find-and-replace
-- fd — file finding
-- task with explore — code exploration
+Default to these tools via `bash` for all operations:
+- **rg** — content search (replaces grep)
+- **bat** — file viewing (replaces read)
+- **sd** — find-and-replace (replaces sed)
+- **fd** — file finding (replaces glob)
+- **task with explore** — code exploration
