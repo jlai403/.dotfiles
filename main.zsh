@@ -145,11 +145,13 @@ mkdir -p ~/.gemini
 ln -sf "$(pwd)/global-agent-rules.md" ~/.claude/CLAUDE.md
 ln -sf "$(pwd)/global-agent-rules.md" ~/.config/opencode/AGENTS.md
 ln -sf "$(pwd)/global-agent-rules.md" ~/.gemini/AGENTS.md
+ln -sf "$(pwd)/global-agent-rules.md" ~/.gemini/GEMINI.md
 
 echo "${YELLOW}Updating skills submodules...${NC}"
 git submodule update --recursive --init skills/superpowers skills/excalidraw-diagram skills/duckdb-skills
 
 echo "${YELLOW}Linking skills to gemini...${NC}"
+# Antigravity (legacy)
 rm -rf ~/.gemini/antigravity/skills
 mkdir -p ~/.gemini/antigravity/skills
 ln -sf "$(pwd)/skills/superpowers/skills/"* ~/.gemini/antigravity/skills/
@@ -159,11 +161,21 @@ ln -sf "$(pwd)/skills/duckdb-skills/skills/"* ~/.gemini/antigravity/skills/
 mkdir -p ~/.gemini/antigravity/skills/notion-cli
 ln -sf "$(pwd)/skills/notion-cli/SKILL.md" ~/.gemini/antigravity/skills/notion-cli/SKILL.md
 
+# Gemini CLI (Official)
+rm -rf ~/.gemini/skills
+mkdir -p ~/.gemini/skills
+ln -sf "$(pwd)/skills/duckdb-skills/skills/"* ~/.gemini/skills/
+ln -sf "$(pwd)/skills/excalidraw-diagram" ~/.gemini/skills/excalidraw-diagram
+
+rm -rf ~/.gemini/extensions
+mkdir -p ~/.gemini/extensions
+ln -sf "$(pwd)/skills/superpowers" ~/.gemini/extensions/superpowers
+
 
 echo "${YELLOW}Linking skills to opencode...${NC}"
 rm -rf ~/.config/opencode/skills
-mkdir -p ~/.config/opencode/skills/excalidraw-diagram
-ln -sf "$(pwd)/skills/excalidraw-diagram/SKILL.md" ~/.config/opencode/skills/excalidraw-diagram/SKILL.md
+mkdir -p ~/.config/opencode/skills
+ln -sf "$(pwd)/skills/excalidraw-diagram" ~/.config/opencode/skills/excalidraw-diagram
 ln -sf "$(pwd)/skills/duckdb-skills/skills/"* ~/.config/opencode/skills/
 mkdir -p ~/.config/opencode/skills/notion-cli
 ln -sf "$(pwd)/skills/notion-cli/SKILL.md" ~/.config/opencode/skills/notion-cli/SKILL.md

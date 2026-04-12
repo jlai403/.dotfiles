@@ -123,7 +123,11 @@ alias borders-start='nohup borders active_color=0xff00cfe6 inactive_color=0xff49
 alias v=nvim
 alias cd=z
 alias cdi=zi
-alias ls=eza
+alias grep='rg'
+alias sed=sd
+alias find='fd'
+alias cat='bat --style=auto'
+alias ls='eza --icons --group-directories-first'
 alias lg=lazygit
 
 # suffix aliases

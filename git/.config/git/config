@@ -30,7 +30,11 @@
 	interHunkContext = 10
 
 [pager]
-	diff = diff-so-fancy | $pager
+	diff = delta
+
+[delta]
+	features = side-by-side
+	whitespace = error
 
 [diff-so-fancy]
 	markEmptyLines = false

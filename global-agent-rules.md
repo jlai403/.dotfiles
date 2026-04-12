@@ -36,3 +36,11 @@ Be extremely concise. Sacrifice grammar for the sake of concision.
 - Think step by step for complex problems
 - Show reasoning and trade-offs before making choices
 - Prefer minimal changes — don't over-engineer or gold-plate
+
+## Tools
+
+- rg — content search
+- bat — file viewing
+- sd — find-and-replace
+- fd — file finding
+- task with explore — code exploration
