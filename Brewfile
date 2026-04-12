@@ -32,6 +32,7 @@ brew "jq"
 brew "yq"
 brew "lazygit"
 brew "llvm@15", link: true
+brew "llmfit"
 brew "lrzsz"
 brew "mise"
 brew "neovim"
