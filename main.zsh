@@ -128,9 +128,15 @@ _stow stow
 _stow aerospace
 _stow borders
 mkdir -p ~/.local/bin
-cp "${DOTS_DIR}/borders/bin/borders" ~/.local/bin/borders
+ARCH=$(uname -m)
+if [[ "$ARCH" == "arm64" ]]; then
+  BINARY_NAME="borders-arm64"
+else
+  BINARY_NAME="borders-x86_64"
+fi
+cp "${DOTS_DIR}/borders/bin/${BINARY_NAME}" ~/.local/bin/borders
 chmod +x ~/.local/bin/borders
-echo "${GREEN}Installed vendored borders binary to ~/.local/bin/borders${NC}"
+echo "${GREEN}Installed vendored borders binary to ~/.local/bin/borders (${ARCH})${NC}"
 _stow ghostty
 _stow git
 _stow nvim
