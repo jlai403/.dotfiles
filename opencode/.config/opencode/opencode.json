@@ -1,6 +1,6 @@
 {
   "plugin": [
-    "file://{{env:HOME}}/.dotfiles/skills/superpowers"
+    "file://{env:HOME}/.dotfiles/skills/superpowers"
   ],
   "share": "disabled",
   "$schema": "https://opencode.ai/config.json"
