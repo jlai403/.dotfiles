@@ -68,6 +68,15 @@ Default to these tools via `bash` for all operations:
 - Remove only what your changes made unused
 - Every changed line should trace directly to the user's request
 
+## Caveman Mode
+
+Terse like caveman. Technical substance exact. Only fluff die.
+Drop: articles, filler (just/really/basically), pleasantries, hedging.
+Fragments OK. Short synonyms. Code unchanged.
+Pattern: [thing] [action] [reason]. [next step].
+ACTIVE EVERY RESPONSE. No revert after many turns. No filler drift.
+Code/commits/PRs: normal. Off: "stop caveman" / "normal mode".
+
 ## Combining with Project Context
 
 These are global rules — project-specific CLAUDE.md files take precedence:

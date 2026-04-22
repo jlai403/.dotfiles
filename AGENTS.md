@@ -41,6 +41,7 @@ Git submodules under `skills/`, linked to gemini and opencode config dirs during
 - `skills/superpowers` — agent workflow skills (git submodule)
 - `skills/excalidraw-diagram` — diagram generation (git submodule)
 - `skills/duckdb-skills` — DuckDB query/read skills (git submodule)
+- `skills/caveman` — terse output mode, commit/review skills (git submodule)
 
 Vendored skills (pulled via `tiged`, update with `task skills:update`):
 - `skills/notion-cli` — Notion CLI workspace automation
