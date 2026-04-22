@@ -62,7 +62,7 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-git submodule update --recursive
+git submodule update --recursive --remote
 echo "${YELLOW}Update submodules ${NC}"
 
 #################################
@@ -154,7 +154,7 @@ ln -sf "$(pwd)/global-agent-rules.md" ~/.gemini/AGENTS.md
 ln -sf "$(pwd)/global-agent-rules.md" ~/.gemini/GEMINI.md
 
 echo "${YELLOW}Updating skills submodules...${NC}"
-git submodule update --recursive --init skills/superpowers skills/excalidraw-diagram skills/duckdb-skills
+git submodule update --recursive --remote --init skills/superpowers skills/excalidraw-diagram skills/duckdb-skills skills/caveman
 
 echo "${YELLOW}Linking skills to gemini...${NC}"
 # Antigravity (legacy)
@@ -185,6 +185,11 @@ ln -sf "$(pwd)/skills/excalidraw-diagram" ~/.config/opencode/skills/excalidraw-d
 ln -sf "$(pwd)/skills/duckdb-skills/skills/"* ~/.config/opencode/skills/
 mkdir -p ~/.config/opencode/skills/notion-cli
 ln -sf "$(pwd)/skills/notion-cli/SKILL.md" ~/.config/opencode/skills/notion-cli/SKILL.md
+ln -sf "$(pwd)/skills/caveman/skills/caveman" ~/.config/opencode/skills/caveman
+ln -sf "$(pwd)/skills/caveman/skills/caveman-commit" ~/.config/opencode/skills/caveman-commit
+ln -sf "$(pwd)/skills/caveman/skills/caveman-review" ~/.config/opencode/skills/caveman-review
+ln -sf "$(pwd)/skills/caveman/skills/caveman-help" ~/.config/opencode/skills/caveman-help
+ln -sf "$(pwd)/skills/caveman/skills/compress" ~/.config/opencode/skills/compress
 
 _stow opencode
 _stow gemini

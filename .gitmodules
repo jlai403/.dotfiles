@@ -7,3 +7,6 @@
 [submodule "skills/duckdb-skills"]
 	path = skills/duckdb-skills
 	url = https://github.com/duckdb/duckdb-skills.git
+[submodule "skills/caveman"]
+	path = skills/caveman
+	url = https://github.com/JuliusBrussee/caveman.git
