@@ -1,4 +1,5 @@
 .DS_Store
 zen/prefs.js
 docs/superpowers/
-
+zed/.config/zed/prompts/
+zed/.config/zed/themes/

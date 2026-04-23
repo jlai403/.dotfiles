@@ -7,26 +7,31 @@
 // custom settings, run `zed: open default settings` from the
 // command palette (cmd-shift-p / ctrl-shift-p)
 {
+  "icon_theme": {
+    "mode": "dark",
+    "light": "Zed (Default)",
+    "dark": "Zed (Default)",
+  },
   "agent_servers": {
     "opencode": {
-      "type": "registry"
-    }
+      "type": "registry",
+    },
   },
   "outline_panel": {
-    "dock": "left"
+    "dock": "left",
   },
   "collaboration_panel": {
-    "dock": "left"
+    "dock": "left",
   },
   "git_panel": {
-    "dock": "left"
+    "dock": "left",
   },
   "project_panel": {
-    "dock": "right"
+    "dock": "right",
   },
   "telemetry": {
     "diagnostics": true,
-    "metrics": false
+    "metrics": false,
   },
   "vim_mode": true,
   "agent": {
@@ -34,34 +39,27 @@
     "enabled": true,
     "button": true,
     "favorite_models": [],
-    "model_parameters": []
+    "model_parameters": [],
   },
   "preview_tabs": {
-    "enabled": false
+    "enabled": false,
   },
   "tab_bar": {
-    "show": false
+    "show": false,
   },
   "relative_line_numbers": "enabled",
   "sticky_scroll": {
-    "enabled": true
+    "enabled": true,
   },
   "vertical_scroll_margin": 8.0,
   "gutter": {
-    "line_numbers": true
+    "line_numbers": true,
   },
   "max_tabs": 1,
-  "buffer_font_fallbacks": [
-    "Menlo",
-    "Monaco",
-    "Courier New",
-    "monospace"
-  ],
+  "buffer_font_fallbacks": ["Menlo", "Monaco", "Courier New", "monospace"],
   "buffer_font_family": "JetBrainsMono Nerd Font",
   "file_types": {
-    "jinja-sql": [
-      "*.sql"
-    ]
+    "jinja-sql": ["*.sql"],
   },
   "show_whitespaces": "all",
   "tab_size": 2,
@@ -69,8 +67,41 @@
   "ui_font_size": 16,
   "buffer_font_size": 15,
   "theme": {
-    "mode": "system",
+    "mode": "dark",
     "light": "One Light",
-    "dark": "Catppuccin Frappé",
+    "dark": "Tokyo Night",
+  },
+  "lsp": {
+    "deno": {
+      "initialization_options": {
+        "enable": true,
+        "lint": true,
+        "unstable": true,
+        "suggest": {
+          "imports": {
+            "hosts": {
+              "https://deno.land": true,
+            },
+          },
+        },
+      },
+      "settings": {
+        "deno": {
+          "enable": true,
+          "enablePaths": ["."],
+          "workspace": {
+            "enable": true,
+          },
+        },
+      },
+    },
+  },
+  "languages": {
+    "TypeScript": {
+      "language_servers": ["deno", "!typescript-language-server", "!vtsls"],
+    },
+    "JavaScript": {
+      "language_servers": ["deno", "!typescript-language-server", "!vtsls"],
+    },
   },
 }
