@@ -71,4 +71,12 @@
     "light": "One Light",
     "dark": "Tokyo Night",
   },
+  "terminal": {
+    "shell": {
+      "with_arguments": {
+        "program": "/Users/jlai/.config/zed/zed-tmux.sh",
+        "args": ["--login"],
+      },
+    },
+  },
 }

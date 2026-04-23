@@ -89,7 +89,7 @@
         "new-session",
         "-A",
         "-s",
-        "vscode:${workspaceFolder}"
+        "${workspaceFolderBasename}"
       ]
     }
   },
