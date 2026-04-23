@@ -141,7 +141,8 @@ _stow ghostty
 _stow git
 _stow nvim
 _stow tmux
-_stow starship
+  _stow zed
+  _stow starship
 _stow television
 
 echo "${YELLOW}Linking global agent rules...${NC}"
