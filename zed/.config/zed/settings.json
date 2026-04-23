@@ -71,37 +71,4 @@
     "light": "One Light",
     "dark": "Tokyo Night",
   },
-  "lsp": {
-    "deno": {
-      "initialization_options": {
-        "enable": true,
-        "lint": true,
-        "unstable": true,
-        "suggest": {
-          "imports": {
-            "hosts": {
-              "https://deno.land": true,
-            },
-          },
-        },
-      },
-      "settings": {
-        "deno": {
-          "enable": true,
-          "enablePaths": ["."],
-          "workspace": {
-            "enable": true,
-          },
-        },
-      },
-    },
-  },
-  "languages": {
-    "TypeScript": {
-      "language_servers": ["deno", "!typescript-language-server", "!vtsls"],
-    },
-    "JavaScript": {
-      "language_servers": ["deno", "!typescript-language-server", "!vtsls"],
-    },
-  },
 }
