@@ -36,4 +36,44 @@
       "cmd-shift-t": "terminal_panel::Toggle",
     },
   },
+  {
+    "context": "!Terminal",
+    "bindings": {
+      "ctrl-cmd-l": "lsp_tool::ToggleMenu"
+    }
+  },
+  {
+    "bindings": {
+      "cmd-shift-m": "workspace::ToggleZoom"
+    }
+  },
+  {
+    "unbind": {
+      "shift-escape": "workspace::ToggleZoom"
+    }
+  },
+  {
+    "context": "Workspace",
+    "unbind": {
+      "cmd-b": "workspace::ToggleLeftDock"
+    }
+  },
+  {
+    "context": "Workspace",
+    "bindings": {
+      "alt-cmd-b": "workspace::ToggleLeftDock"
+    }
+  },
+  {
+    "context": "Workspace",
+    "unbind": {
+      "cmd-r": "workspace::ToggleRightDock"
+    }
+  },
+  {
+    "context": "Workspace",
+    "bindings": {
+      "cmd-b": "workspace::ToggleRightDock"
+    }
+  }
 ]

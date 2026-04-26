@@ -7,6 +7,7 @@
 // custom settings, run `zed: open default settings` from the
 // command palette (cmd-shift-p / ctrl-shift-p)
 {
+  "format_on_save": "off",
   "icon_theme": {
     "mode": "dark",
     "light": "Zed (Default)",
@@ -69,7 +70,7 @@
   "theme": {
     "mode": "dark",
     "light": "One Light",
-    "dark": "Tokyo Night",
+    "dark": "Tokyo Night Storm",
   },
   "terminal": {
     "shell": {
