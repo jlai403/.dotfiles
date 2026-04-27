@@ -8,7 +8,7 @@ NC_NL="\033[0m\n"
 
 function auto_ls_after_cd() {
   if command -v eza &> /dev/null; then
-    eza -a
+    eza --icons --group-directories-first -a
   else
     ls -a
   fi
