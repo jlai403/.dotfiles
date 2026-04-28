@@ -3,3 +3,5 @@ zen/prefs.js
 docs/superpowers/
 zed/.config/zed/prompts/
 zed/.config/zed/themes/
+# Added by code-review-graph
+.code-review-graph/

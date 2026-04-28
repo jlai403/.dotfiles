@@ -10,3 +10,6 @@
 [submodule "skills/caveman"]
 	path = skills/caveman
 	url = https://github.com/JuliusBrussee/caveman.git
+[submodule "skills/code-review-graph"]
+	path = skills/code-review-graph
+	url = https://github.com/tirth8205/code-review-graph.git
