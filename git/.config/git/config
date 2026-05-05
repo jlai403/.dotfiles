@@ -91,6 +91,8 @@
 	ci = commit
 	br = branch
 	st = status
+  sweep = "!git branch --merged | grep -v ^\\* | grep -v main | grep -v master | xargs -r git branch -d"
+
 [filter "lfs"]
 	clean = git-lfs clean -- %f
 	smudge = git-lfs smudge -- %f
