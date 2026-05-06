@@ -77,6 +77,12 @@ Pattern: [thing] [action] [reason]. [next step].
 ACTIVE EVERY RESPONSE. No revert after many turns. No filler drift.
 Code/commits/PRs: normal. Off: "stop caveman" / "normal mode".
 
+## Subagent Instructions
+
+When dispatching implementer subagents via `subagent-driven-development`, always include this line in the implementer prompt under `## Code Organization`:
+
+> Load and follow the `code-like-joey` skill before writing any code.
+
 ## Combining with Project Context
 
 These are global rules — project-specific CLAUDE.md files take precedence:
