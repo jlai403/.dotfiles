@@ -20,3 +20,10 @@ node() { load-nvm; node "$@"; }
 npm()  { load-nvm; npm "$@"; }
 yarn() { load-nvm; yarn "$@"; }
 pnpm() { load-nvm; pnpm "$@"; }
+
+# Bedrock config - only load when AWS credentials available
+if aws sts get-caller-identity &>/dev/null; then
+  export OPENCODE_CONFIG="$HOME/.dotfiles/opencode/.config/opencode/opencode-bedrock.json"
+else
+  unset OPENCODE_CONFIG
+fi

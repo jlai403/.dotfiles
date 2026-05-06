@@ -3,17 +3,5 @@
   "plugin": [
     "file://{env:HOME}/.dotfiles/skills/superpowers"
   ],
-  "share": "disabled",
-  "provider": {
-    "amazon-bedrock": {
-      "models": {
-        "anthropic-claude-opus-4-6": {
-          "id": "arn:aws:bedrock:us-east-1:{env:AWS_BEDROCK_ACCOUNT_ID}:inference-profile/us.anthropic.claude-opus-4-6-v1"
-        },
-        "anthropic-claude-sonnet-4-6": {
-          "id": "arn:aws:bedrock:us-east-1:{env:AWS_BEDROCK_ACCOUNT_ID}:inference-profile/us.anthropic.claude-sonnet-4-6"
-        }
-      }
-    }
-  }
+  "share": "disabled"
 }
