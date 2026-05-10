@@ -3,5 +3,26 @@
   "plugin": [
     "file://{env:HOME}/.dotfiles/skills/superpowers"
   ],
-  "share": "disabled"
+  "share": "disabled",
+  "provider": {
+    "ollama": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Ollama (local)",
+      "options": {
+        "baseURL": "http://localhost:11434/v1",
+        "apiKey": "ollama"
+      },
+      "models": {
+        "deepseek-r1:14b": {
+          "name": "DeepSeek R1 14B"
+        },
+        "qwen3:14b": {
+          "name": "Qwen3 14B"
+        },
+        "gemma4:26b": {
+          "name": "Gemma 4 26B"
+        }
+      }
+    }
+  }
 }
