@@ -158,7 +158,7 @@ ln -sf "$(pwd)/global-agent-rules.md" ~/.gemini/AGENTS.md
 ln -sf "$(pwd)/global-agent-rules.md" ~/.gemini/GEMINI.md
 
 echo "${YELLOW}Updating skills submodules...${NC}"
-git submodule update --recursive --remote --init skills/superpowers skills/excalidraw-diagram skills/duckdb-skills skills/caveman skills/code-review-graph
+git submodule update --recursive --remote --init skills/superpowers skills/excalidraw-diagram skills/duckdb-skills skills/caveman skills/code-review-graph skills/mattpocock
 
 echo "${YELLOW}Linking skills to claude code...${NC}"
 rm -rf ~/.claude/skills
@@ -166,6 +166,8 @@ mkdir -p ~/.claude/skills
 ln -sf "$(pwd)/skills/superpowers/skills/"* ~/.claude/skills/
 ln -sf "$(pwd)/skills/code-review-graph/skills/"* ~/.claude/skills/
 ln -sf "$(pwd)/skills/personal/skills/"* ~/.claude/skills/
+ln -sf "$(pwd)/skills/mattpocock/skills/productivity/grill-me" ~/.claude/skills/grill-me
+ln -sf "$(pwd)/skills/mattpocock/skills/productivity/grilling" ~/.claude/skills/grilling
 
 echo "${YELLOW}Linking skills to gemini...${NC}"
 # Antigravity (legacy)
@@ -179,6 +181,8 @@ mkdir -p ~/.gemini/antigravity/skills/notion-cli
 ln -sf "$(pwd)/skills/notion-cli/SKILL.md" ~/.gemini/antigravity/skills/notion-cli/SKILL.md
 ln -sf "$(pwd)/skills/code-review-graph/skills/"* ~/.gemini/antigravity/skills/
 ln -sf "$(pwd)/skills/personal/skills/"* ~/.gemini/antigravity/skills/
+ln -sf "$(pwd)/skills/mattpocock/skills/productivity/grill-me" ~/.gemini/antigravity/skills/grill-me
+ln -sf "$(pwd)/skills/mattpocock/skills/productivity/grilling" ~/.gemini/antigravity/skills/grilling
 
 # Gemini CLI (Official)
 rm -rf ~/.gemini/skills
@@ -187,6 +191,8 @@ ln -sf "$(pwd)/skills/duckdb-skills/skills/"* ~/.gemini/skills/
 ln -sf "$(pwd)/skills/excalidraw-diagram" ~/.gemini/skills/excalidraw-diagram
 ln -sf "$(pwd)/skills/code-review-graph/skills/"* ~/.gemini/skills/
 ln -sf "$(pwd)/skills/personal/skills/"* ~/.gemini/skills/
+ln -sf "$(pwd)/skills/mattpocock/skills/productivity/grill-me" ~/.gemini/skills/grill-me
+ln -sf "$(pwd)/skills/mattpocock/skills/productivity/grilling" ~/.gemini/skills/grilling
 
 rm -rf ~/.gemini/extensions
 mkdir -p ~/.gemini/extensions
@@ -207,6 +213,8 @@ ln -sf "$(pwd)/skills/caveman/skills/caveman-help" ~/.config/opencode/skills/cav
 ln -sf "$(pwd)/skills/caveman/skills/compress" ~/.config/opencode/skills/compress
 ln -sf "$(pwd)/skills/code-review-graph/skills/"* ~/.config/opencode/skills/
 ln -sf "$(pwd)/skills/personal/skills/"* ~/.config/opencode/skills/
+ln -sf "$(pwd)/skills/mattpocock/skills/productivity/grill-me" ~/.config/opencode/skills/grill-me
+ln -sf "$(pwd)/skills/mattpocock/skills/productivity/grilling" ~/.config/opencode/skills/grilling
 
 _stow opencode
 _stow gemini
