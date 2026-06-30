@@ -10,6 +10,10 @@ configure_macos_defaults() {
 	defaults write -g "com.apple.keyboard.modifiermapping.0-0-0" \
 		-array "<dict><key>HIDKeyboardModifierMappingSrc</key><integer>${caps_lock}</integer><key>HIDKeyboardModifierMappingDst</key><integer>-1</integer></dict>"
 
+	# Free C-Space for tmux prefix by disabling input source switching
+	defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 60 "{ enabled = 0; }"
+	defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 61 "{ enabled = 0; }"
+
 	# --- Trackpad ---
 	# Tap to click
 	defaults write com.apple.AppleMultitouchTrackpad Clicking -bool true
