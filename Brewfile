@@ -1,16 +1,18 @@
 tap "1password/tap"
 tap "4ier/tap"
 tap "anomalyco/tap", trusted: true
-tap "felixkratz/formulae"
+tap "felixkratz/formulae", "https://github.com/FelixKratz/homebrew-formulae"
 tap "hashicorp/tap"
 tap "manaflow-ai/cmux"
-tap "modem-dev/tap"
+tap "modem-dev/tap", trusted: { formulae: ["hunk"] }
 tap "nikitabobko/tap"
 tap "oven-sh/bun"
-# Securely store and access AWS credentials in development environments
-brew "aws-vault"
 # Cryptography and SSL/TLS Toolkit
 brew "openssl@3"
+# Automate deployment, configuration, and upgrading
+brew "ansible"
+# Securely store and access AWS credentials in development environments
+brew "aws-vault"
 # Official Amazon AWS command-line interface
 brew "awscli"
 # Microsoft Azure CLI 2.0
@@ -55,6 +57,8 @@ brew "gnu-sed"
 brew "go-task"
 # Log analysis TUI
 brew "gonzo"
+# Agent multiplexer that lives in your terminal
+brew "herdr"
 # Update of iperf: measures TCP, UDP, and SCTP bandwidth
 brew "iperf3"
 # Lightweight and flexible command-line JSON processor
@@ -74,9 +78,15 @@ brew "neovim"
 # Manage multiple Node.js versions
 brew "nvm"
 # Create, run, and share large language models (LLMs)
-brew "ollama"
+brew "ollama", link: false
+# Search tool like grep and The Silver Searcher
+brew "ripgrep"
+# AI coding agent, built for the terminal
+brew "opencode"
 # Development kit for the Java programming language
 brew "openjdk"
+# Cryptography and SSL/TLS Toolkit
+brew "openssl@1.1"
 # Drop-in replacement for Terraform. Infrastructure as Code Tool
 brew "opentofu"
 # Execute binaries from Python packages in isolated environments
@@ -85,8 +95,6 @@ brew "pipx"
 brew "pnpm"
 # Python version management
 brew "pyenv"
-# Search tool like grep and The Silver Searcher
-brew "ripgrep"
 # Intuitive find & replace CLI
 brew "sd"
 # Static analysis and lint tool, for (ba)sh scripts
@@ -115,10 +123,6 @@ brew "zoxide"
 brew "zsh-autosuggestions"
 # Fish shell like syntax highlighting for zsh
 brew "zsh-syntax-highlighting"
-# The AI coding agent built for the terminal.
-brew "anomalyco/tap/opencode", trusted: true
-# Desktop-inspired terminal diff viewer for agent-authored changesets
-brew "modem-dev/tap/hunk", trusted: true
 # Password manager that keeps all passwords secure behind one password
 cask "1password"
 # Command-line interface for 1Password
@@ -179,11 +183,71 @@ cask "spotify"
 cask "stats"
 # Menu bar customization tool
 cask "swiftbar"
+# Open-source code editor
+cask "visual-studio-code"
 # Native desktop client for WhatsApp
 cask "whatsapp"
 # Multiplayer code editor
 cask "zed"
 # Gecko based web browser
 cask "zen"
-npm "@ai-sdk/openai-compatible"
-npm "typescript"
+vscode "4ops.terraform"
+vscode "alefragnani.project-manager"
+vscode "altimateai.vscode-altimate-mcp-server"
+vscode "amazonwebservices.amazon-q-vscode"
+vscode "amazonwebservices.aws-toolkit-vscode"
+vscode "anjali.clipboard-history"
+vscode "anthropic.claude-code"
+vscode "asvetliakov.vscode-neovim"
+vscode "bastienboutonnet.vscode-dbt"
+vscode "be5invis.vscode-custom-css"
+vscode "boto3typed.boto3-ide"
+vscode "bruno-api-client.bruno"
+vscode "codium.codium"
+vscode "continue.continue"
+vscode "dbaeumer.vscode-eslint"
+vscode "denoland.vscode-deno"
+vscode "docker.docker"
+vscode "dracula-theme.theme-dracula"
+vscode "dvirtz.parquet-viewer"
+vscode "enkia.tokyo-night"
+vscode "esbenp.prettier-vscode"
+vscode "github.copilot-chat"
+vscode "github.vscode-github-actions"
+vscode "github.vscode-pull-request-github"
+vscode "grapecity.gc-excelviewer"
+vscode "gruntfuggly.todo-tree"
+vscode "hashicorp.terraform"
+vscode "mermaidchart.vscode-mermaid-chart"
+vscode "minodisk.bigquery-runner"
+vscode "ml.nc-gcode"
+vscode "ms-azuretools.vscode-containers"
+vscode "ms-azuretools.vscode-docker"
+vscode "ms-dotnettools.vscode-dotnet-runtime"
+vscode "ms-mssql.data-workspace-vscode"
+vscode "ms-mssql.mssql"
+vscode "ms-mssql.sql-bindings-vscode"
+vscode "ms-python.black-formatter"
+vscode "ms-python.debugpy"
+vscode "ms-python.isort"
+vscode "ms-python.python"
+vscode "ms-python.vscode-pylance"
+vscode "ms-python.vscode-python-envs"
+vscode "ms-toolsai.jupyter"
+vscode "ms-toolsai.jupyter-keymap"
+vscode "ms-toolsai.jupyter-renderers"
+vscode "ms-toolsai.vscode-jupyter-cell-tags"
+vscode "ms-toolsai.vscode-jupyter-slideshow"
+vscode "ms-vscode-remote.remote-containers"
+vscode "ms-vscode.makefile-tools"
+vscode "ms-vscode.test-adapter-converter"
+vscode "orta.vscode-jest"
+vscode "patricknasralla.tokyo-night-moon"
+vscode "qinjia.seti-icons"
+vscode "redhat.vscode-yaml"
+vscode "rvest.vs-code-prettier-eslint"
+vscode "samuelcolvin.jinjahtml"
+vscode "tamasfe.even-better-toml"
+vscode "vue.volar"
+vscode "zhuangtongfa.material-theme"
+npm "excalidraw-cli"
