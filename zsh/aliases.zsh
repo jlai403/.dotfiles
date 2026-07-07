@@ -129,6 +129,7 @@ alias find='fd'
 alias cat='bat --style=auto'
 alias ls='eza --icons --group-directories-first'
 alias lg=lazygit
+alias findlock="ioreg -l -w 0 | grep SecureInput"
 
 # suffix aliases
 if [[ "$SHELL" == *"zsh"* ]]; then

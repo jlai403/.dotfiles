@@ -3,3 +3,7 @@ theme = TokyoNight Moon
 window-show-tab-bar = never
 keybind = cmd+t=unbind
 keybind = cmd+shift+t=unbind
+macos-option-as-alt = true
+cursor-style = block
+cursor-style-blink = true
+shell-integration-features = no-cursor
