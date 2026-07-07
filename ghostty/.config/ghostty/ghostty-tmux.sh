@@ -13,4 +13,3 @@ else
   tmux new-session -s $SESSION_NAME -d
   tmux attach-session -t $SESSION_NAME
 fi
-

@@ -143,7 +143,7 @@ echo "${GREEN}Installed vendored borders binary to ~/.local/bin/borders (${ARCH}
 _stow ghostty
 _stow git
 _stow nvim
-_stow herdr
+stow -v --no-folding herdr && echo "${GREEN}Symlink updated for herdr${NC}"
 _stow tmux
 _stow zed
 _stow starship
