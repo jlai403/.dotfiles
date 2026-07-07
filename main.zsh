@@ -12,11 +12,11 @@ NC='\033[0m' # No Color
 
 echo "${BBLUE}"
 cat << 'EOF'
-       _  __        _          __        __   ____ _  __           
+       _  __        _          __        __   ____ _  __
       (_)/ /____ _ (_)    ____/ /____   / /_ / __/(_)/ /___   _____
      / // // __ `// /    / __  // __ \ / __// /_ / // // _ \ / ___/
-    / // // /_/ // /  _ / /_/ // /_/ // /_ / __// // //  __/(__  ) 
- __/ //_/ \__,_//_/  (_)\__,_/ \____/ \__//_/  /_//_/ \___//____/  
+    / // // /_/ // /  _ / /_/ // /_/ // /_ / __// // //  __/(__  )
+ __/ //_/ \__,_//_/  (_)\__,_/ \____/ \__//_/  /_//_/ \___//____/
 /___/
 EOF
 echo "${NC}"
@@ -143,9 +143,10 @@ echo "${GREEN}Installed vendored borders binary to ~/.local/bin/borders (${ARCH}
 _stow ghostty
 _stow git
 _stow nvim
+_stow herdr
 _stow tmux
-  _stow zed
-  _stow starship
+_stow zed
+_stow starship
 _stow television
 
 echo "${YELLOW}Linking global agent rules...${NC}"
@@ -259,4 +260,3 @@ desktoppr "$(pwd)/wallpaper/tokyo-night.jpg"
 if [[ "$CONFIGURE_OSX" == "true" ]]; then
   _configure_osx
 fi
-
