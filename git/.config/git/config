@@ -92,7 +92,7 @@
 	br = branch
 	st = status
   sweep = "!git branch --merged | grep -v ^\\* | grep -v main | grep -v master | xargs -r git branch -d"
-	tidy = "!sh -c '\n  git worktree prune\n\n  git worktree list --porcelain \\\n    | awk \"/^worktree /{wt=\\$2} /^branch /{br=\\$2; print wt, br}\" \\\n    | grep -v \"^$(git rev-parse --show-toplevel) \" \\\n    | while read wt br; do\n        branch=\"${br#refs/heads/}\"\n        if git branch --merged main 2>/dev/null | grep -qE \"^[* +]+${branch}$\"; then\n          git worktree remove \"$wt\" --force\n          echo \"removed worktree: $wt ($branch)\"\n        fi\n      done\n\n  git branch --merged main \\\n    | grep -v \"^\\*\" \\\n    | grep -vE \"^[* +]*(main|master)$\" \\\n    | grep . \\\n    | sed \"s/^[* +]*//\" \\\n    | while read b; do\n        git branch -d \"$b\" 2>/dev/null && echo \"deleted branch: $b\" || true\n      done\n'"
+	tidy = !~/.config/git/scripts/tidy
 
 [filter "lfs"]
 	clean = git-lfs clean -- %f

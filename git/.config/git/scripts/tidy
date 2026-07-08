@@ -1,0 +1,60 @@
+#!/bin/bash
+set -euo pipefail
+
+git worktree prune
+
+# Pass 1: auto-remove worktrees whose branch is a literal ancestor of main
+git worktree list --porcelain \
+  | awk "/^worktree /{wt=\$2} /^branch /{br=\$2; print wt, br}" \
+  | grep -v "^$(git rev-parse --show-toplevel) " \
+  | while read wt br; do
+      branch="${br#refs/heads/}"
+      if git branch --merged main 2>/dev/null | grep -qE "^[* +]+${branch}$"; then
+        git worktree remove "$wt" --force
+        echo "removed worktree: $wt ($branch)"
+      fi
+    done
+
+# Pass 2: auto-delete branches that are a literal ancestor of main
+git branch --merged main \
+  | grep -v "^\*" \
+  | grep -vE "^[* +]*(main|master)$" \
+  | grep . \
+  | sed "s/^[* +]*//" \
+  | while read b; do
+      git branch -d "$b" 2>/dev/null && echo "deleted branch: $b" || true
+    done
+
+# Pass 3: prompt on likely squash-merges/abandoned branches
+current=$(git symbolic-ref --short HEAD 2>/dev/null)
+git for-each-ref --format="%(refname:short) %(upstream:track)" refs/heads/ \
+  | grep "\[gone\]" \
+  | awk "{print \$1}" \
+  | while read b; do
+      [ "$b" = "$current" ] && continue
+      git merge-base --is-ancestor "$b" main 2>/dev/null && continue
+
+      wt=$(git worktree list --porcelain | awk -v br="refs/heads/$b" "/^worktree /{w=\$2} /^branch /{if (\$2==br) print w}")
+
+      echo ""
+      echo "Possible squash-merge (remote gone, not an ancestor of main): $b"
+      git log -1 --format="  last commit: %h %ad %s" --date=short "$b"
+      if [ -n "$wt" ]; then
+        echo "  worktree: $wt"
+        printf "  Delete local branch %s and its worktree? [y/N] " "$b"
+      else
+        printf "  Delete local branch %s? [y/N] " "$b"
+      fi
+      read ans < /dev/tty
+      case "$ans" in
+        y|Y)
+          if [ -n "$wt" ]; then
+            git worktree remove "$wt" --force && echo "  removed worktree: $wt"
+          fi
+          git branch -D "$b" && echo "  deleted branch: $b"
+          ;;
+        *)
+          echo "  skipped: $b"
+          ;;
+      esac
+    done
