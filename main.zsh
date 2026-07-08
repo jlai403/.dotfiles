@@ -72,8 +72,7 @@ if [[ "$UPDATE_APPS" == "true" ]]; then
   _update_apps
   bun add -g btca
   brew install pipx
-  pipx upgrade-all 2>/dev/null || pipx install code-review-graph
-  code-review-graph install
+  pipx upgrade-all 2>/dev/null
 fi
 
 #################################
@@ -159,14 +158,14 @@ ln -sf "$(pwd)/global-agent-rules.md" ~/.gemini/AGENTS.md
 ln -sf "$(pwd)/global-agent-rules.md" ~/.gemini/GEMINI.md
 
 echo "${YELLOW}Updating skills submodules...${NC}"
-git submodule update --recursive --remote --init skills/superpowers skills/excalidraw-diagram skills/duckdb-skills skills/caveman skills/code-review-graph skills/mattpocock
+git submodule update --recursive --remote --init skills/superpowers skills/excalidraw-diagram skills/duckdb-skills skills/caveman skills/mattpocock
 
 echo "${YELLOW}Linking skills to claude code...${NC}"
 rm -rf ~/.claude/skills
 mkdir -p ~/.claude/skills
 ln -sf "$(pwd)/skills/superpowers/skills/"* ~/.claude/skills/
-ln -sf "$(pwd)/skills/code-review-graph/skills/"* ~/.claude/skills/
 ln -sf "$(pwd)/skills/personal/skills/"* ~/.claude/skills/
+ln -sf "$(pwd)/skills/caveman/skills/"* ~/.claude/skills/
 ln -sf "$(pwd)/skills/mattpocock/skills/productivity/grill-me" ~/.claude/skills/grill-me
 ln -sf "$(pwd)/skills/mattpocock/skills/productivity/grilling" ~/.claude/skills/grilling
 
@@ -180,8 +179,8 @@ ln -sf "$(pwd)/skills/excalidraw-diagram/SKILL.md" ~/.gemini/antigravity/skills/
 ln -sf "$(pwd)/skills/duckdb-skills/skills/"* ~/.gemini/antigravity/skills/
 mkdir -p ~/.gemini/antigravity/skills/notion-cli
 ln -sf "$(pwd)/skills/notion-cli/SKILL.md" ~/.gemini/antigravity/skills/notion-cli/SKILL.md
-ln -sf "$(pwd)/skills/code-review-graph/skills/"* ~/.gemini/antigravity/skills/
 ln -sf "$(pwd)/skills/personal/skills/"* ~/.gemini/antigravity/skills/
+ln -sf "$(pwd)/skills/caveman/skills/"* ~/.gemini/antigravity/skills/
 ln -sf "$(pwd)/skills/mattpocock/skills/productivity/grill-me" ~/.gemini/antigravity/skills/grill-me
 ln -sf "$(pwd)/skills/mattpocock/skills/productivity/grilling" ~/.gemini/antigravity/skills/grilling
 
@@ -190,8 +189,8 @@ rm -rf ~/.gemini/skills
 mkdir -p ~/.gemini/skills
 ln -sf "$(pwd)/skills/duckdb-skills/skills/"* ~/.gemini/skills/
 ln -sf "$(pwd)/skills/excalidraw-diagram" ~/.gemini/skills/excalidraw-diagram
-ln -sf "$(pwd)/skills/code-review-graph/skills/"* ~/.gemini/skills/
 ln -sf "$(pwd)/skills/personal/skills/"* ~/.gemini/skills/
+ln -sf "$(pwd)/skills/caveman/skills/"* ~/.gemini/skills/
 ln -sf "$(pwd)/skills/mattpocock/skills/productivity/grill-me" ~/.gemini/skills/grill-me
 ln -sf "$(pwd)/skills/mattpocock/skills/productivity/grilling" ~/.gemini/skills/grilling
 
@@ -207,12 +206,7 @@ ln -sf "$(pwd)/skills/excalidraw-diagram" ~/.config/opencode/skills/excalidraw-d
 ln -sf "$(pwd)/skills/duckdb-skills/skills/"* ~/.config/opencode/skills/
 mkdir -p ~/.config/opencode/skills/notion-cli
 ln -sf "$(pwd)/skills/notion-cli/SKILL.md" ~/.config/opencode/skills/notion-cli/SKILL.md
-ln -sf "$(pwd)/skills/caveman/skills/caveman" ~/.config/opencode/skills/caveman
-ln -sf "$(pwd)/skills/caveman/skills/caveman-commit" ~/.config/opencode/skills/caveman-commit
-ln -sf "$(pwd)/skills/caveman/skills/caveman-review" ~/.config/opencode/skills/caveman-review
-ln -sf "$(pwd)/skills/caveman/skills/caveman-help" ~/.config/opencode/skills/caveman-help
-ln -sf "$(pwd)/skills/caveman/skills/compress" ~/.config/opencode/skills/compress
-ln -sf "$(pwd)/skills/code-review-graph/skills/"* ~/.config/opencode/skills/
+ln -sf "$(pwd)/skills/caveman/skills/"* ~/.config/opencode/skills/
 ln -sf "$(pwd)/skills/personal/skills/"* ~/.config/opencode/skills/
 ln -sf "$(pwd)/skills/mattpocock/skills/productivity/grill-me" ~/.config/opencode/skills/grill-me
 ln -sf "$(pwd)/skills/mattpocock/skills/productivity/grilling" ~/.config/opencode/skills/grilling
