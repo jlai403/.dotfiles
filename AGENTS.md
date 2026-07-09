@@ -9,7 +9,7 @@ GNU Stow-based dotfiles repo for macOS. Each top-level directory is a stow packa
   - `--apps` — install Homebrew packages from `Brewfile` + global bun packages
   - `--osx` — apply macOS defaults from `macos/defaults.zsh`
 - `Brewfile` — Homebrew brews and casks
-- `Taskfile.yml` — backup/restore tasks for Antigravity (VS Code fork), Zen browser, and skill updates (`task skills:update`)
+- `Taskfile.yml` — backup/restore tasks for Antigravity (VS Code fork), Zen browser, and skill updates (`task skills:update` runs `npx skills update -g`)
 - `global-agent-rules.md` — shared AI agent rules, symlinked to `~/.claude/CLAUDE.md`, `~/.config/opencode/AGENTS.md`, `~/.gemini/AGENTS.md`
 
 ### Stow Packages (managed by `main.zsh`)
@@ -19,7 +19,7 @@ GNU Stow-based dotfiles repo for macOS. Each top-level directory is a stow packa
 | `aerospace` | `~/.aerospace.toml` | Tiling window manager |
 | `borders` | `~/.config/borders/bordersrc` | Window border highlight (vendored binary copied to `~/.local/bin`) |
 | `ghostty` | `~/.config/ghostty/` | Terminal emulator |
-| `git` | `~/.config/git/config` | Git global config |
+| `git` | `~/.config/git/config`, `~/.config/git/scripts/tidy` | Git global config; `tidy` alias runs `scripts/tidy` |
 | `nvim` | `~/.config/nvim/` | Neovim (LazyVim) |
 | `tmux` | `~/.tmux.conf` | Tmux config |
 | `starship` | `~/.config/starship/` | Prompt theme |
@@ -37,14 +37,17 @@ GNU Stow-based dotfiles repo for macOS. Each top-level directory is a stow packa
 - `stats-menu/` — Stats.app menu bar plist
 
 ### Skills
-Git submodules under `skills/`, linked to gemini and opencode config dirs during setup:
-- `skills/superpowers` — agent workflow skills (git submodule)
-- `skills/excalidraw-diagram` — diagram generation (git submodule)
-- `skills/duckdb-skills` — DuckDB query/read skills (git submodule)
-- `skills/caveman` — terse output mode, commit/review skills (git submodule)
+Installed via `npx skills add -g` in `main.zsh`, managed by npx skills' lockfile.
+Only `skills/personal/` (code-like-joey) lives in-repo — symlinked to agent dirs.
 
-Vendored skills (pulled via `tiged`, update with `task skills:update`):
-- `skills/notion-cli` — Notion CLI workspace automation
+| Source | Skills | Agents |
+|--------|--------|--------|
+| `obra/superpowers` | all | Claude Code, Antigravity |
+| `coleam00/excalidraw-diagram-skill` | all | Claude Code, OpenCode, Gemini CLI, Antigravity |
+| `duckdb/duckdb-skills` | all | OpenCode, Gemini CLI, Antigravity |
+| `juliusbrussee/caveman` | all | Claude Code, OpenCode, Gemini CLI, Antigravity |
+| `mattpocock/skills` | grilling, grill-me | Claude Code, OpenCode, Gemini CLI, Antigravity |
+| `4ier/notion-cli` | notion-cli | OpenCode, Antigravity |
 
 ### Private Dotfiles (`~/.dotfiles_private`)
 Optional companion repo at `../.dotfiles_private` (sibling directory). If present, `main.zsh` will:
@@ -58,6 +61,8 @@ Never commit private dotfiles content to this repo.
 ## Build/Test Commands
 - Run setup: `./main.zsh` (base), `./main.zsh --apps` (install packages), `./main.zsh --osx` (macOS defaults)
 - Verify symlinks: `ls -la ~ | grep -E '\.dotfiles'`
+- Verify skills: `npx skills list -g`
+- Update skills: `npx skills update -g` or `task skills:update`
 - Backup before testing: `cp ~/.zshrc ~/.zshrc.backup`
 - Backup Antigravity: `task antigravity:backup`
 - Backup Zen: `task zen:backup`

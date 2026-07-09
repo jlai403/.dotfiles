@@ -76,11 +76,10 @@ tasks:
       - echo "Restored com.xiaogd.Doll.plist"
 
   skills:update:
-    desc: Update vendored skills using tiged
+    desc: Update all skills via npx skills
     cmds:
-      - rm -rf "{{.DOTS_DIR}}/skills/notion-cli"
-      - bunx tiged 4ier/notion-cli/skills/notion-cli "{{.DOTS_DIR}}/skills/notion-cli"
-      - echo "Updated notion-cli"
+      - npx skills update -g
+      - echo "Skills updated"
 
   zen:restore:
     desc: Restore Zen browser config from dotfiles

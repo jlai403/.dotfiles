@@ -62,8 +62,7 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-git submodule update --recursive --remote
-echo "${YELLOW}Update submodules ${NC}"
+
 
 #################################
 # install brew app
@@ -157,59 +156,46 @@ ln -sf "$(pwd)/global-agent-rules.md" ~/.config/opencode/AGENTS.md
 ln -sf "$(pwd)/global-agent-rules.md" ~/.gemini/AGENTS.md
 ln -sf "$(pwd)/global-agent-rules.md" ~/.gemini/GEMINI.md
 
-echo "${YELLOW}Updating skills submodules...${NC}"
-git submodule update --recursive --remote --init skills/superpowers skills/excalidraw-diagram skills/duckdb-skills skills/caveman skills/mattpocock
+echo "${YELLOW}Installing skills via npx skills...${NC}"
+npx skills add -g -y obra/superpowers --skill '*' -a claude-code -a antigravity
+npx skills add -g -y coleam00/excalidraw-diagram-skill --skill '*' -a claude-code -a opencode -a gemini-cli -a antigravity
+npx skills add -g -y duckdb/duckdb-skills --skill '*' -a opencode -a gemini-cli -a antigravity
+npx skills add -g -y juliusbrussee/caveman --skill '*' -a claude-code -a opencode -a gemini-cli -a antigravity
+npx skills add -g -y mattpocock/skills --skill grilling --skill grill-me -a claude-code -a opencode -a gemini-cli -a antigravity
+npx skills add -g -y 4ier/notion-cli -a opencode -a antigravity
 
-echo "${YELLOW}Linking skills to claude code...${NC}"
-rm -rf ~/.claude/skills
-mkdir -p ~/.claude/skills
-ln -sf "$(pwd)/skills/superpowers/skills/"* ~/.claude/skills/
-ln -sf "$(pwd)/skills/personal/skills/"* ~/.claude/skills/
-ln -sf "$(pwd)/skills/caveman/skills/"* ~/.claude/skills/
-ln -sf "$(pwd)/skills/mattpocock/skills/productivity/grill-me" ~/.claude/skills/grill-me
-ln -sf "$(pwd)/skills/mattpocock/skills/productivity/grilling" ~/.claude/skills/grilling
+echo "${YELLOW}Linking skills to agent directories...${NC}"
+_skills_src="$HOME/.agents/skills"
+_link_skills() {
+  local dest="$1"; shift
+  mkdir -p "$dest"
+  for skill in "$@"; do
+    [ -d "$_skills_src/$skill" ] && ln -sfn "../../.agents/skills/$skill" "$dest/$skill"
+  done
+}
 
-echo "${YELLOW}Linking skills to gemini...${NC}"
-# Antigravity (legacy)
-rm -rf ~/.gemini/antigravity/skills
-mkdir -p ~/.gemini/antigravity/skills
-ln -sf "$(pwd)/skills/superpowers/skills/"* ~/.gemini/antigravity/skills/
-mkdir -p ~/.gemini/antigravity/skills/excalidraw-diagram
-ln -sf "$(pwd)/skills/excalidraw-diagram/SKILL.md" ~/.gemini/antigravity/skills/excalidraw-diagram/SKILL.md
-ln -sf "$(pwd)/skills/duckdb-skills/skills/"* ~/.gemini/antigravity/skills/
-mkdir -p ~/.gemini/antigravity/skills/notion-cli
-ln -sf "$(pwd)/skills/notion-cli/SKILL.md" ~/.gemini/antigravity/skills/notion-cli/SKILL.md
-ln -sf "$(pwd)/skills/personal/skills/"* ~/.gemini/antigravity/skills/
-ln -sf "$(pwd)/skills/caveman/skills/"* ~/.gemini/antigravity/skills/
-ln -sf "$(pwd)/skills/mattpocock/skills/productivity/grill-me" ~/.gemini/antigravity/skills/grill-me
-ln -sf "$(pwd)/skills/mattpocock/skills/productivity/grilling" ~/.gemini/antigravity/skills/grilling
+_link_skills ~/.config/opencode/skills \
+  attach-db convert-file duckdb-docs install-duckdb query read-file read-memories \
+  s3-explore spatial excalidraw-diagram cavecrew caveman caveman-commit caveman-compress \
+  caveman-help caveman-review caveman-stats grill-me grilling notion-cli
 
-# Gemini CLI (Official)
-rm -rf ~/.gemini/skills
-mkdir -p ~/.gemini/skills
-ln -sf "$(pwd)/skills/duckdb-skills/skills/"* ~/.gemini/skills/
-ln -sf "$(pwd)/skills/excalidraw-diagram" ~/.gemini/skills/excalidraw-diagram
-ln -sf "$(pwd)/skills/personal/skills/"* ~/.gemini/skills/
-ln -sf "$(pwd)/skills/caveman/skills/"* ~/.gemini/skills/
-ln -sf "$(pwd)/skills/mattpocock/skills/productivity/grill-me" ~/.gemini/skills/grill-me
-ln -sf "$(pwd)/skills/mattpocock/skills/productivity/grilling" ~/.gemini/skills/grilling
+_link_skills ~/.gemini/skills \
+  attach-db convert-file duckdb-docs install-duckdb query read-file read-memories \
+  s3-explore spatial excalidraw-diagram cavecrew caveman caveman-commit caveman-compress \
+  caveman-help caveman-review caveman-stats grill-me grilling
 
-rm -rf ~/.gemini/extensions
-mkdir -p ~/.gemini/extensions
-ln -sf "$(pwd)/skills/superpowers" ~/.gemini/extensions/superpowers
+_link_skills ~/.gemini/antigravity/skills \
+  brainstorming dispatching-parallel-agents executing-plans finishing-a-development-branch \
+  receiving-code-review requesting-code-review subagent-driven-development systematic-debugging \
+  test-driven-development using-git-worktrees using-superpowers verification-before-completion \
+  writing-plans writing-skills attach-db convert-file duckdb-docs install-duckdb query read-file \
+  read-memories s3-explore spatial excalidraw-diagram notion-cli cavecrew caveman caveman-commit \
+  caveman-compress caveman-help caveman-review caveman-stats grill-me grilling
 
-
-echo "${YELLOW}Linking skills to opencode...${NC}"
-rm -rf ~/.config/opencode/skills
-mkdir -p ~/.config/opencode/skills
-ln -sf "$(pwd)/skills/excalidraw-diagram" ~/.config/opencode/skills/excalidraw-diagram
-ln -sf "$(pwd)/skills/duckdb-skills/skills/"* ~/.config/opencode/skills/
-mkdir -p ~/.config/opencode/skills/notion-cli
-ln -sf "$(pwd)/skills/notion-cli/SKILL.md" ~/.config/opencode/skills/notion-cli/SKILL.md
-ln -sf "$(pwd)/skills/caveman/skills/"* ~/.config/opencode/skills/
-ln -sf "$(pwd)/skills/personal/skills/"* ~/.config/opencode/skills/
-ln -sf "$(pwd)/skills/mattpocock/skills/productivity/grill-me" ~/.config/opencode/skills/grill-me
-ln -sf "$(pwd)/skills/mattpocock/skills/productivity/grilling" ~/.config/opencode/skills/grilling
+echo "${YELLOW}Linking personal skills...${NC}"
+for dir in ~/.claude/skills ~/.gemini/antigravity/skills ~/.gemini/skills ~/.config/opencode/skills; do
+  ln -sf "$(pwd)/skills/personal/skills/"* "$dir"
+done
 
 _stow opencode
 _stow gemini
