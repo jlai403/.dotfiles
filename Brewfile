@@ -1,10 +1,10 @@
 tap "1password/tap"
 tap "4ier/tap"
-tap "anomalyco/tap", trusted: true
+tap "anomalyco/tap", trusted: true if Hardware::CPU.arm?
 tap "felixkratz/formulae", "https://github.com/FelixKratz/homebrew-formulae"
 tap "hashicorp/tap"
 tap "manaflow-ai/cmux"
-tap "modem-dev/tap", trusted: { formulae: ["hunk"] }
+tap "modem-dev/tap", trusted: { formulae: ["hunk"] } if Hardware::CPU.arm?
 tap "nikitabobko/tap"
 tap "oven-sh/bun"
 # Cryptography and SSL/TLS Toolkit
@@ -59,6 +59,8 @@ brew "go-task"
 brew "gonzo"
 # Agent multiplexer that lives in your terminal
 brew "herdr"
+# Interactive tool for working with LLMs from the command line
+brew "modem-dev/tap/hunk", trusted: true if Hardware::CPU.arm?
 # Update of iperf: measures TCP, UDP, and SCTP bandwidth
 brew "iperf3"
 # Lightweight and flexible command-line JSON processor
@@ -82,7 +84,7 @@ brew "ollama", link: false
 # Search tool like grep and The Silver Searcher
 brew "ripgrep"
 # AI coding agent, built for the terminal
-brew "opencode"
+brew "opencode" if Hardware::CPU.arm?
 # Development kit for the Java programming language
 brew "openjdk"
 # Cryptography and SSL/TLS Toolkit
