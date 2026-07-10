@@ -157,40 +157,34 @@ ln -sf "$(pwd)/global-agent-rules.md" ~/.gemini/AGENTS.md
 ln -sf "$(pwd)/global-agent-rules.md" ~/.gemini/GEMINI.md
 
 echo "${YELLOW}Installing skills via npx skills...${NC}"
-npx skills add -g -y obra/superpowers --skill '*' -a claude-code -a antigravity
-npx skills add -g -y coleam00/excalidraw-diagram-skill --skill '*' -a claude-code -a opencode -a gemini-cli -a antigravity
-npx skills add -g -y duckdb/duckdb-skills --skill '*' -a opencode -a gemini-cli -a antigravity
-npx skills add -g -y juliusbrussee/caveman --skill '*' -a claude-code -a opencode -a gemini-cli -a antigravity
-npx skills add -g -y mattpocock/skills --skill grilling --skill grill-me -a claude-code -a opencode -a gemini-cli -a antigravity
-npx skills add -g -y 4ier/notion-cli -a opencode -a antigravity
-
-echo "${YELLOW}Linking skills to agent directories...${NC}"
 _skills_src="$HOME/.agents/skills"
-_link_skills() {
-  local dest="$1"; shift
-  mkdir -p "$dest"
-  for skill in "$@"; do
-    [ -d "$_skills_src/$skill" ] && ln -sfn "../../.agents/skills/$skill" "$dest/$skill"
+SKILLS_FILE="$(pwd)/skills/skills.yml"
+
+# nuke all installed skills for clean state
+echo "${YELLOW}  Removing all installed skills...${NC}"
+npx skills remove -g --all -y 2>/dev/null
+rm -rf "$_skills_src"/*(N)
+
+# install from config
+repos=("${(@f)$(yq '.install | keys | .[]' "$SKILLS_FILE")}")
+for repo in "${repos[@]}"; do
+  skills_val=$(yq ".install[\"$repo\"].skills" "$SKILLS_FILE")
+  agents_raw=$(yq ".install[\"$repo\"].agents | join(\",\")" "$SKILLS_FILE")
+
+  agent_flags=""
+  for a in "${(@s:,:)agents_raw}"; do
+    agent_flags="$agent_flags -a $a"
   done
-}
 
-_link_skills ~/.config/opencode/skills \
-  attach-db convert-file duckdb-docs install-duckdb query read-file read-memories \
-  s3-explore spatial excalidraw-diagram cavecrew caveman caveman-commit caveman-compress \
-  caveman-help caveman-review caveman-stats grill-me grilling notion-cli
+  if [[ "$skills_val" == "*" ]]; then
+    skill_flags="--skill '*'"
+  else
+    skill_flags=$(yq ".install[\"$repo\"].skills | .[] | \"--skill \(.)\"" "$SKILLS_FILE" | tr '\n' ' ')
+  fi
 
-_link_skills ~/.gemini/skills \
-  attach-db convert-file duckdb-docs install-duckdb query read-file read-memories \
-  s3-explore spatial excalidraw-diagram cavecrew caveman caveman-commit caveman-compress \
-  caveman-help caveman-review caveman-stats grill-me grilling
-
-_link_skills ~/.gemini/antigravity/skills \
-  brainstorming dispatching-parallel-agents executing-plans finishing-a-development-branch \
-  receiving-code-review requesting-code-review subagent-driven-development systematic-debugging \
-  test-driven-development using-git-worktrees using-superpowers verification-before-completion \
-  writing-plans writing-skills attach-db convert-file duckdb-docs install-duckdb query read-file \
-  read-memories s3-explore spatial excalidraw-diagram notion-cli cavecrew caveman caveman-commit \
-  caveman-compress caveman-help caveman-review caveman-stats grill-me grilling
+  echo "  Installing $repo..."
+  npx skills add -g -y "$repo" $skill_flags $agent_flags
+done
 
 echo "${YELLOW}Linking personal skills...${NC}"
 for dir in ~/.claude/skills ~/.gemini/antigravity/skills ~/.gemini/skills ~/.config/opencode/skills; do

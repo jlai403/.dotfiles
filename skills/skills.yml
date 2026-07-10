@@ -1,0 +1,23 @@
+# Skills configuration — single source of truth
+# Edit this file, then run: ./main.zsh
+
+install:
+  obra/superpowers:
+    skills: "*"
+    agents: [claude-code, antigravity]
+
+  coleam00/excalidraw-diagram-skill:
+    skills: "*"
+    agents: [claude-code, opencode, gemini-cli, antigravity]
+
+  duckdb/duckdb-skills:
+    skills: "*"
+    agents: [opencode, gemini-cli, antigravity]
+
+  mattpocock/skills:
+    skills: [grilling, grill-me]
+    agents: [claude-code, opencode, gemini-cli, antigravity]
+
+  4ier/notion-cli:
+    skills: [notion-cli]
+    agents: [opencode, antigravity]

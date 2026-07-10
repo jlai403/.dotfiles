@@ -37,17 +37,9 @@ GNU Stow-based dotfiles repo for macOS. Each top-level directory is a stow packa
 - `stats-menu/` — Stats.app menu bar plist
 
 ### Skills
-Installed via `npx skills add -g` in `main.zsh`, managed by npx skills' lockfile.
+Defined in `skills/skills.yml` — single source of truth for install + linking.
+`main.zsh` nukes all installed skills and reinstalls from config (idempotent).
 Only `skills/personal/` (code-like-joey) lives in-repo — symlinked to agent dirs.
-
-| Source | Skills | Agents |
-|--------|--------|--------|
-| `obra/superpowers` | all | Claude Code, Antigravity |
-| `coleam00/excalidraw-diagram-skill` | all | Claude Code, OpenCode, Gemini CLI, Antigravity |
-| `duckdb/duckdb-skills` | all | OpenCode, Gemini CLI, Antigravity |
-| `juliusbrussee/caveman` | all | Claude Code, OpenCode, Gemini CLI, Antigravity |
-| `mattpocock/skills` | grilling, grill-me | Claude Code, OpenCode, Gemini CLI, Antigravity |
-| `4ier/notion-cli` | notion-cli | OpenCode, Antigravity |
 
 ### Private Dotfiles (`~/.dotfiles_private`)
 Optional companion repo at `../.dotfiles_private` (sibling directory). If present, `main.zsh` will:
