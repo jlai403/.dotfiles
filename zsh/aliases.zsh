@@ -42,6 +42,41 @@ function orphaned_symlinks() {
   fi
 }
 
+brew-dump() {
+  local arch=$(uname -m)
+  local brewfile="${BREWFILE:-$HOME/.dotfiles/Brewfile}"
+
+  if [[ ! -f "$brewfile" ]]; then
+    echo "Error: Brewfile not found at $brewfile" >&2
+    return 1
+  fi
+
+  echo "Current arch: $arch"
+  echo "Brewfile: $brewfile"
+  echo ""
+
+  # Dump current installs (flat, no comments)
+  local tmpfile=$(mktemp)
+  brew bundle dump --force --no-describe --file="$tmpfile" 2>/dev/null
+
+  # Extract shared packages from Brewfile (exclude lines with Hardware::CPU conditionals)
+  local brewfile_shared=$(command grep -v 'Hardware::CPU' "$brewfile" | command grep -vE '^\s*(#|$)')
+
+  # Clean dump (remove comments and blank lines)
+  local dump_clean=$(command grep -vE '^\s*(#|$)' "$tmpfile")
+
+  # Diff shared packages vs current install
+  echo "=== Differences (shared packages vs current install) ==="
+  diff <(echo "$brewfile_shared") <(echo "$dump_clean") || true
+  echo ""
+  echo "Review the diff above. Update the appropriate lines in $brewfile"
+  echo "  - Lines with 'if Hardware::CPU.arm?': Silicon-only packages"
+  echo "  - Lines with 'if Hardware::CPU.intel?': Intel-only packages"
+  echo "  - Lines without conditionals: shared packages"
+
+  rm "$tmpfile"
+}
+
 # aws
 function av() {
 	aws-vault exec "$1" -- zsh -i
