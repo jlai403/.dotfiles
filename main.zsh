@@ -159,10 +159,11 @@ ln -sf "$(pwd)/global-agent-rules.md" ~/.gemini/GEMINI.md
 echo "${YELLOW}Installing skills via npx skills...${NC}"
 _skills_src="$HOME/.agents/skills"
 SKILLS_FILE="$(pwd)/skills/skills.yml"
+SKILLS_VERSION="1.5.9"
 
 # nuke all installed skills for clean state
 echo "${YELLOW}  Removing all installed skills...${NC}"
-npx skills remove -g --all -y 2>/dev/null
+npx "skills@${SKILLS_VERSION}" remove -g --all -y 2>/dev/null
 rm -rf "$_skills_src"/*(N)
 
 # install from config
@@ -183,7 +184,7 @@ for repo in "${repos[@]}"; do
   fi
 
   echo "  Installing $repo..."
-  npx skills add -g -y "$repo" $skill_flags $agent_flags
+  npx "skills@${SKILLS_VERSION}" add -g -y "$repo" $skill_flags $agent_flags
 done
 
 echo "${YELLOW}Linking personal skills...${NC}"

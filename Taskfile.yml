@@ -78,7 +78,7 @@ tasks:
   skills:update:
     desc: Update all skills via npx skills
     cmds:
-      - npx skills update -g
+      - npx "skills@1.5.9" update -g
       - echo "Skills updated"
 
   zen:restore:
