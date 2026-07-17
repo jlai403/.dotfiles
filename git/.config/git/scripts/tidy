@@ -6,7 +6,7 @@ git worktree prune
 # Pass 1: auto-remove worktrees whose branch is a literal ancestor of main
 git worktree list --porcelain \
   | awk "/^worktree /{wt=\$2} /^branch /{br=\$2; print wt, br}" \
-  | grep -v "^$(git rev-parse --show-toplevel) " \
+  | { grep -v "^$(git rev-parse --show-toplevel) " || true; } \
   | while read wt br; do
       branch="${br#refs/heads/}"
       if git branch --merged main 2>/dev/null | grep -qE "^[* +]+${branch}$"; then
@@ -17,10 +17,10 @@ git worktree list --porcelain \
 
 # Pass 2: auto-delete branches that are a literal ancestor of main
 git branch --merged main \
-  | grep -v "^\*" \
-  | grep -vE "^[* +]*(main|master)$" \
-  | grep . \
-  | sed "s/^[* +]*//" \
+  | { grep -v "^\*" || true; } \
+  | { grep -vE "^[* +]*(main|master)$" || true; } \
+  | { grep . || true; } \
+  | { sed "s/^[* +]*//" || true; } \
   | while read b; do
       git branch -d "$b" 2>/dev/null && echo "deleted branch: $b" || true
     done
@@ -28,7 +28,7 @@ git branch --merged main \
 # Pass 3: prompt on likely squash-merges/abandoned branches
 current=$(git symbolic-ref --short HEAD 2>/dev/null)
 git for-each-ref --format="%(refname:short) %(upstream:track)" refs/heads/ \
-  | grep "\[gone\]" \
+  | { grep "\[gone\]" || true; } \
   | awk "{print \$1}" \
   | while read b; do
       [ "$b" = "$current" ] && continue
