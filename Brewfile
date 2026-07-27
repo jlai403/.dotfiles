@@ -1,10 +1,8 @@
 tap "1password/tap"
 tap "4ier/tap"
-tap "anomalyco/tap", trusted: true if Hardware::CPU.arm?
 tap "felixkratz/formulae", "https://github.com/FelixKratz/homebrew-formulae"
 tap "hashicorp/tap"
 tap "manaflow-ai/cmux"
-tap "modem-dev/tap", trusted: { formulae: ["hunk"] } if Hardware::CPU.arm?
 tap "nikitabobko/tap"
 tap "oven-sh/bun"
 # Cryptography and SSL/TLS Toolkit
@@ -60,7 +58,6 @@ brew "gonzo"
 # Agent multiplexer that lives in your terminal
 brew "herdr"
 # Interactive tool for working with LLMs from the command line
-brew "modem-dev/tap/hunk", trusted: true if Hardware::CPU.arm?
 # Update of iperf: measures TCP, UDP, and SCTP bandwidth
 brew "iperf3"
 # Lightweight and flexible command-line JSON processor
@@ -84,7 +81,6 @@ brew "ollama", link: false
 # Search tool like grep and The Silver Searcher
 brew "ripgrep"
 # AI coding agent, built for the terminal
-brew "opencode" if Hardware::CPU.arm?
 # Development kit for the Java programming language
 brew "openjdk"
 # Cryptography and SSL/TLS Toolkit
@@ -130,7 +126,6 @@ cask "1password"
 # Command-line interface for 1Password
 cask "1password-cli"
 # AeroSpace is an i3-like tiling window manager for macOS
-cask "nikitabobko/tap/aerospace"
 # Agent orchestration platform
 cask "antigravity"
 # Application uninstaller
@@ -166,7 +161,6 @@ cask "github"
 # Web browser
 cask "google-chrome"
 # Grammarly for desktop
-cask "grammarly-desktop"
 # Convert your caps lock key or any of your modifier keys to the hyper key
 cask "hyperkey"
 # Interactive tool for analyzing MongoDB data
@@ -253,3 +247,7 @@ vscode "tamasfe.even-better-toml"
 vscode "vue.volar"
 vscode "zhuangtongfa.material-theme"
 npm "excalidraw-cli"
+tap "anomalyco/tap", trusted: true
+tap "modem-dev/tap", trusted: { formulae: ["hunk"] }
+brew "opencode"
+cask "aerospace"
