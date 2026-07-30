@@ -172,19 +172,23 @@ for repo in "${repos[@]}"; do
   skills_val=$(yq ".install[\"$repo\"].skills" "$SKILLS_FILE")
   agents_raw=$(yq ".install[\"$repo\"].agents | join(\",\")" "$SKILLS_FILE")
 
-  agent_flags=""
+  agent_flags=()
   for a in "${(@s:,:)agents_raw}"; do
-    agent_flags="$agent_flags -a $a"
+    agent_flags+=(-a "$a")
   done
 
   if [[ "$skills_val" == "*" ]]; then
-    skill_flags="--skill '*'"
+    skill_flags=(--skill '*')
   else
-    skill_flags=$(yq ".install[\"$repo\"].skills | .[] | \"--skill \(.)\"" "$SKILLS_FILE" | tr '\n' ' ')
+    skill_names=("${(@f)$(yq ".install[\"$repo\"].skills | .[]" "$SKILLS_FILE")}")
+    skill_flags=()
+    for s in "${skill_names[@]}"; do
+      skill_flags+=(--skill "$s")
+    done
   fi
 
   echo "  Installing $repo..."
-  npx "skills@${SKILLS_VERSION}" add -g -y "$repo" $skill_flags $agent_flags
+  npx "skills@${SKILLS_VERSION}" add -g -y "$repo" "${skill_flags[@]}" "${agent_flags[@]}"
 done
 
 echo "${YELLOW}Linking personal skills...${NC}"

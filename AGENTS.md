@@ -41,6 +41,8 @@ Defined in `skills/skills.yml` — single source of truth for install + linking.
 `main.zsh` nukes all installed skills and reinstalls from config (idempotent).
 Only `skills/personal/` (code-like-joey) lives in-repo — symlinked to agent dirs.
 
+**Zsh array note**: The `npx skills add` call in `main.zsh` uses zsh arrays (`agent_flags=()`, `skill_flags=()`) with `"${arr[@]}"` expansion — never string concatenation. Zsh does not word-split unquoted variables, so `$skill_flags $agent_flags` would pass everything as a single arg.
+
 ### Private Dotfiles (`~/.dotfiles_private`)
 Optional companion repo at `../.dotfiles_private` (sibling directory). If present, `main.zsh` will:
 - Stow its `ssh/` package (additional SSH configs)
