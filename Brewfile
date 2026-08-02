@@ -1,22 +1,29 @@
 tap "1password/tap"
 tap "4ier/tap"
-tap "felixkratz/formulae", "https://github.com/FelixKratz/homebrew-formulae"
+tap "anomalyco/tap", trusted: true
+tap "automic-vault/isotopes"
+tap "dmno-dev/tap"
+tap "felixkratz/formulae"
 tap "hashicorp/tap"
+tap "immanuwell/droast", "https://github.com/immanuwell/homebrew-droast.git"
 tap "manaflow-ai/cmux"
+tap "modem-dev/tap"
 tap "nikitabobko/tap"
 tap "oven-sh/bun"
-# Cryptography and SSL/TLS Toolkit
-brew "openssl@3"
-# Automate deployment, configuration, and upgrading
-brew "ansible"
 # Securely store and access AWS credentials in development environments
 brew "aws-vault"
+# Cryptography and SSL/TLS Toolkit
+brew "openssl@3"
 # Official Amazon AWS command-line interface
 brew "awscli"
 # Microsoft Azure CLI 2.0
 brew "azure-cli"
 # Clone of cat(1) with syntax highlighting and Git integration
 brew "bat"
+# Resource monitor. C++ version and continuation of bashtop and bpytop
+brew "btop"
+# Cloudflare Tunnel client (formerly Argo Tunnel)
+brew "cloudflared"
 # Secure runtime for JavaScript and TypeScript
 brew "deno"
 # Good-lookin' diffs with diff-highlight and more
@@ -57,7 +64,8 @@ brew "go-task"
 brew "gonzo"
 # Agent multiplexer that lives in your terminal
 brew "herdr"
-# Interactive tool for working with LLMs from the command line
+# Tools and libraries to manipulate images in select formats
+brew "imagemagick"
 # Update of iperf: measures TCP, UDP, and SCTP bandwidth
 brew "iperf3"
 # Lightweight and flexible command-line JSON processor
@@ -77,14 +85,9 @@ brew "neovim"
 # Manage multiple Node.js versions
 brew "nvm"
 # Create, run, and share large language models (LLMs)
-brew "ollama", link: false
-# Search tool like grep and The Silver Searcher
-brew "ripgrep"
-# AI coding agent, built for the terminal
+brew "ollama"
 # Development kit for the Java programming language
 brew "openjdk"
-# Cryptography and SSL/TLS Toolkit
-brew "openssl@1.1"
 # Drop-in replacement for Terraform. Infrastructure as Code Tool
 brew "opentofu"
 # Execute binaries from Python packages in isolated environments
@@ -93,6 +96,8 @@ brew "pipx"
 brew "pnpm"
 # Python version management
 brew "pyenv"
+# Search tool like grep and The Silver Searcher
+brew "ripgrep"
 # Intuitive find & replace CLI
 brew "sd"
 # Static analysis and lint tool, for (ba)sh scripts
@@ -121,15 +126,25 @@ brew "zoxide"
 brew "zsh-autosuggestions"
 # Fish shell like syntax highlighting for zsh
 brew "zsh-syntax-highlighting"
+# The AI coding agent built for the terminal.
+brew "anomalyco/tap/opencode", trusted: true
+# varlock is a tool to load and validate .env files
+brew "dmno-dev/tap/varlock", trusted: true
+# Dockerfile linter with personality
+brew "immanuwell/droast/droast", trusted: true
+# Desktop-inspired terminal diff viewer for agent-authored changesets
+brew "modem-dev/tap/hunk", trusted: true
 # Password manager that keeps all passwords secure behind one password
 cask "1password"
 # Command-line interface for 1Password
 cask "1password-cli"
-# AeroSpace is an i3-like tiling window manager for macOS
+cask "aerospace"
 # Agent orchestration platform
 cask "antigravity"
 # Application uninstaller
 cask "appcleaner"
+# Command-line security layer for developer environments
+cask "automic-vault/isotopes/automic-vault", trusted: true
 # Open source IDE for exploring and testing APIs
 cask "bruno"
 # Utility that prevents the system from going to sleep
@@ -150,8 +165,6 @@ cask "docker-desktop"
 cask "doll"
 # Developer platform
 cask "dotnet-runtime"
-# Web browser
-cask "firefox"
 cask "font-hack-nerd-font"
 cask "font-jetbrains-mono-nerd-font"
 # Terminal emulator that uses platform-native UI and GPU acceleration
@@ -160,7 +173,6 @@ cask "ghostty"
 cask "github"
 # Web browser
 cask "google-chrome"
-# Grammarly for desktop
 # Convert your caps lock key or any of your modifier keys to the hyper key
 cask "hyperkey"
 # Interactive tool for analyzing MongoDB data
@@ -179,75 +191,11 @@ cask "spotify"
 cask "stats"
 # Menu bar customization tool
 cask "swiftbar"
-# Open-source code editor
-cask "visual-studio-code"
 # Native desktop client for WhatsApp
 cask "whatsapp"
 # Multiplayer code editor
 cask "zed"
 # Gecko based web browser
 cask "zen"
-vscode "4ops.terraform"
-vscode "alefragnani.project-manager"
-vscode "altimateai.vscode-altimate-mcp-server"
-vscode "amazonwebservices.amazon-q-vscode"
-vscode "amazonwebservices.aws-toolkit-vscode"
-vscode "anjali.clipboard-history"
-vscode "anthropic.claude-code"
-vscode "asvetliakov.vscode-neovim"
-vscode "bastienboutonnet.vscode-dbt"
-vscode "be5invis.vscode-custom-css"
-vscode "boto3typed.boto3-ide"
-vscode "bruno-api-client.bruno"
-vscode "codium.codium"
-vscode "continue.continue"
-vscode "dbaeumer.vscode-eslint"
-vscode "denoland.vscode-deno"
-vscode "docker.docker"
-vscode "dracula-theme.theme-dracula"
-vscode "dvirtz.parquet-viewer"
-vscode "enkia.tokyo-night"
-vscode "esbenp.prettier-vscode"
-vscode "github.copilot-chat"
-vscode "github.vscode-github-actions"
-vscode "github.vscode-pull-request-github"
-vscode "grapecity.gc-excelviewer"
-vscode "gruntfuggly.todo-tree"
-vscode "hashicorp.terraform"
-vscode "mermaidchart.vscode-mermaid-chart"
-vscode "minodisk.bigquery-runner"
-vscode "ml.nc-gcode"
-vscode "ms-azuretools.vscode-containers"
-vscode "ms-azuretools.vscode-docker"
-vscode "ms-dotnettools.vscode-dotnet-runtime"
-vscode "ms-mssql.data-workspace-vscode"
-vscode "ms-mssql.mssql"
-vscode "ms-mssql.sql-bindings-vscode"
-vscode "ms-python.black-formatter"
-vscode "ms-python.debugpy"
-vscode "ms-python.isort"
-vscode "ms-python.python"
-vscode "ms-python.vscode-pylance"
-vscode "ms-python.vscode-python-envs"
-vscode "ms-toolsai.jupyter"
-vscode "ms-toolsai.jupyter-keymap"
-vscode "ms-toolsai.jupyter-renderers"
-vscode "ms-toolsai.vscode-jupyter-cell-tags"
-vscode "ms-toolsai.vscode-jupyter-slideshow"
-vscode "ms-vscode-remote.remote-containers"
-vscode "ms-vscode.makefile-tools"
-vscode "ms-vscode.test-adapter-converter"
-vscode "orta.vscode-jest"
-vscode "patricknasralla.tokyo-night-moon"
-vscode "qinjia.seti-icons"
-vscode "redhat.vscode-yaml"
-vscode "rvest.vs-code-prettier-eslint"
-vscode "samuelcolvin.jinjahtml"
-vscode "tamasfe.even-better-toml"
-vscode "vue.volar"
-vscode "zhuangtongfa.material-theme"
-npm "excalidraw-cli"
-tap "anomalyco/tap", trusted: true
-tap "modem-dev/tap", trusted: { formulae: ["hunk"] }
-brew "opencode"
-cask "aerospace"
+npm "@ai-sdk/openai-compatible"
+npm "typescript"

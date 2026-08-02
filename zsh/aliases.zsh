@@ -253,11 +253,11 @@ brew-dump() {
 }
 
 # aws
-function av() {
+function awsv() {
 	aws-vault exec "$1" -- zsh -i
 }
 
-function av_add_role() {
+function awsv_add_role() {
 	local profile_name role_arn source_profile region
 	local config_file="${HOME}/.aws/config"
 
