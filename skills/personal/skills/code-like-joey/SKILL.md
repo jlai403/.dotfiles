@@ -36,7 +36,7 @@ Target 10–30 lines per function. Classes only when state/lifecycle warrants it
 
 ## Comments
 
-Self-documenting names first. JSDoc only on public API. Comments explain non-obvious *why*, not what.
+Self-documenting names first. JSDoc only on public API. Comments explain non-obvious *why*, not what. Keep them tight — one or two sentences; a header comment is a paragraph, not an essay. Don't narrate incident history, alternatives considered, or restate what the code already shows.
 
 ## Tests
 
