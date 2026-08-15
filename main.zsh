@@ -147,6 +147,12 @@ _stow zed
 _stow starship
 _stow television
 
+echo "${YELLOW}Installing codegraph CLI + wiring opencode...${NC}"
+if ! command -v codegraph >/dev/null 2>&1; then
+  curl -fsSL https://raw.githubusercontent.com/colbymchenry/codegraph/main/install.sh | sh
+fi
+codegraph install --target=opencode --location=global --yes
+
 echo "${YELLOW}Linking global agent rules...${NC}"
 mkdir -p ~/.claude
 mkdir -p ~/.config/opencode
@@ -196,6 +202,7 @@ for dir in ~/.claude/skills ~/.gemini/antigravity/skills ~/.gemini/skills ~/.con
   ln -sf "$(pwd)/skills/personal/skills/"* "$dir"
 done
 
+rm -f ~/.config/opencode/opencode.json
 _stow opencode
 _stow gemini
 

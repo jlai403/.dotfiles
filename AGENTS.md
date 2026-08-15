@@ -10,7 +10,7 @@ GNU Stow-based dotfiles repo for macOS. Each top-level directory is a stow packa
   - `--osx` — apply macOS defaults from `macos/defaults.zsh`
 - `Brewfile` — Homebrew brews and casks
 - `Taskfile.yml` — backup/restore tasks for Antigravity (VS Code fork), Zen browser, and skill updates (`task skills:update` runs `npx skills update -g`)
-- `global-agent-rules.md` — shared AI agent rules, symlinked to `~/.claude/CLAUDE.md`, `~/.config/opencode/AGENTS.md`, `~/.gemini/AGENTS.md`
+- `global-agent-rules.md` — shared AI agent rules, symlinked to `~/.claude/CLAUDE.md`, `~/.config/opencode/AGENTS.md`, `~/.gemini/AGENTS.md`; contains the marker-fenced `CODEGRAPH_START`/`CODEGRAPH_END` block written by `codegraph install`
 
 ### Stow Packages (managed by `main.zsh`)
 | Package | Target pattern | Notes |
@@ -43,6 +43,13 @@ Only `skills/personal/` (code-like-joey) lives in-repo — symlinked to agent di
 
 **Zsh array note**: The `npx skills add` call in `main.zsh` uses zsh arrays (`agent_flags=()`, `skill_flags=()`) with `"${arr[@]}"` expansion — never string concatenation. Zsh does not word-split unquoted variables, so `$skill_flags $agent_flags` would pass everything as a single arg.
 
+### CodeGraph
+- CLI installed via standalone bundle (`~/.codegraph/` + `~/.local/bin/codegraph`); `main.zsh` installs it if missing and runs `codegraph install --target=opencode --location=global --yes` to wire the MCP server
+- opencode MCP entry (`mcp.codegraph`) is committed in `opencode/.config/opencode/opencode.json`; `main.zsh` does `rm -f ~/.config/opencode/opencode.json` before `_stow opencode` because `codegraph install` replaces the stow symlink with a real file
+- The `CODEGRAPH_START`/`CODEGRAPH_END` block in `global-agent-rules.md` is maintained by `codegraph install` — keep it in sync if rerunning the installer
+- Index projects with `codegraph init` (creates `.codegraph/`); upgrade CLI with `codegraph upgrade`
+- Only opencode is wired (not Claude/Gemini MCP)
+
 ### Private Dotfiles (`~/.dotfiles_private`)
 Optional companion repo at `../.dotfiles_private` (sibling directory). If present, `main.zsh` will:
 - Stow its `ssh/` package (additional SSH configs)
@@ -57,6 +64,7 @@ Never commit private dotfiles content to this repo.
 - Verify symlinks: `ls -la ~ | grep -E '\.dotfiles'`
 - Verify skills: `npx skills list -g`
 - Update skills: `npx skills update -g` or `task skills:update`
+- Verify codegraph: `codegraph --version` and `codegraph install --print-config opencode`
 - Backup before testing: `cp ~/.zshrc ~/.zshrc.backup`
 - Backup Antigravity: `task antigravity:backup`
 - Backup Zen: `task zen:backup`
