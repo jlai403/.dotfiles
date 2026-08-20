@@ -21,3 +21,7 @@ install:
   4ier/notion-cli:
     skills: [notion-cli]
     agents: [opencode, antigravity]
+
+  cursor/plugins:
+    skills: [unslop]
+    agents: [claude-code, opencode, gemini-cli, antigravity]
