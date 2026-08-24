@@ -1,5 +1,5 @@
 [user]
-	name = joey 
+	name = joey
 	email = 3282127+jlai403@users.noreply.github.com
 
 [url "ssh://git@github.com/"]
@@ -10,6 +10,9 @@
 
 [url "ssh://git@ghstellar/stellaralgo/"]
 	insteadOf = "ghstellar:"
+
+[url "ssh://git@forgejo/jlai/"]
+	insteadOf = "forgejo:"
 
 [init]
 	defaultBranch = main
