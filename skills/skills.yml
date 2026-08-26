@@ -15,7 +15,7 @@ install:
     agents: [opencode, gemini-cli, antigravity]
 
   mattpocock/skills:
-    skills: [grilling, grill-me, teach]
+    skills: [grilling, grill-me, grill-with-docs, teach]
     agents: [claude-code, opencode, gemini-cli, antigravity]
 
   4ier/notion-cli:
