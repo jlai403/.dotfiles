@@ -36,6 +36,10 @@ Default to: **rg** (search), **bat** (view), **sd** (replace), **fd** (find), **
 
 When dispatching implementer subagents, include: "Load code-like-joey skill before writing code."
 
+## Writing & Output
+
+Before delivering any prose output (explanations, docs, comments, commit messages), load the unslop skill and apply it.
+
 ## Project Context
 
 Global rules — project CLAUDE.md takes precedence. Merge by appending project rules after global rules.
