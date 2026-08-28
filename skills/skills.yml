@@ -22,6 +22,10 @@ install:
     skills: [notion-cli]
     agents: [opencode, antigravity]
 
+  tt-a1i/archify:
+    skills: "*"
+    agents: [claude-code, opencode, gemini-cli, antigravity]
+
   cursor/plugins:
     skills: [unslop]
     agents: [claude-code, opencode, gemini-cli, antigravity]
