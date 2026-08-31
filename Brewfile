@@ -144,7 +144,6 @@ cask "antigravity"
 # Application uninstaller
 cask "appcleaner"
 # Command-line security layer for developer environments
-cask "automic-vault/isotopes/automic-vault", trusted: true
 # Open source IDE for exploring and testing APIs
 cask "bruno"
 # Utility that prevents the system from going to sleep
@@ -199,3 +198,8 @@ cask "zed"
 cask "zen"
 npm "@ai-sdk/openai-compatible"
 npm "typescript"
+cask "automic-vault"
+tap "bjarneo/cliamp"
+brew "bjarneo/cliamp/cliamp", trusted: true
+brew "oven-sh/bun/bun", trusted: true
+cask "session-manager-plugin"
