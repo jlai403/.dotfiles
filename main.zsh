@@ -24,6 +24,7 @@ echo ""
 
 DOTS_DIR="$(pwd)"
 PRIVATE_DOTS_DIR="$(pwd)/../.dotfiles_private"
+OS="$(uname -s)"
 
 _configure_osx() {
   source "$(pwd)/macos/defaults.zsh"
@@ -67,7 +68,7 @@ done
 #################################
 # install brew app
 #################################
-if [[ "$UPDATE_APPS" == "true" ]]; then
+if [[ "$UPDATE_APPS" == "true" && "$OS" == "Darwin" ]]; then
   _update_apps
   bun add -g btca
   brew install pipx
@@ -126,19 +127,21 @@ fi
 #################################
 
 _stow stow
-_stow aerospace
-_stow borders
-mkdir -p ~/.local/bin
-ARCH=$(uname -m)
-if [[ "$ARCH" == "arm64" ]]; then
-  BINARY_NAME="borders-arm64"
-else
-  BINARY_NAME="borders-x86_64"
+if [[ "$OS" == "Darwin" ]]; then
+  _stow aerospace
+  _stow borders
+  mkdir -p ~/.local/bin
+  ARCH=$(uname -m)
+  if [[ "$ARCH" == "arm64" ]]; then
+    BINARY_NAME="borders-arm64"
+  else
+    BINARY_NAME="borders-x86_64"
+  fi
+  cp "${DOTS_DIR}/borders/bin/${BINARY_NAME}" ~/.local/bin/borders
+  chmod +x ~/.local/bin/borders
+  echo "${GREEN}Installed vendored borders binary to ~/.local/bin/borders (${ARCH})${NC}"
+  _stow cliamp
 fi
-cp "${DOTS_DIR}/borders/bin/${BINARY_NAME}" ~/.local/bin/borders
-chmod +x ~/.local/bin/borders
-echo "${GREEN}Installed vendored borders binary to ~/.local/bin/borders (${ARCH})${NC}"
-_stow cliamp
 _stow ghostty
 _stow git
 _stow nvim
@@ -146,6 +149,10 @@ stow -v --no-folding herdr && echo "${GREEN}Symlink updated for herdr${NC}"
 _stow tmux
 rm -f ~/.local/bin/zed-tmux
 _stow zed
+mkdir -p ~/.local/bin
+cp "${DOTS_DIR}/zed/.config/zed/zed-tmux.sh" ~/.local/bin/zed-tmux
+chmod +x ~/.local/bin/zed-tmux
+echo "${GREEN}Installed zed-tmux wrapper to ~/.local/bin/zed-tmux${NC}"
 _stow starship
 _stow television
 
@@ -227,7 +234,11 @@ else
   echo "${YELLOW}SSH Includes already present in ~/.ssh/config ${NC}"
 fi
 
-_stow ssh
+if [[ "$OS" == "Darwin" ]]; then
+  _stow ssh-mac
+else
+  _stow ssh-linux
+fi
 
 if [ -d $PRIVATE_DOTS_DIR ]; then
   echo "Symlinking private dotfiles ssh"
@@ -243,8 +254,10 @@ fi
 # Run OSX configuration if requested
 #################################
 
-desktoppr "$(pwd)/wallpaper/tokyo-night.jpg"
+if [[ "$OS" == "Darwin" ]]; then
+  desktoppr "$(pwd)/wallpaper/tokyo-night.jpg"
 
-if [[ "$CONFIGURE_OSX" == "true" ]]; then
-  _configure_osx
+  if [[ "$CONFIGURE_OSX" == "true" ]]; then
+    _configure_osx
+  fi
 fi

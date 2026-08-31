@@ -2,7 +2,7 @@
 
 ## Repo Overview
 
-GNU Stow-based dotfiles repo for macOS. Each top-level directory is a stow package or config backup. `main.zsh` is the bootstrap script.
+GNU Stow-based dotfiles repo for macOS (silicon Mac) and will soon support [Omarchy](https://omarchy.org/) (Arch Linux) on an Intel Mac. Each top-level directory is a stow package or config backup. `main.zsh` is the bootstrap script, branching on `OS="$(uname -s)"` for platform-specific steps.
 
 ### Key Files
 - `main.zsh` — bootstrap script (stow packages, append to .zshrc, link agent rules, SSH setup)
@@ -21,13 +21,18 @@ GNU Stow-based dotfiles repo for macOS. Each top-level directory is a stow packa
 | `ghostty` | `~/.config/ghostty/` | Terminal emulator |
 | `git` | `~/.config/git/config`, `~/.config/git/scripts/tidy` | Git global config; `tidy` alias runs `scripts/tidy` |
 | `nvim` | `~/.config/nvim/` | Neovim (LazyVim) |
+| `herdr` | `~/.config/herdr/config.toml` | Terminal multiplexer (stowed with `--no-folding`) |
 | `tmux` | `~/.tmux.conf` | Tmux config |
-| `zed` | `~/.config/zed/` | Zed editor; terminal wrapper `zed-tmux` stowed as `~/.local/bin/zed-tmux` (from `zed/.local/bin/zed-tmux`) |
+| `zed` | `~/.config/zed/` | Zed editor; terminal wrapper `zed-tmux` installed to `~/.local/bin/zed-tmux` (source is stow-ignored) |
 | `starship` | `~/.config/starship/` | Prompt theme |
 | `television` | `~/.config/television/` | TUI fuzzy finder |
 | `opencode` | `~/.config/opencode/` | OpenCode AI tool config |
 | `gemini` | `~/.gemini/` | Gemini CLI config |
-| `ssh` | `~/.ssh/config.d/personal.conf` | SSH config (includes prepended via `config.append`) |
+| `ssh-mac` | `~/.ssh/config.d/personal.conf` | SSH config, macOS 1Password socket (stowed on Darwin) |
+| `ssh-linux` | `~/.ssh/config.d/personal.conf` | SSH config, Linux 1Password socket (stowed on Linux) |
+
+### Platform gating
+`main.zsh` sets `OS="$(uname -s)"`. macOS-only packages (`aerospace`, `borders` + vendored binary, `ssh-mac`, `desktoppr`, `--osx`, `--apps`/brew) are only run when `OS == Darwin`; Linux uses `ssh-linux`. The `zsh/` configs branch on `$OS` internally via `case`/`if` for platform-specific PATH, plugin, and env settings.
 
 ### Non-stowed Configs (backup/restore via `Taskfile.yml` or manual)
 - `antigravity/` — VS Code fork settings, keybindings, extensions
