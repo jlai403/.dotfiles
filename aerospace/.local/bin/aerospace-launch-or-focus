@@ -1,6 +1,6 @@
 #!/bin/bash
 # usage: aerospace-launch-or-focus <command> [<fallback-workspace>]
-# If <command> is already running in a Ghostty window, focus it wherever it is.
+# If <command> is already running, focus its terminal window wherever it is.
 # Otherwise switch to <fallback-workspace> (if given) and open one Ghostty window running <command>.
 set -euo pipefail
 
