@@ -1,0 +1,28 @@
+#!/bin/bash
+# usage: aerospace-launch-or-focus <command> [<fallback-workspace>]
+# If <command> is already running in a Ghostty window, focus it wherever it is.
+# Otherwise switch to <fallback-workspace> (if given) and open one Ghostty window running <command>.
+set -euo pipefail
+
+cmd="${1:?usage: aerospace-launch-or-focus <command> [workspace]}"
+fallback_ws="${2:-}"
+
+for pid in $(pgrep -x "$cmd" || true); do
+    apid="$pid"
+    while [ -n "$apid" ] && [ "$apid" -gt 1 ]; do
+        comm="$(ps -o comm= -p "$apid" | tr -d ' ')"
+        [[ "$comm" == *[Gg]hostty* ]] && break
+        apid="$(ps -o ppid= -p "$apid" | tr -d ' ')"
+    done
+    line="$(aerospace list-windows --monitor all --pid "$apid" --format '%{window-id}|%{workspace}' | head -1 || true)"
+    if [ -n "$line" ]; then
+        ws="${line#*|}"
+        wid="${line%%|*}"
+        [ -n "$ws" ] && aerospace workspace "$ws"
+        [ -n "$wid" ] && aerospace focus --window-id "$wid"
+        exit 0
+    fi
+done
+
+[ -n "$fallback_ws" ] && aerospace workspace "$fallback_ws"
+open -na Ghostty.app --args -e "$cmd"

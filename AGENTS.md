@@ -16,12 +16,13 @@ GNU Stow-based dotfiles repo for macOS. Each top-level directory is a stow packa
 | Package | Target pattern | Notes |
 |---------|---------------|-------|
 | `stow` | `~/.stow-global-ignore` | GNU Stow ignore rules |
-| `aerospace` | `~/.aerospace.toml` | Tiling window manager |
+| `aerospace` | `~/.aerospace.toml`, `~/.local/bin/aerospace-launch-or-focus` | Tiling window manager; launch-or-focus helper for TUI bindings (stowed from `aerospace/.local/bin/aerospace-launch-or-focus`) |
 | `borders` | `~/.config/borders/bordersrc` | Window border highlight (vendored binary copied to `~/.local/bin`) |
 | `ghostty` | `~/.config/ghostty/` | Terminal emulator |
 | `git` | `~/.config/git/config`, `~/.config/git/scripts/tidy` | Git global config; `tidy` alias runs `scripts/tidy` |
 | `nvim` | `~/.config/nvim/` | Neovim (LazyVim) |
 | `tmux` | `~/.tmux.conf` | Tmux config |
+| `zed` | `~/.config/zed/` | Zed editor; terminal wrapper `zed-tmux` stowed as `~/.local/bin/zed-tmux` (from `zed/.local/bin/zed-tmux`) |
 | `starship` | `~/.config/starship/` | Prompt theme |
 | `television` | `~/.config/television/` | TUI fuzzy finder |
 | `opencode` | `~/.config/opencode/` | OpenCode AI tool config |
