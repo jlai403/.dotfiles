@@ -185,12 +185,12 @@ run = 'layout floating'
     alt-cmd-ctrl-semicolon = 'mode apps'
 
     # Open cliamp in the music workspace (focus if already running)
-    alt-m = 'exec-and-forget /Users/jlai/.local/bin/aerospace-launch-or-focus cliamp m'
+    alt-m = 'exec-and-forget ~/.local/bin/aerospace-launch-or-focus cliamp m'
 
     # Open a plain Ghostty terminal
     cmd-enter = 'exec-and-forget open -na Ghostty.app'
     # Open herdr in the agents workspace (focus if already running)
-    cmd-ctrl-enter = 'exec-and-forget /Users/jlai/.local/bin/aerospace-launch-or-focus herdr a'
+    cmd-ctrl-enter = 'exec-and-forget ~/.local/bin/aerospace-launch-or-focus herdr a'
 
 [mode.apps.binding]
     w = ['exec-and-forget open /Applications/WhatsApp.app', 'mode main']
@@ -199,8 +199,8 @@ run = 'layout floating'
     c = ['exec-and-forget open /Applications/Google\ Chrome.app', 'mode main']
     v = ['exec-and-forget open /Applications/Visual\ Studio\ Code.app', 'mode main']
     shift-m = ['exec-and-forget open /Applications/Spotify.app', 'mode main']
-    m = ['exec-and-forget /Users/jlai/.local/bin/aerospace-launch-or-focus cliamp m', 'mode main']
-    h = ['exec-and-forget /Users/jlai/.local/bin/aerospace-launch-or-focus herdr a', 'mode main']
+    m = ['exec-and-forget ~/.local/bin/aerospace-launch-or-focus cliamp m', 'mode main']
+    h = ['exec-and-forget ~/.local/bin/aerospace-launch-or-focus herdr a', 'mode main']
 
 
 # 'service' binding mode declaration.
