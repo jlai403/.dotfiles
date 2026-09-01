@@ -143,6 +143,7 @@ _stow git
 _stow nvim
 stow -v --no-folding herdr && echo "${GREEN}Symlink updated for herdr${NC}"
 _stow tmux
+rm -f ~/.local/bin/zed-tmux
 _stow zed
 _stow starship
 _stow television

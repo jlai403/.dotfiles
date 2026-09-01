@@ -184,13 +184,23 @@ run = 'layout floating'
     alt-shift-semicolon = 'mode service'
     alt-cmd-ctrl-semicolon = 'mode apps'
 
+    # Open cliamp in the music workspace (focus if already running)
+    alt-m = 'exec-and-forget /Users/jlai/.local/bin/launch-or-focus-tui cliamp m'
+
+    # Open a plain Ghostty terminal
+    cmd-enter = 'exec-and-forget open -na Ghostty.app'
+    # Open herdr in the agents workspace (focus if already running)
+    cmd-ctrl-enter = 'exec-and-forget /Users/jlai/.local/bin/launch-or-focus-tui herdr a'
+
 [mode.apps.binding]
     w = ['exec-and-forget open /Applications/WhatsApp.app', 'mode main']
     s = ['exec-and-forget open /Applications/Slack.app', 'mode main']
     g = ['exec-and-forget open /Applications/Ghostty.app', 'mode main']
     c = ['exec-and-forget open /Applications/Google\ Chrome.app', 'mode main']
     v = ['exec-and-forget open /Applications/Visual\ Studio\ Code.app', 'mode main']
-    m = ['exec-and-forget open /Applications/Spotify.app', 'mode main']
+    shift-m = ['exec-and-forget open /Applications/Spotify.app', 'mode main']
+    m = ['exec-and-forget /Users/jlai/.local/bin/launch-or-focus-tui cliamp m', 'mode main']
+    h = ['exec-and-forget /Users/jlai/.local/bin/launch-or-focus-tui herdr a', 'mode main']
 
 
 # 'service' binding mode declaration.
