@@ -16,7 +16,7 @@ GNU Stow-based dotfiles repo for macOS. Each top-level directory is a stow packa
 | Package | Target pattern | Notes |
 |---------|---------------|-------|
 | `stow` | `~/.stow-global-ignore` | GNU Stow ignore rules |
-| `aerospace` | `~/.aerospace.toml`, `~/.local/bin/launch-or-focus-tui` | Tiling window manager; launch-or-focus helper for TUI bindings (stowed from `aerospace/.local/bin/launch-or-focus-tui`) |
+| `aerospace` | `~/.aerospace.toml`, `~/.local/bin/aerospace-launch-or-focus` | Tiling window manager; launch-or-focus helper for TUI bindings (stowed from `aerospace/.local/bin/aerospace-launch-or-focus`) |
 | `borders` | `~/.config/borders/bordersrc` | Window border highlight (vendored binary copied to `~/.local/bin`) |
 | `ghostty` | `~/.config/ghostty/` | Terminal emulator |
 | `git` | `~/.config/git/config`, `~/.config/git/scripts/tidy` | Git global config; `tidy` alias runs `scripts/tidy` |
