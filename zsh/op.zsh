@@ -1,11 +1,14 @@
 # op-backed env secrets: Keychain cache (macOS), bootstrapped from 1Password.
-# Usage: _op_env <VAR> <keychain-service> <op://reference> [ttl_seconds]
+# Usage: _op_env <VAR> <op://reference> [ttl_seconds]
+#   Service name is derived as "$_OP_NS/$VAR" for a uniform, greppable namespace.
 #   ttl_seconds > 0 re-reads op when the Keychain entry is older than TTL.
-#   Rotate/force-refresh: op-env-reset <keychain-service> then open a new shell.
+#   Rotate/force-refresh: op-env-reset <VAR> then open a new shell.
 #   Linux (no `security` CLI): value is resolved from op on each shell; no cache.
 
+_OP_NS="dotfiles/cache/op_env"
+
 _op_env() {
-  local var="$1" svc="$2" ref="$3" ttl="${4:-0}" val created age
+  local var="$1" ref="$2" ttl="${3:-0}" svc="$_OP_NS/$1" val created age
 
   if [[ "$(uname -s)" != "Darwin" ]]; then
     # No `security` CLI: resolve from 1Password each shell, no cache.
@@ -32,12 +35,22 @@ _op_env() {
 }
 
 op-env-reset() {
-  # op-env-reset <keychain-service> [<keychain-service> ...]
-  local svc rc=0
-  for svc in "$@"; do
-    security delete-generic-password -s "$svc" -a "$USER" >/dev/null 2>&1 \
-      && echo "cleared $svc" \
-      || { echo "no entry for $svc"; rc=1; }
+  # op-env-reset <VAR> [<VAR> ...]  |  op-env-reset --all
+  local rc=0 arg
+
+  if [[ "$1" == "--all" ]]; then
+    for arg in $(security dump-keychain 2>/dev/null \
+                 | command grep -oE "$_OP_NS/[A-Za-z0-9_]+" | sort -u); do
+      security delete-generic-password -s "$arg" -a "$USER" >/dev/null 2>&1
+      echo "cleared ${arg#$_OP_NS/}"
+    done
+    return 0
+  fi
+
+  for arg in "$@"; do
+    security delete-generic-password -s "$_OP_NS/$arg" -a "$USER" >/dev/null 2>&1 \
+      && echo "cleared $arg" \
+      || { echo "no entry for $arg"; rc=1; }
   done
   return $rc
 }
