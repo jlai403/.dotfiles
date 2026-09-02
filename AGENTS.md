@@ -77,6 +77,7 @@ Never commit private dotfiles content to this repo.
 - `zsh/aliases.zsh`: Command aliases and utility functions
 - `zsh/sources.zsh`: Plugin sourcing (zsh-autosuggestions, syntax-highlighting)
 - `zsh/hooks.zsh`: Zsh hooks (auto-ls, git auto-pull)
+- `zsh/op.zsh`: 1Password-backed secrets. `_op_env <VAR> <op://ref> [ttl]` reads from the macOS Keychain (silent, encrypted) and bootstraps from 1Password when absent, storing under service name `dotfiles/cache/op_env/<VAR>`; `op-env-reset <VAR>` (or `--all`) deletes cached entries to force a re-read. Explicitly sourced at the top of `exports.zsh` (alphabetical load would run it too late). Uses `command grep` to bypass the `grep='rg'` alias.
 - Use snake_case for function names
 - Define color constants at file top (RED, GREEN, etc.)
 - Check file existence before modifications
