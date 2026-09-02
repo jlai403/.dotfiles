@@ -12,8 +12,17 @@ case "$OS" in
     export PATH="$HOME/.local/bin:$HOME/.bun/bin:$PYENV_ROOT/opt/e2fsprogs/bin:$HOMEBREW_PREFIX/bin:/usr/bin:$PATH"
     export NVM_DIR="$HOME/.nvm"
 
-    eval "$(pyenv init --path)"
-    eval "$(pyenv init -)"
+    export PATH="$PYENV_ROOT/shims:${PATH//:$PYENV_ROOT\/shims/}"
+
+    load-pyenv() {
+      # prevent re-sourcing
+      unset -f pyenv
+      eval "$(pyenv init --path)"
+      eval "$(pyenv init -)"
+    }
+
+    # load pyenv on first call
+    pyenv() { load-pyenv; pyenv "$@"; }
 
     load-nvm() {
       # prevent re-sourcing
@@ -35,7 +44,16 @@ case "$OS" in
     export NVM_DIR="$HOME/.nvm"
     export PATH="$HOME/.local/bin:$HOME/.bun/bin:/usr/bin:$PATH"
 
-    eval "$(pyenv init --path)"
-    eval "$(pyenv init -)"
+    export PATH="$PYENV_ROOT/shims:${PATH//:$PYENV_ROOT\/shims/}"
+
+    load-pyenv() {
+      # prevent re-sourcing
+      unset -f pyenv
+      eval "$(pyenv init --path)"
+      eval "$(pyenv init -)"
+    }
+
+    # load pyenv on first call
+    pyenv() { load-pyenv; pyenv "$@"; }
     ;;
 esac

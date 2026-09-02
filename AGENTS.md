@@ -88,7 +88,7 @@ Never commit private dotfiles content to this repo.
 - Check file existence before modifications
 - Use echo with color codes for user feedback
 - Create backups before overwriting files
-- Use lazy loading for heavy tools (NVM)
+- Use lazy loading for heavy tools (NVM, pyenv): keep the cheap shim PATH prepend eager, defer the expensive init (`load-nvm` / `load-pyenv` + `nvm()` / `pyenv()` wrappers) to first use
 - Maintain alphabetical ordering within sections
 
 ### Lua (Neovim configs)

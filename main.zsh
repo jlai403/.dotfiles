@@ -112,16 +112,6 @@ else
   echo "${YELLOW}zoxide already in ~/.zshrc ${NC}"
 fi
 
-if ! grep -q 'eval "$(mise activate zsh)"' ~/.zshrc; then
-  echo '
-# Load mise
-eval "$(mise activate zsh)"
-' >> ~/.zshrc
-  echo "${GREEN}Added mise to ~/.zshrc ${NC}"
-else
-  echo "${YELLOW}mise already in ~/.zshrc ${NC}"
-fi
-
 #################################
 # update dotfiles via symlinks
 #################################
