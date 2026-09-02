@@ -138,6 +138,7 @@ fi
 cp "${DOTS_DIR}/borders/bin/${BINARY_NAME}" ~/.local/bin/borders
 chmod +x ~/.local/bin/borders
 echo "${GREEN}Installed vendored borders binary to ~/.local/bin/borders (${ARCH})${NC}"
+_stow cliamp
 _stow ghostty
 _stow git
 _stow nvim
