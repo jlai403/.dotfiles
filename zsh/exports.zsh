@@ -44,6 +44,8 @@ case "$OS" in
     export NVM_DIR="$HOME/.nvm"
     export PATH="$HOME/.local/bin:$HOME/.bun/bin:/usr/bin:$PATH"
 
+    _op_env SPOTIFY_CLIENT_ID 'op://Private/spotify keys/client_id' 86400
+
     export PATH="$PYENV_ROOT/shims:${PATH//:$PYENV_ROOT\/shims/}"
 
     load-pyenv() {
@@ -55,5 +57,18 @@ case "$OS" in
 
     # load pyenv on first call
     pyenv() { load-pyenv; pyenv "$@"; }
+
+    load-nvm() {
+      # prevent re-sourcing
+      unset -f nvm node npm yarn pnpm
+      [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+    }
+
+    # load nvm on first call
+    nvm()  { load-nvm; nvm "$@"; }
+    node() { load-nvm; node "$@"; }
+    npm()  { load-nvm; npm "$@"; }
+    yarn() { load-nvm; yarn "$@"; }
+    pnpm() { load-nvm; pnpm "$@"; }
     ;;
 esac

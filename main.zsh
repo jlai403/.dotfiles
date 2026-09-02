@@ -36,6 +36,25 @@ _update_apps() {
   brew bundle install
 }
 
+_install_linux_apps() {
+  local pkgs=(omarchy-zsh zsh zsh-syntax-highlighting zsh-autosuggestions)
+  pkgs+=(starship zoxide fzf eza fd bat ripgrep)
+
+  echo "${BGREEN}Installing Linux apps via pacman: ${pkgs[*]}${NC}"
+  sudo pacman -S --needed --noconfirm "${pkgs[@]}"
+
+  if ! command -v bun >/dev/null 2>&1; then
+    echo "${YELLOW}Bun not installed. Install via:  curl -fsSL https://bun.sh/install | bash${NC}"
+  fi
+  if ! command -v pyenv >/dev/null 2>&1; then
+    echo "${YELLOW}pyenv not installed. Install via:  curl -fsSL https://pyenv.run | bash${NC}"
+  fi
+
+  if [[ -x /usr/bin/zsh && "$(basename "$SHELL")" != "zsh" ]]; then
+    echo "${YELLOW}Set zsh as your default shell:  chsh -s /usr/bin/zsh${NC}"
+  fi
+}
+
 _stow() {
   stow -v ${1}
   echo "${GREEN}Symlink updated for ${1}${NC}"
@@ -57,6 +76,10 @@ while [[ $# -gt 0 ]]; do
       UPDATE_APPS=true
       shift
       ;;
+    --linux-apps)
+      UPDATE_LINUX_APPS=true
+      shift
+      ;;
     *)
       shift
       ;;
@@ -73,6 +96,10 @@ if [[ "$UPDATE_APPS" == "true" && "$OS" == "Darwin" ]]; then
   bun add -g btca
   brew install pipx
   pipx upgrade-all 2>/dev/null
+fi
+
+if [[ "$UPDATE_LINUX_APPS" == "true" && "$OS" == "Linux" ]]; then
+  _install_linux_apps
 fi
 
 #################################
@@ -130,8 +157,8 @@ if [[ "$OS" == "Darwin" ]]; then
   cp "${DOTS_DIR}/borders/bin/${BINARY_NAME}" ~/.local/bin/borders
   chmod +x ~/.local/bin/borders
   echo "${GREEN}Installed vendored borders binary to ~/.local/bin/borders (${ARCH})${NC}"
-  _stow cliamp
 fi
+_stow cliamp
 _stow ghostty
 _stow git
 _stow nvim
@@ -228,6 +255,12 @@ if [[ "$OS" == "Darwin" ]]; then
   _stow ssh-mac
 else
   _stow ssh-linux
+  if [[ -d "$(pwd)/omarchy" ]]; then
+    _stow omarchy
+  fi
+  if [[ -d "$(pwd)/uwsm" ]]; then
+    _stow uwsm
+  fi
 fi
 
 if [ -d $PRIVATE_DOTS_DIR ]; then

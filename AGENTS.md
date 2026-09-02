@@ -7,6 +7,7 @@ GNU Stow-based dotfiles repo for macOS (silicon Mac) and will soon support [Omar
 ### Key Files
 - `main.zsh` — bootstrap script (stow packages, append to .zshrc, link agent rules, SSH setup)
   - `--apps` — install Homebrew packages from `Brewfile` + global bun packages
+  - `--linux-apps` — install Linux packages via pacman (zsh + plugins, starship, zoxide, fzf, eza, fd, bat, rg)
   - `--osx` — apply macOS defaults from `macos/defaults.zsh`
 - `Brewfile` — Homebrew brews and casks
 - `Taskfile.yml` — backup/restore tasks for Antigravity (VS Code fork), Zen browser, and skill updates (`task skills:update` runs `npx skills update -g`)
@@ -28,11 +29,17 @@ GNU Stow-based dotfiles repo for macOS (silicon Mac) and will soon support [Omar
 | `television` | `~/.config/television/` | TUI fuzzy finder |
 | `opencode` | `~/.config/opencode/` | OpenCode AI tool config |
 | `gemini` | `~/.gemini/` | Gemini CLI config |
+| `cliamp` | `~/.config/cliamp/config.toml` | Spotify TUI (cross-platform; stowed on Darwin and Linux) |
+| `omarchy` | (scaffold) | Omarchy desktop shell config (`shell.json` etc.); Linux only — populated in a future hypr config session |
+| `uwsm` | `~/.config/uwsm/env.d/dotfiles` | Desktop-session env for Omarchy (sets `TERMINAL=ghostty`, 1Password `SSH_AUTH_SOCK`); Linux only |
 | `ssh-mac` | `~/.ssh/config.d/personal.conf` | SSH config, macOS 1Password socket (stowed on Darwin) |
 | `ssh-linux` | `~/.ssh/config.d/personal.conf` | SSH config, Linux 1Password socket (stowed on Linux) |
 
 ### Platform gating
-`main.zsh` sets `OS="$(uname -s)"`. macOS-only packages (`aerospace`, `borders` + vendored binary, `ssh-mac`, `desktoppr`, `--osx`, `--apps`/brew) are only run when `OS == Darwin`; Linux uses `ssh-linux`. The `zsh/` configs branch on `$OS` internally via `case`/`if` for platform-specific PATH, plugin, and env settings.
+`main.zsh` sets `OS="$(uname -s)"`. macOS-only packages (`aerospace`, `borders` + vendored binary, `ssh-mac`, `desktoppr`, `--osx`, `--apps`/brew) are only run when `OS == Darwin`; Linux uses `ssh-linux`, `omarchy`, and `uwsm`. The `zsh/` configs branch on `$OS` internally via `case`/`if` for platform-specific PATH, plugin, and env settings.
+
+### Omarchy / zsh
+On Omarchy (Arch Linux), zsh is the user shell (not bash). `--linux-apps` installs `omarchy-zsh` plus zsh plugins and shared tools, and prints the `chsh -s /usr/bin/zsh` step. The canonical source chain: Omarchy's shared config (`omarchy-zsh`) → our `zsh/*.zsh` modules → tool inits. `zsh/overrides.zsh` re-runs Omarchy's `tsl`/`hsl` swarm functions under `emulate -L bash` so their 0-based array indexing survives zsh's 1-based arrays; no-op on macOS. Desktop env for the Hyprland session lives in `uwsm/.config/uwsm/env.d/dotfiles` (sourced by uwsm, not the shell rc).
 
 ### Non-stowed Configs (backup/restore via `Taskfile.yml` or manual)
 - `antigravity/` — VS Code fork settings, keybindings, extensions
@@ -66,7 +73,7 @@ Optional companion repo at `../.dotfiles_private` (sibling directory). If presen
 Never commit private dotfiles content to this repo.
 
 ## Build/Test Commands
-- Run setup: `./main.zsh` (base), `./main.zsh --apps` (install packages), `./main.zsh --osx` (macOS defaults)
+- Run setup: `./main.zsh` (base), `./main.zsh --apps` (install packages), `./main.zsh --linux-apps` (Linux packages), `./main.zsh --osx` (macOS defaults)
 - Verify symlinks: `ls -la ~ | grep -E '\.dotfiles'`
 - Verify skills: `npx skills list -g`
 - Update skills: `npx skills update -g` or `task skills:update`
@@ -81,7 +88,8 @@ Never commit private dotfiles content to this repo.
 - `zsh/exports.zsh`: Environment variables, PATH, tool initialization
 - `zsh/aliases.zsh`: Command aliases and utility functions
 - `zsh/sources.zsh`: Plugin sourcing (zsh-autosuggestions, syntax-highlighting)
-- `zsh/hooks.zsh`: Zsh hooks (auto-ls, git auto-pull)
+- `zsh/hooks.zsh`: Zsh hooks (auto-ls, git auto-pull, lazy mise activation)
+- `zsh/overrides.zsh`: zsh-compat wrappers for Omarchy's bash-indexed `tsl`/`hsl` (via `emulate -L bash`)
 - `zsh/op.zsh`: 1Password-backed secrets. `_op_env <VAR> <op://ref> [ttl]` reads from the macOS Keychain (silent, encrypted) and bootstraps from 1Password when absent, storing under service name `dotfiles/cache/op_env/<VAR>`; `op-env-reset <VAR>` (or `--all`) deletes cached entries to force a re-read. Explicitly sourced at the top of `exports.zsh` (alphabetical load would run it too late). Uses `command grep` to bypass the `grep='rg'` alias.
 - Use snake_case for function names
 - Define color constants at file top (RED, GREEN, etc.)
