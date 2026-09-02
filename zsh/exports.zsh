@@ -1,7 +1,8 @@
 export SSH_AUTH_SOCK=~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock
-if command -v op >/dev/null 2>&1; then
-  export SPOTIFY_CLIENT_ID="$(op read 'op://Private/spotify keys/client_id' 2>/dev/null)"
-fi
+
+source ~/.dotfiles/zsh/op.zsh
+_op_env SPOTIFY_CLIENT_ID "spotify-client-id" 'op://Private/spotify keys/client_id' 86400
+
 export PYENV_ROOT="$HOME/.pyenv"
 export PATH="$HOME/.local/bin:$HOME/.bun/bin:$PYENV_ROOT/usr/local/opt/e2fsprogs/bin:/usr/local/opt/e2fsprogs/sbin:~/Library/Python/3.6/bin:/usr/bin:$PATH"
 export NVM_DIR="$HOME/.nvm"
