@@ -241,7 +241,14 @@ _stow gemini
 mkdir -p ~/.ssh
 
 # Only add Includes if not already present
-ssh_config_appends=$(cat $(pwd)/ssh/config.append)
+if [[ "$OS" == "Darwin" ]]; then
+  _stow_group macos ssh
+  ssh_config_appends=$(cat "${DOTS_DIR}/macos/ssh/config.append")
+else
+  _stow_group omarchy ssh
+  _stow_group omarchy uwsm
+  ssh_config_appends=$(cat "${DOTS_DIR}/omarchy/ssh/config.append")
+fi
 if ! grep -q "${ssh_config_appends}" ~/.ssh/config; then
   ssh_backup_file="~/.ssh/config.bak_$(date '+%Y%m%d')"
   cp ~/.ssh/config ${ssh_backup_file}
@@ -254,18 +261,6 @@ if ! grep -q "${ssh_config_appends}" ~/.ssh/config; then
   echo "${GREEN}Added SSH Includes to ~/.ssh/config${NC}"
 else
   echo "${YELLOW}SSH Includes already present in ~/.ssh/config ${NC}"
-fi
-
-if [[ "$OS" == "Darwin" ]]; then
-  _stow ssh-mac
-else
-  _stow ssh-linux
-  if [[ -d "$(pwd)/omarchy" ]]; then
-    _stow omarchy
-  fi
-  if [[ -d "$(pwd)/uwsm" ]]; then
-    _stow uwsm
-  fi
 fi
 
 if [ -d $PRIVATE_DOTS_DIR ]; then
