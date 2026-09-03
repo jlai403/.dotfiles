@@ -27,7 +27,7 @@ PRIVATE_DOTS_DIR="$(pwd)/../.dotfiles_private"
 OS="$(uname -s)"
 
 _configure_osx() {
-  source "$(pwd)/macos/defaults.zsh"
+  source "$(pwd)/macos/system/defaults.zsh"
   configure_macos_defaults
 }
 
@@ -278,7 +278,7 @@ fi
 #################################
 
 if [[ "$OS" == "Darwin" ]]; then
-  desktoppr "$(pwd)/wallpaper/tokyo-night.jpg"
+  desktoppr "$(pwd)/macos/system/wallpaper/tokyo-night.jpg"
 
   if [[ "$CONFIGURE_OSX" == "true" ]]; then
     _configure_osx
