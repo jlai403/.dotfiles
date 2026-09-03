@@ -77,7 +77,7 @@
     "font_size": 15.0,
     "shell": {
       "with_arguments": {
-        "program": "/Users/jlai/.config/zed/zed-tmux.sh",
+        "program": "zed-tmux",
         "args": ["--login"],
       },
     },

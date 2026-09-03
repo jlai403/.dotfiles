@@ -24,9 +24,10 @@ echo ""
 
 DOTS_DIR="$(pwd)"
 PRIVATE_DOTS_DIR="$(pwd)/../.dotfiles_private"
+OS="$(uname -s)"
 
 _configure_osx() {
-  source "$(pwd)/macos/defaults.zsh"
+  source "$(pwd)/macos/system/defaults.zsh"
   configure_macos_defaults
 }
 
@@ -35,9 +36,34 @@ _update_apps() {
   brew bundle install
 }
 
+_install_linux_apps() {
+  local pkgs=(omarchy-zsh zsh zsh-syntax-highlighting zsh-autosuggestions)
+  pkgs+=(starship zoxide fzf eza fd bat ripgrep)
+
+  echo "${BGREEN}Installing Linux apps via pacman: ${pkgs[*]}${NC}"
+  sudo pacman -S --needed --noconfirm "${pkgs[@]}"
+
+  if ! command -v bun >/dev/null 2>&1; then
+    echo "${YELLOW}Bun not installed. Install via:  curl -fsSL https://bun.sh/install | bash${NC}"
+  fi
+  if ! command -v pyenv >/dev/null 2>&1; then
+    echo "${YELLOW}pyenv not installed. Install via:  curl -fsSL https://pyenv.run | bash${NC}"
+  fi
+
+  if [[ -x /usr/bin/zsh && "$(basename "$SHELL")" != "zsh" ]]; then
+    echo "${YELLOW}Set zsh as your default shell:  chsh -s /usr/bin/zsh${NC}"
+  fi
+}
+
 _stow() {
   stow -v ${1}
   echo "${GREEN}Symlink updated for ${1}${NC}"
+}
+
+_stow_group() {
+  local dir="$1" pkg="$2"
+  stow -v -d "${DOTS_DIR}/${dir}" -t ~ "$pkg"
+  echo "${GREEN}Symlink updated for ${pkg} (${dir})${NC}"
 }
 
 #################################
@@ -56,6 +82,10 @@ while [[ $# -gt 0 ]]; do
       UPDATE_APPS=true
       shift
       ;;
+    --linux-apps)
+      UPDATE_LINUX_APPS=true
+      shift
+      ;;
     *)
       shift
       ;;
@@ -67,11 +97,15 @@ done
 #################################
 # install brew app
 #################################
-if [[ "$UPDATE_APPS" == "true" ]]; then
+if [[ "$UPDATE_APPS" == "true" && "$OS" == "Darwin" ]]; then
   _update_apps
   bun add -g btca
   brew install pipx
   pipx upgrade-all 2>/dev/null
+fi
+
+if [[ "$UPDATE_LINUX_APPS" == "true" && "$OS" == "Linux" ]]; then
+  _install_linux_apps
 fi
 
 #################################
@@ -111,33 +145,24 @@ else
   echo "${YELLOW}zoxide already in ~/.zshrc ${NC}"
 fi
 
-if ! grep -q 'eval "$(mise activate zsh)"' ~/.zshrc; then
-  echo '
-# Load mise
-eval "$(mise activate zsh)"
-' >> ~/.zshrc
-  echo "${GREEN}Added mise to ~/.zshrc ${NC}"
-else
-  echo "${YELLOW}mise already in ~/.zshrc ${NC}"
-fi
-
 #################################
 # update dotfiles via symlinks
 #################################
 
-_stow stow
-_stow aerospace
-_stow borders
-mkdir -p ~/.local/bin
-ARCH=$(uname -m)
-if [[ "$ARCH" == "arm64" ]]; then
-  BINARY_NAME="borders-arm64"
-else
-  BINARY_NAME="borders-x86_64"
+if [[ "$OS" == "Darwin" ]]; then
+  _stow_group macos aerospace
+  _stow_group macos borders
+  mkdir -p ~/.local/bin
+  ARCH=$(uname -m)
+  if [[ "$ARCH" == "arm64" ]]; then
+    BINARY_NAME="borders-arm64"
+  else
+    BINARY_NAME="borders-x86_64"
+  fi
+  cp "${DOTS_DIR}/macos/borders/bin/${BINARY_NAME}" ~/.local/bin/borders
+  chmod +x ~/.local/bin/borders
+  echo "${GREEN}Installed vendored borders binary to ~/.local/bin/borders (${ARCH})${NC}"
 fi
-cp "${DOTS_DIR}/borders/bin/${BINARY_NAME}" ~/.local/bin/borders
-chmod +x ~/.local/bin/borders
-echo "${GREEN}Installed vendored borders binary to ~/.local/bin/borders (${ARCH})${NC}"
 _stow cliamp
 _stow ghostty
 _stow git
@@ -146,6 +171,10 @@ stow -v --no-folding herdr && echo "${GREEN}Symlink updated for herdr${NC}"
 _stow tmux
 rm -f ~/.local/bin/zed-tmux
 _stow zed
+mkdir -p ~/.local/bin
+cp "${DOTS_DIR}/zed/.config/zed/zed-tmux.sh" ~/.local/bin/zed-tmux
+chmod +x ~/.local/bin/zed-tmux
+echo "${GREEN}Installed zed-tmux wrapper to ~/.local/bin/zed-tmux${NC}"
 _stow starship
 _stow television
 
@@ -212,7 +241,14 @@ _stow gemini
 mkdir -p ~/.ssh
 
 # Only add Includes if not already present
-ssh_config_appends=$(cat $(pwd)/ssh/config.append)
+if [[ "$OS" == "Darwin" ]]; then
+  _stow_group macos ssh
+  ssh_config_appends=$(cat "${DOTS_DIR}/macos/ssh/config.append")
+else
+  _stow_group omarchy ssh
+  _stow_group omarchy uwsm
+  ssh_config_appends=$(cat "${DOTS_DIR}/omarchy/ssh/config.append")
+fi
 if ! grep -q "${ssh_config_appends}" ~/.ssh/config; then
   ssh_backup_file="~/.ssh/config.bak_$(date '+%Y%m%d')"
   cp ~/.ssh/config ${ssh_backup_file}
@@ -226,8 +262,6 @@ if ! grep -q "${ssh_config_appends}" ~/.ssh/config; then
 else
   echo "${YELLOW}SSH Includes already present in ~/.ssh/config ${NC}"
 fi
-
-_stow ssh
 
 if [ -d $PRIVATE_DOTS_DIR ]; then
   echo "Symlinking private dotfiles ssh"
@@ -243,8 +277,10 @@ fi
 # Run OSX configuration if requested
 #################################
 
-desktoppr "$(pwd)/wallpaper/tokyo-night.jpg"
+if [[ "$OS" == "Darwin" ]]; then
+  desktoppr "$(pwd)/macos/system/wallpaper/tokyo-night.jpg"
 
-if [[ "$CONFIGURE_OSX" == "true" ]]; then
-  _configure_osx
+  if [[ "$CONFIGURE_OSX" == "true" ]]; then
+    _configure_osx
+  fi
 fi

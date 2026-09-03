@@ -1,4 +1,6 @@
 .DS_Store
+.opencode/plans/
+.superpowers/
 zen/prefs.js
 docs/superpowers/
 zed/.config/zed/prompts/

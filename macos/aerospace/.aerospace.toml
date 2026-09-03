@@ -61,6 +61,12 @@ automatically-unhide-macos-hidden-apps = true
     outer.right =      10
 
 [[on-window-detected]]
+if.app-id="com.mitchellh.ghostty"
+run= [
+  "layout tiling",
+]
+
+[[on-window-detected]]
 if.app-name-regex-substring = '1password'
 run = 'layout floating'
 
