@@ -60,6 +60,12 @@ _stow() {
   echo "${GREEN}Symlink updated for ${1}${NC}"
 }
 
+_stow_group() {
+  local dir="$1" pkg="$2"
+  stow -v -d "${DOTS_DIR}/${dir}" -t ~ "$pkg"
+  echo "${GREEN}Symlink updated for ${pkg} (${dir})${NC}"
+}
+
 #################################
 # script start
 #################################
@@ -144,8 +150,8 @@ fi
 #################################
 
 if [[ "$OS" == "Darwin" ]]; then
-  _stow aerospace
-  _stow borders
+  _stow_group macos aerospace
+  _stow_group macos borders
   mkdir -p ~/.local/bin
   ARCH=$(uname -m)
   if [[ "$ARCH" == "arm64" ]]; then
@@ -153,7 +159,7 @@ if [[ "$OS" == "Darwin" ]]; then
   else
     BINARY_NAME="borders-x86_64"
   fi
-  cp "${DOTS_DIR}/borders/bin/${BINARY_NAME}" ~/.local/bin/borders
+  cp "${DOTS_DIR}/macos/borders/bin/${BINARY_NAME}" ~/.local/bin/borders
   chmod +x ~/.local/bin/borders
   echo "${GREEN}Installed vendored borders binary to ~/.local/bin/borders (${ARCH})${NC}"
 fi
