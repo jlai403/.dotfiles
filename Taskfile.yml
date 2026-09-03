@@ -10,8 +10,8 @@ tasks:
   antigravity:backup:
     desc: Back up Antigravity settings, keybindings, and extensions to dotfiles
     cmds:
-      - mkdir -p "{{.DOTS_DIR}}/antigravity"
-      - cp "{{.ANTIGRAVITY_SRC}}/keybindings.json" "{{.DOTS_DIR}}/antigravity/keybindings.json"
+      - mkdir -p "{{.DOTS_DIR}}/macos/backups/antigravity"
+      - cp "{{.ANTIGRAVITY_SRC}}/keybindings.json" "{{.DOTS_DIR}}/macos/backups/antigravity/keybindings.json"
       - echo "Backed up keybindings.json"
       - |
         python3 -c "
@@ -22,9 +22,9 @@ tasks:
         print(content)
         " < "{{.ANTIGRAVITY_SRC}}/settings.json" \
           | jq 'del(.["mssql.connections"], .["mssql.connectionGroups"])' \
-          > "{{.DOTS_DIR}}/antigravity/settings.json"
+          > "{{.DOTS_DIR}}/macos/backups/antigravity/settings.json"
       - echo "Backed up settings.json (SQL connections stripped)"
-      - "{{.ANTIGRAVITY_CLI}} --list-extensions 2>/dev/null > {{.DOTS_DIR}}/antigravity/extensions.txt"
+      - "{{.ANTIGRAVITY_CLI}} --list-extensions 2>/dev/null > {{.DOTS_DIR}}/macos/backups/antigravity/extensions.txt"
       - echo "Backed up extensions.txt"
 
   antigravity:restore:
@@ -33,19 +33,19 @@ tasks:
       - mkdir -p "{{.ANTIGRAVITY_SRC}}"
       - |
         for f in settings.json keybindings.json; do
-          if [ ! -f "{{.DOTS_DIR}}/antigravity/$f" ]; then
+          if [ ! -f "{{.DOTS_DIR}}/macos/backups/antigravity/$f" ]; then
             echo "Skipping $f — not found in dotfiles"
             continue
           fi
-          cp "{{.DOTS_DIR}}/antigravity/$f" "{{.ANTIGRAVITY_SRC}}/$f"
+          cp "{{.DOTS_DIR}}/macos/backups/antigravity/$f" "{{.ANTIGRAVITY_SRC}}/$f"
           echo "Restored $f"
         done
       - |
-        if [ -f "{{.DOTS_DIR}}/antigravity/extensions.txt" ]; then
+        if [ -f "{{.DOTS_DIR}}/macos/backups/antigravity/extensions.txt" ]; then
           args=()
           while IFS= read -r ext; do
             args+=(--install-extension "$ext")
-          done < "{{.DOTS_DIR}}/antigravity/extensions.txt"
+          done < "{{.DOTS_DIR}}/macos/backups/antigravity/extensions.txt"
           "{{.ANTIGRAVITY_CLI}}" "${args[@]}" --force || true
           echo "Restored extensions"
         fi
@@ -56,23 +56,23 @@ tasks:
       ZEN_PROFILE:
         sh: awk -F= '/^\[Install/{f=1} f && /^Default=/{print $2; exit}' "{{.ZEN_BASE}}/profiles.ini"
     cmds:
-      - mkdir -p "{{.DOTS_DIR}}/zen"
+      - mkdir -p "{{.DOTS_DIR}}/macos/backups/zen"
       - |
         for f in zen-keyboard-shortcuts.json zen-themes.json containers.json; do
-          cp "{{.ZEN_BASE}}/{{.ZEN_PROFILE}}/$f" "{{.DOTS_DIR}}/zen/$f" && echo "Backed up $f" || echo "Failed to back up $f"
+          cp "{{.ZEN_BASE}}/{{.ZEN_PROFILE}}/$f" "{{.DOTS_DIR}}/macos/backups/zen/$f" && echo "Backed up $f" || echo "Failed to back up $f"
         done
 
   doll:backup:
     desc: Back up Doll app preferences to dotfiles
     cmds:
-      - mkdir -p "{{.DOTS_DIR}}/doll"
-      - defaults export com.xiaogd.Doll "{{.DOTS_DIR}}/doll/com.xiaogd.Doll.plist"
+      - mkdir -p "{{.DOTS_DIR}}/macos/backups/doll"
+      - defaults export com.xiaogd.Doll "{{.DOTS_DIR}}/macos/backups/doll/com.xiaogd.Doll.plist"
       - echo "Backed up com.xiaogd.Doll.plist"
 
   doll:restore:
     desc: Restore Doll app preferences from dotfiles
     cmds:
-      - defaults import com.xiaogd.Doll "{{.DOTS_DIR}}/doll/com.xiaogd.Doll.plist"
+      - defaults import com.xiaogd.Doll "{{.DOTS_DIR}}/macos/backups/doll/com.xiaogd.Doll.plist"
       - echo "Restored com.xiaogd.Doll.plist"
 
   skills:update:
@@ -90,10 +90,10 @@ tasks:
       - mkdir -p "{{.ZEN_BASE}}/{{.ZEN_PROFILE}}"
       - |
         for f in zen-keyboard-shortcuts.json zen-themes.json containers.json user.js; do
-          if [ ! -f "{{.DOTS_DIR}}/zen/$f" ]; then
+          if [ ! -f "{{.DOTS_DIR}}/macos/backups/zen/$f" ]; then
             echo "Skipping $f — not found in dotfiles"
             continue
           fi
-          cp "{{.DOTS_DIR}}/zen/$f" "{{.ZEN_BASE}}/{{.ZEN_PROFILE}}/$f"
+          cp "{{.DOTS_DIR}}/macos/backups/zen/$f" "{{.ZEN_BASE}}/{{.ZEN_PROFILE}}/$f"
           echo "Restored $f"
         done
