@@ -143,7 +143,6 @@ fi
 # update dotfiles via symlinks
 #################################
 
-_stow stow
 if [[ "$OS" == "Darwin" ]]; then
   _stow aerospace
   _stow borders

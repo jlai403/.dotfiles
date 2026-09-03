@@ -1,0 +1,4 @@
+# Global stow ignores — read from every stow invocation run in this directory.
+# main.zsh always runs stow with cwd = $DOTS_DIR, so these apply to all packages.
+--ignore=\.DS_Store
+--ignore=^\.stow-local-ignore$
