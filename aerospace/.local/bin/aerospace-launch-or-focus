@@ -25,4 +25,4 @@ for pid in $(pgrep -x "$cmd" || true); do
 done
 
 [ -n "$fallback_ws" ] && aerospace workspace "$fallback_ws"
-open -na Ghostty.app --args -e "$cmd"
+open -na Ghostty.app --args -e zsh -ic "$cmd"
