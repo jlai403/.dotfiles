@@ -28,6 +28,15 @@
 -- o.bind("SUPER + H", nil, "voxtype record toggle")
 -- o.bind("SUPER + PERIOD", nil, "omarchy-shell shell toggle omarchy.emojis")
 
+-- Release Omarchy's SUPER+number workspace binds so Cmd+N reaches apps
+-- (Zen tab switching, etc.) like macOS. Workspace nav lives on ALT/HYPER.
+for workspace = 1, 10 do
+  local key = "code:" .. tostring(workspace + 9)
+  hl.unbind("SUPER + " .. key) -- was: switch to workspace
+  hl.unbind("SUPER + SHIFT + " .. key) -- was: move window (follow)
+  hl.unbind("SUPER + SHIFT + ALT + " .. key) -- was: move window (silent)
+end
+
 -- AeroSpace-style bindings: ALT navigates, HYPER (keyd CapsLock chord) moves.
 
 -- Workspaces 1-5. code:10..14 are the digit keycodes, matching Omarchy's
