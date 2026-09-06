@@ -62,7 +62,7 @@ On Omarchy (Arch Linux), zsh is the user shell (not bash). `--linux-apps` instal
 
 ### Non-stowed Configs (backup/restore via `Taskfile.yml` or manual)
 - `macos/backups/antigravity/` — VS Code fork settings, keybindings, extensions
-- `macos/backups/zen/` — Zen browser themes, keyboard shortcuts, containers
+- `macos/backups/zen/` + `omarchy/backups/zen/` — Zen browser themes, keyboard shortcuts, containers (per-OS copies; `zen:backup`/`zen:restore` pick the dir via `uname`)
 - `omarchy/backups/1password/` — 1Password allowed-browsers list (`custom_allowed_browsers`); restored to `/etc/1password/` via `task 1password:restore` (Zen desktop integration)
 - `macos/system/` — macOS system defaults (Dock, trackpad, keyboard, login items) + `wallpaper/tokyo-night.jpg`
 - `macos/backups/raycast/` — Raycast scripts

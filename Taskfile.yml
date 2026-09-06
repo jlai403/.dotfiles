@@ -4,7 +4,19 @@ vars:
   DOTS_DIR: "{{.ROOT_DIR}}"
   ANTIGRAVITY_SRC: "{{.HOME}}/Library/Application Support/Antigravity/User"
   ANTIGRAVITY_CLI: "{{.HOME}}/.antigravity/antigravity/bin/antigravity"
-  ZEN_BASE: "{{.HOME}}/Library/Application Support/zen"
+  # Zen's profile dir and our backup dir differ per OS.
+  ZEN_BASE:
+    sh: |
+      case "$(uname -s)" in
+        Darwin*) echo "$HOME/Library/Application Support/zen" ;;
+        *) echo "$HOME/.config/zen" ;;
+      esac
+  ZEN_BACKUPS_DIR:
+    sh: |
+      case "$(uname -s)" in
+        Darwin*) echo "macos" ;;
+        *) echo "omarchy" ;;
+      esac
 
 tasks:
   antigravity:backup:
@@ -56,10 +68,10 @@ tasks:
       ZEN_PROFILE:
         sh: awk -F= '/^\[Install/{f=1} f && /^Default=/{print $2; exit}' "{{.ZEN_BASE}}/profiles.ini"
     cmds:
-      - mkdir -p "{{.DOTS_DIR}}/macos/backups/zen"
+      - mkdir -p "{{.DOTS_DIR}}/{{.ZEN_BACKUPS_DIR}}/backups/zen"
       - |
         for f in zen-keyboard-shortcuts.json zen-themes.json containers.json; do
-          cp "{{.ZEN_BASE}}/{{.ZEN_PROFILE}}/$f" "{{.DOTS_DIR}}/macos/backups/zen/$f" && echo "Backed up $f" || echo "Failed to back up $f"
+          cp "{{.ZEN_BASE}}/{{.ZEN_PROFILE}}/$f" "{{.DOTS_DIR}}/{{.ZEN_BACKUPS_DIR}}/backups/zen/$f" && echo "Backed up $f" || echo "Failed to back up $f"
         done
 
   doll:backup:
@@ -109,11 +121,11 @@ tasks:
     cmds:
       - mkdir -p "{{.ZEN_BASE}}/{{.ZEN_PROFILE}}"
       - |
-        for f in zen-keyboard-shortcuts.json zen-themes.json containers.json user.js; do
-          if [ ! -f "{{.DOTS_DIR}}/macos/backups/zen/$f" ]; then
+        for f in zen-keyboard-shortcuts.json zen-themes.json containers.json; do
+          if [ ! -f "{{.DOTS_DIR}}/{{.ZEN_BACKUPS_DIR}}/backups/zen/$f" ]; then
             echo "Skipping $f — not found in dotfiles"
             continue
           fi
-          cp "{{.DOTS_DIR}}/macos/backups/zen/$f" "{{.ZEN_BASE}}/{{.ZEN_PROFILE}}/$f"
+          cp "{{.DOTS_DIR}}/{{.ZEN_BACKUPS_DIR}}/backups/zen/$f" "{{.ZEN_BASE}}/{{.ZEN_PROFILE}}/$f"
           echo "Restored $f"
         done
