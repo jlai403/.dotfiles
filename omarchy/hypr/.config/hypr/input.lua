@@ -18,6 +18,13 @@ hl.config({
 
       -- A palm brush must not become a click-drag.
       tap_and_drag = false,
+
+      -- A palm tap must not become a click; require a physical press instead.
+      tap_to_click = false,
+
+      -- macOS-style 3-finger drag: rest three fingers and move to drag.
+      -- libinput ≥1.28 native (fast flicks still register as swipes).
+      drag_3fg = 1,
     },
   },
 })
