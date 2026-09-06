@@ -1,0 +1,17 @@
+# pacman package list consumed by main.zsh --linux-apps (Brewfile equivalent).
+# One package per line; blank lines and # comments are ignored.
+# Dev toolchains live in omarchy/mise, not here.
+
+# Bootstrap toolchain
+stow
+go-task
+yq
+
+# Shell
+zsh
+zsh-syntax-highlighting
+zsh-autosuggestions
+omarchy-zsh
+
+# Hyper key daemon: hold CapsLock = Hyper (C-A-S-M), tap = Esc
+keyd

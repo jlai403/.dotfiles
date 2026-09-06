@@ -7,10 +7,11 @@ GNU Stow-based dotfiles repo for macOS (silicon Mac) and [Omarchy](https://omarc
 ### Key Files
 - `main.zsh` — bootstrap script (stow packages, append to .zshrc, link agent rules, SSH setup)
   - `--apps` — install Homebrew packages from `Brewfile` + global bun packages
-  - `--linux-apps` — install Linux packages via pacman (zsh + plugins, starship, zoxide, fzf, eza, fd, bat, rg)
+  - `--linux-apps` — install Linux packages listed in `omarchy/Pkgfile` via pacman
   - `--osx` — apply macOS defaults from `macos/system/defaults.zsh`
 - `.stowrc` — global stow ignore rules (`\.DS_Store`, `^\.stow-local-ignore$`); read automatically because `main.zsh` runs every stow from `$DOTS_DIR`
 - `Brewfile` — Homebrew brews and casks
+- `omarchy/Pkgfile` — pacman package list (Linux Brewfile equivalent) consumed by `main.zsh --linux-apps`; dev toolchains stay in mise
 - `Taskfile.yml` — backup/restore tasks for Antigravity (VS Code fork), Zen browser, the 1Password allowed-browsers list (`omarchy/backups/1password/custom_allowed_browsers`), the keyd hyper-key config (`keyd:restore`), and skill updates (`task skills:update` runs `npx skills update -g`)
 - `global-agent-rules.md` — shared AI agent rules, symlinked to `~/.claude/CLAUDE.md`, `~/.config/opencode/AGENTS.md`, `~/.gemini/AGENTS.md`; contains the marker-fenced `CODEGRAPH_START`/`CODEGRAPH_END` block written by `codegraph install`
 

@@ -37,7 +37,12 @@ _update_apps() {
 }
 
 _install_linux_apps() {
-  local pkgs=(stow go-task yq zsh zsh-syntax-highlighting zsh-autosuggestions omarchy-zsh keyd)
+  local pkgfile="${DOTS_DIR}/omarchy/Pkgfile"
+  if [[ ! -f "$pkgfile" ]]; then
+    echo "${RED}Missing package list: ${pkgfile}${NC}"
+    return 1
+  fi
+  local pkgs=(${(f)$(grep -vE '^\s*(#|$)' "$pkgfile")})
 
   echo "${BGREEN}Installing Linux apps via pacman: ${pkgs[*]}${NC}"
   sudo pacman -S --needed --noconfirm "${pkgs[@]}"
