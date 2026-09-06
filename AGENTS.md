@@ -11,7 +11,7 @@ GNU Stow-based dotfiles repo for macOS (silicon Mac) and [Omarchy](https://omarc
   - `--osx` — apply macOS defaults from `macos/system/defaults.zsh`
 - `.stowrc` — global stow ignore rules (`\.DS_Store`, `^\.stow-local-ignore$`); read automatically because `main.zsh` runs every stow from `$DOTS_DIR`
 - `Brewfile` — Homebrew brews and casks
-- `Taskfile.yml` — backup/restore tasks for Antigravity (VS Code fork), Zen browser, and skill updates (`task skills:update` runs `npx skills update -g`)
+- `Taskfile.yml` — backup/restore tasks for Antigravity (VS Code fork), Zen browser, the 1Password allowed-browsers list (`omarchy/backups/1password/custom_allowed_browsers`), and skill updates (`task skills:update` runs `npx skills update -g`)
 - `global-agent-rules.md` — shared AI agent rules, symlinked to `~/.claude/CLAUDE.md`, `~/.config/opencode/AGENTS.md`, `~/.gemini/AGENTS.md`; contains the marker-fenced `CODEGRAPH_START`/`CODEGRAPH_END` block written by `codegraph install`
 
 ### Stow Packages (managed by `main.zsh`)
@@ -44,6 +44,10 @@ Packages at repo **root** are stowed on both OSes; platform packages live under 
 |---------|---------------|-------|
 | `ssh` | `~/.ssh/config.d/personal.conf` | SSH config, Linux 1Password socket |
 | `uwsm` | `~/.config/uwsm/env.d/dotfiles` | Desktop-session env for Omarchy (sets `TERMINAL=ghostty`, 1Password `SSH_AUTH_SOCK`) |
+| `hypr` | `~/.config/hypr/` | Hyprland window manager configs (`hyprland.lua`, `bindings.lua`, `monitors.lua`, `input.lua`, `looknfeel.lua`, `autostart.lua`, `hyprsunset.conf`, `xdph.conf`) |
+| `omarchy-shell` | `~/.config/omarchy/` | Omarchy shell config (`shell.json`, `hooks/post-update.d/*.hook`, `defaults/agent`) |
+| `bash` | `~/.bashrc`, `~/.bash_profile` | Bash profile snapshot (Omarchy uses zsh; this is a preserved baseline) |
+| `mise` | `~/.config/mise/config.toml` | mise tool manifest (codex/gh/node/opencode); `main.zsh` runs `mise install` on Linux |
 
 ### Platform gating
 `main.zsh` sets `OS="$(uname -s)"`. Root packages (common) are stowed on both OSes via `_stow`. macOS-only content (`macos/aerospace`, `macos/borders` + vendored binary, `macos/ssh`, `macos/system/` desktoppr + `--osx`, `--apps`/brew) is only run when `OS == Darwin`; Linux uses `omarchy/ssh`, `omarchy/uwsm`, and `--linux-apps`. Both use the `_stow_group <dir> <pkg>` helper (`stow -d <dir> -t ~ <pkg>`). The `macos/ssh` and `omarchy/ssh` packages differ only by the 1Password agent socket path. The `zsh/` configs branch on `$OS` internally via `case`/`if` for platform-specific PATH, plugin, and env settings.
@@ -54,6 +58,7 @@ On Omarchy (Arch Linux), zsh is the user shell (not bash). `--linux-apps` instal
 ### Non-stowed Configs (backup/restore via `Taskfile.yml` or manual)
 - `macos/backups/antigravity/` — VS Code fork settings, keybindings, extensions
 - `macos/backups/zen/` — Zen browser themes, keyboard shortcuts, containers
+- `omarchy/backups/1password/` — 1Password allowed-browsers list (`custom_allowed_browsers`); restored to `/etc/1password/` via `task 1password:restore` (Zen desktop integration)
 - `macos/system/` — macOS system defaults (Dock, trackpad, keyboard, login items) + `wallpaper/tokyo-night.jpg`
 - `macos/backups/raycast/` — Raycast scripts
 - `macos/backups/stats-menu/` — Stats.app menu bar plist

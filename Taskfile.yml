@@ -81,6 +81,19 @@ tasks:
       - npx "skills@1.5.9" update -g
       - echo "Skills updated"
 
+  1password:backup:
+    desc: Back up the 1Password allowed-browsers list from /etc to dotfiles
+    cmds:
+      - mkdir -p "{{.DOTS_DIR}}/omarchy/backups/1password"
+      - sudo cp /etc/1password/custom_allowed_browsers "{{.DOTS_DIR}}/omarchy/backups/1password/custom_allowed_browsers"
+      - echo "Backed up custom_allowed_browsers"
+
+  1password:restore:
+    desc: Restore the 1Password allowed-browsers list to /etc (needed for the Zen browser desktop integration)
+    cmds:
+      - sudo install -Dm644 "{{.DOTS_DIR}}/omarchy/backups/1password/custom_allowed_browsers" /etc/1password/custom_allowed_browsers
+      - echo "Restored custom_allowed_browsers"
+
   zen:restore:
     desc: Restore Zen browser config from dotfiles
     vars:

@@ -37,18 +37,10 @@ _update_apps() {
 }
 
 _install_linux_apps() {
-  local pkgs=(omarchy-zsh zsh zsh-syntax-highlighting zsh-autosuggestions)
-  pkgs+=(starship zoxide fzf eza fd bat ripgrep)
+  local pkgs=(stow go-task yq zsh zsh-syntax-highlighting zsh-autosuggestions omarchy-zsh)
 
   echo "${BGREEN}Installing Linux apps via pacman: ${pkgs[*]}${NC}"
   sudo pacman -S --needed --noconfirm "${pkgs[@]}"
-
-  if ! command -v bun >/dev/null 2>&1; then
-    echo "${YELLOW}Bun not installed. Install via:  curl -fsSL https://bun.sh/install | bash${NC}"
-  fi
-  if ! command -v pyenv >/dev/null 2>&1; then
-    echo "${YELLOW}pyenv not installed. Install via:  curl -fsSL https://pyenv.run | bash${NC}"
-  fi
 
   if [[ -x /usr/bin/zsh && "$(basename "$SHELL")" != "zsh" ]]; then
     echo "${YELLOW}Set zsh as your default shell:  chsh -s /usr/bin/zsh${NC}"
@@ -106,6 +98,12 @@ fi
 
 if [[ "$UPDATE_LINUX_APPS" == "true" && "$OS" == "Linux" ]]; then
   _install_linux_apps
+fi
+
+if [[ "$OS" == "Linux" ]] && command -v mise >/dev/null 2>&1; then
+  echo "${YELLOW}Installing mise-managed tools...${NC}"
+  mise install
+  echo "${GREEN}Mise tools installed${NC}"
 fi
 
 #################################
@@ -247,6 +245,10 @@ if [[ "$OS" == "Darwin" ]]; then
 else
   _stow_group omarchy ssh
   _stow_group omarchy uwsm
+  _stow_group omarchy hypr
+  _stow_group omarchy omarchy-shell
+  _stow_group omarchy bash
+  _stow_group omarchy mise
   ssh_config_appends=$(cat "${DOTS_DIR}/omarchy/ssh/config.append")
 fi
 if ! grep -q "${ssh_config_appends}" ~/.ssh/config; then
