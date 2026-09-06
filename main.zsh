@@ -37,7 +37,7 @@ _update_apps() {
 }
 
 _install_linux_apps() {
-  local pkgs=(stow go-task yq zsh zsh-syntax-highlighting zsh-autosuggestions omarchy-zsh)
+  local pkgs=(stow go-task yq zsh zsh-syntax-highlighting zsh-autosuggestions omarchy-zsh keyd)
 
   echo "${BGREEN}Installing Linux apps via pacman: ${pkgs[*]}${NC}"
   sudo pacman -S --needed --noconfirm "${pkgs[@]}"
@@ -249,6 +249,11 @@ else
   _stow_group omarchy omarchy-shell
   _stow_group omarchy bash
   _stow_group omarchy mise
+  # Hyper key (keyd): hold CapsLock = Hyper (C-A-S-M), tap = Esc.
+  # Lives in /etc/keyd, so this stow needs root.
+  sudo stow -d "${DOTS_DIR}/omarchy" -t / keyd
+  sudo systemctl enable --now keyd
+  echo "${GREEN}keyd hyper key installed (hold CapsLock = Hyper, tap = Esc)${NC}"
   ssh_config_appends=$(cat "${DOTS_DIR}/omarchy/ssh/config.append")
 fi
 if ! grep -q "${ssh_config_appends}" ~/.ssh/config; then

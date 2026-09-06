@@ -94,6 +94,13 @@ tasks:
       - sudo install -Dm644 "{{.DOTS_DIR}}/omarchy/backups/1password/custom_allowed_browsers" /etc/1password/custom_allowed_browsers
       - echo "Restored custom_allowed_browsers"
 
+  keyd:restore:
+    desc: Stow the keyd hyper-key config into /etc and enable the service
+    cmds:
+      - sudo stow -d "{{.DOTS_DIR}}/omarchy" -t / keyd
+      - sudo systemctl enable --now keyd
+      - echo "keyd installed — hold CapsLock = Hyper (C-A-S-M), tap = Esc"
+
   zen:restore:
     desc: Restore Zen browser config from dotfiles
     vars:

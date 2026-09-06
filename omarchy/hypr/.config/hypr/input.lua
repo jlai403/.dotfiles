@@ -9,6 +9,10 @@ hl.config({
     -- interaction instead.
     follow_mouse = 2,
 
+    -- Compose key on Right Alt. Omarchy's default is CapsLock, which keyd
+    -- repurposes as the Hyper key (hold) / Esc (tap).
+    kb_options = "compose:ralt",
+
     touchpad = {
       -- Natural (inverse) scrolling: content follows your fingers.
       natural_scroll = true,
