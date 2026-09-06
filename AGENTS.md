@@ -42,7 +42,7 @@ Packages at repo **root** are stowed on both OSes; platform packages live under 
 **`omarchy/` (Linux only):**
 | Package | Target pattern | Notes |
 |---------|---------------|-------|
-| `ssh` | `~/.ssh/config.d/personal.conf` | SSH config, Linux 1Password socket |
+| `ssh` | `~/.ssh/config.d/personal.conf`, `~/.ssh/config.d/githubs.conf` | SSH config, Linux 1Password socket; `githubs.conf` defines the `ghjlai`/`ghstellar` (github.com) and `forgejo` (git.ts.jlai.ca) host aliases for the agent |
 | `uwsm` | `~/.config/uwsm/env.d/dotfiles` | Desktop-session env for Omarchy (sets `TERMINAL=ghostty`, 1Password `SSH_AUTH_SOCK`) |
 | `hypr` | `~/.config/hypr/` | Hyprland window manager configs (`hyprland.lua`, `bindings.lua`, `monitors.lua`, `input.lua`, `looknfeel.lua`, `autostart.lua`, `hyprsunset.conf`, `xdph.conf`) |
 | `omarchy-shell` | `~/.config/omarchy/` | Omarchy shell config (`shell.json`, `hooks/post-update.d/*.hook`, `defaults/agent`) |
@@ -50,7 +50,10 @@ Packages at repo **root** are stowed on both OSes; platform packages live under 
 | `mise` | `~/.config/mise/config.toml` | mise tool manifest (codex/gh/node/opencode); `main.zsh` runs `mise install` on Linux |
 
 ### Platform gating
-`main.zsh` sets `OS="$(uname -s)"`. Root packages (common) are stowed on both OSes via `_stow`. macOS-only content (`macos/aerospace`, `macos/borders` + vendored binary, `macos/ssh`, `macos/system/` desktoppr + `--osx`, `--apps`/brew) is only run when `OS == Darwin`; Linux uses `omarchy/ssh`, `omarchy/uwsm`, and `--linux-apps`. Both use the `_stow_group <dir> <pkg>` helper (`stow -d <dir> -t ~ <pkg>`). The `macos/ssh` and `omarchy/ssh` packages differ only by the 1Password agent socket path. The `zsh/` configs branch on `$OS` internally via `case`/`if` for platform-specific PATH, plugin, and env settings.
+`main.zsh` sets `OS="$(uname -s)"`. Root packages (common) are stowed on both OSes via `_stow`. macOS-only content (`macos/aerospace`, `macos/borders` + vendored binary, `macos/ssh`, `macos/system/` desktoppr + `--osx`, `--apps`/brew) is only run when `OS == Darwin`; Linux uses `omarchy/ssh`, `omarchy/uwsm`, and `--linux-apps`. Both use the `_stow_group <dir> <pkg>` helper (`stow -d <dir> -t ~ <pkg>`). The `macos/ssh` and `omarchy/ssh` packages differ by the 1Password agent socket path (and `omarchy/ssh` adds the `githubs.conf` host aliases). The `zsh/` configs branch on `$OS` internally via `case`/`if` for platform-specific PATH, plugin, and env settings.
+
+### SSH host aliases (git `insteadOf` shortcuts)
+`git/.config/git/config` defines `gh:`/`ghjlai:`/`ghstellar:`/`forgejo:` URL rewrites. `omarchy/ssh/.ssh/config.d/githubs.conf` provides the matching host aliases on Linux (1Password agent socket); the macOS side's aliases come from `~/.dotfiles_private/ssh/.ssh/config.privated/jlai.conf`. On Linux, `config.d/*.conf` is included before `config.privated/*.conf`, so the agent socket here overrides the macOS socket in the private config.
 
 ### Omarchy / zsh
 On Omarchy (Arch Linux), zsh is the user shell (not bash). `--linux-apps` installs `omarchy-zsh` plus zsh plugins and shared tools, and prints the `chsh -s /usr/bin/zsh` step. The canonical source chain: Omarchy's shared config (`omarchy-zsh`) → our `zsh/*.zsh` modules → tool inits. `zsh/overrides.zsh` re-runs Omarchy's `tsl`/`hsl` swarm functions under `emulate -L bash` so their 0-based array indexing survives zsh's 1-based arrays; no-op on macOS. Desktop env for the Hyprland session lives in `omarchy/uwsm/.config/uwsm/env.d/dotfiles` (sourced by uwsm, not the shell rc).

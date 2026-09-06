@@ -60,7 +60,7 @@ Symlinked to home/config directories via GNU Stow. Root packages stow on both OS
 | `git` | Git global config | both |
 | `nvim` | Neovim (LazyVim) | both |
 | `opencode` | OpenCode AI tool | both |
-| `ssh` | SSH config (1Password agent socket) | per-OS |
+| `ssh` | SSH config (1Password agent socket; Omarchy also adds `ghjlai`/`ghstellar`/`forgejo` host aliases) | per-OS |
 | `starship` | Prompt theme | both |
 | `stow` | GNU Stow ignore rules | both |
 | `television` | TUI fuzzy finder | both |
