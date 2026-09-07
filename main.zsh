@@ -266,6 +266,7 @@ else
   _stow_group omarchy omarchy-shell
   _stow_group omarchy bash
   _stow_group omarchy mise
+  _stow_group omarchy fcitx5
   # Hyper key (keyd): hold CapsLock = Hyper (C-A-S-M), tap = Esc.
   # Lives in /etc/keyd, so this stow needs root.
   sudo stow -d "${DOTS_DIR}/omarchy" -t / keyd
