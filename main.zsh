@@ -183,6 +183,7 @@ _stow ghostty
 _stow git
 _stow nvim
 stow -v --no-folding herdr && echo "${GREEN}Symlink updated for herdr${NC}"
+_stow inputrc
 _stow tmux
 rm -f ~/.local/bin/zed-tmux
 _stow zed
