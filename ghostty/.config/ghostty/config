@@ -14,4 +14,4 @@ keybind = shift+enter=csi:13;2u
 keybind = alt+shift+enter=csi:13;4u
 
 # Platform overrides
-config-file = local.conf
+config-file = ~/.config/ghostty/local.conf
