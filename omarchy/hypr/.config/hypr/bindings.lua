@@ -197,16 +197,16 @@ end
 hl.unbind("SUPER + TAB") -- was: next workspace
 hl.unbind("SUPER + SHIFT + TAB") -- was: previous workspace
 
-o.bind("ALT + LEFT", "Move word left (Option shim)", option_shortcut("CTRL", "ALT", "LEFT"))
-o.bind("ALT + RIGHT", "Move word right (Option shim)", option_shortcut("CTRL", "ALT", "RIGHT"))
-o.bind("ALT + UP", "Move word up (Option shim)", option_shortcut("CTRL", "ALT", "UP"))
-o.bind("ALT + DOWN", "Move word down (Option shim)", option_shortcut("CTRL", "ALT", "DOWN"))
-o.bind("ALT + SHIFT + LEFT", "Select word left (Option shim)", option_shortcut("CTRL + SHIFT", "ALT + SHIFT", "LEFT"))
-o.bind("ALT + SHIFT + RIGHT", "Select word right (Option shim)", option_shortcut("CTRL + SHIFT", "ALT + SHIFT", "RIGHT"))
-o.bind("ALT + SHIFT + UP", "Select word up (Option shim)", option_shortcut("CTRL + SHIFT", "ALT + SHIFT", "UP"))
-o.bind("ALT + SHIFT + DOWN", "Select word down (Option shim)", option_shortcut("CTRL + SHIFT", "ALT + SHIFT", "DOWN"))
-o.bind("ALT + BACKSPACE", "Delete word (Option shim)", option_shortcut("CTRL", "ALT", "BACKSPACE"))
-o.bind("ALT + DELETE", "Delete word forward (Option shim)", option_shortcut("CTRL", "ALT", "DELETE"))
+o.bind("ALT + LEFT", "Move word left (Option shim)", option_shortcut("CTRL", "ALT", "LEFT"), { repeating = true })
+o.bind("ALT + RIGHT", "Move word right (Option shim)", option_shortcut("CTRL", "ALT", "RIGHT"), { repeating = true })
+o.bind("ALT + UP", "Move word up (Option shim)", option_shortcut("CTRL", "ALT", "UP"), { repeating = true })
+o.bind("ALT + DOWN", "Move word down (Option shim)", option_shortcut("CTRL", "ALT", "DOWN"), { repeating = true })
+o.bind("ALT + SHIFT + LEFT", "Select word left (Option shim)", option_shortcut("CTRL + SHIFT", "ALT + SHIFT", "LEFT"), { repeating = true })
+o.bind("ALT + SHIFT + RIGHT", "Select word right (Option shim)", option_shortcut("CTRL + SHIFT", "ALT + SHIFT", "RIGHT"), { repeating = true })
+o.bind("ALT + SHIFT + UP", "Select word up (Option shim)", option_shortcut("CTRL + SHIFT", "ALT + SHIFT", "UP"), { repeating = true })
+o.bind("ALT + SHIFT + DOWN", "Select word down (Option shim)", option_shortcut("CTRL + SHIFT", "ALT + SHIFT", "DOWN"), { repeating = true })
+o.bind("ALT + BACKSPACE", "Delete word (Option shim)", option_shortcut("CTRL", "ALT", "BACKSPACE"), { repeating = true })
+o.bind("ALT + DELETE", "Delete word forward (Option shim)", option_shortcut("CTRL", "ALT", "DELETE"), { repeating = true })
 
 o.bind("SUPER + LEFT", "Line start (Cmd shim)", mac_shortcut("", "HOME"))
 o.bind("SUPER + RIGHT", "Line end (Cmd shim)", mac_shortcut("", "END"))
