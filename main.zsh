@@ -196,12 +196,8 @@ _stow nvim
 stow -v --no-folding herdr && echo "${GREEN}Symlink updated for herdr${NC}"
 _stow inputrc
 _stow tmux
-rm -f ~/.local/bin/zed-tmux
-_stow zed
 mkdir -p ~/.local/bin
-cp "${DOTS_DIR}/zed/.local/bin/zed-tmux" ~/.local/bin/zed-tmux
-chmod +x ~/.local/bin/zed-tmux
-echo "${GREEN}Installed zed-tmux wrapper to ~/.local/bin/zed-tmux${NC}"
+_stow zed
 _stow television
 
 echo "${YELLOW}Installing codegraph CLI + wiring opencode...${NC}"
