@@ -260,7 +260,7 @@ for dir in ~/.claude/skills ~/.gemini/antigravity/skills ~/.gemini/skills ~/.con
   ln -sf "$(pwd)/skills/personal/skills/"* "$dir"
 done
 
-rm -f ~/.config/opencode/opencode.json
+rm -f ~/.config/opencode/opencode.json ~/.config/opencode/opencode.jsonc
 _stow opencode
 _stow gemini
 
