@@ -21,16 +21,14 @@ Packages at repo **root** are stowed on both OSes; platform packages live under 
 **Root / common (all OSes):**
 | Package | Target pattern | Notes |
 |---------|---------------|-------|
-| `ghostty` | `~/.config/ghostty/` | Terminal emulator |
+| `ghostty` | `~/.config/ghostty/config` | Shared Ghostty **base** (cursor, shell-integration, CSI-u Enter binds); ends with `config-file = ~/.config/ghostty/local.conf` — platform pkgs supply `local.conf`. Includes must be `~`-absolute: ghostty resolves relative paths against the including file, and keys in a file always lose to keys from files it includes |
 | `git` | `~/.config/git/config`, `~/.config/git/scripts/tidy` | Git global config; `tidy` alias runs `scripts/tidy` |
-| `nvim` | `~/.config/nvim/` | Neovim (LazyVim) |
+| `nvim` | `~/.config/nvim/lua/plugins/theme.lua` | Only the colorscheme is tracked; everything else is omarchy's nvim baseline (`omarchy-nvim` skel on Linux, a materialized copy on macOS) |
 | `herdr` | `~/.config/herdr/config.toml` | Terminal multiplexer (stowed with `--no-folding`); shared keymap — mac `ctrl+hjkl` pane focus + alt-chord fast path (Hyprland passes ALT through to terminals) |
 | `tmux` | `~/.tmux.conf` | Tmux config |
-| `zed` | `~/.config/zed/` | Zed editor; terminal wrapper `zed-tmux` installed to `~/.local/bin/zed-tmux` (source is stow-ignored) |
-| `starship` | `~/.config/starship/` | Prompt theme |
-| `television` | `~/.config/television/` | TUI fuzzy finder |
-| `opencode` | `~/.config/opencode/` | OpenCode AI tool config |
-| `gemini` | `~/.gemini/` | Gemini CLI config |
+| `zed` | `~/.config/zed/settings.json`, `~/.local/bin/zed-tmux` | Zed editor; `zed-tmux` wrapper is a package file (no separate copy step) |
+| `television` | `~/.config/television/` | TUI fuzzy finder (not installed on Omarchy yet — mac-only in practice) |
+| `opencode` | `~/.config/opencode/` | `opencode.jsonc` + `tui.jsonc` + local plugins (`herdr-tui-session.js`, `plugins/herdr-agent-state.js`, `opencode-quota/quota-toast.jsonc`) + on-demand `opencode-bedrock.json`; `share` disabled, codegraph MCP wired |
 | `cliamp` | `~/.config/cliamp/config.toml` | Spotify TUI (cross-platform; stowed on Darwin and Linux) |
 
 **`macos/` (Darwin only):**
@@ -38,6 +36,7 @@ Packages at repo **root** are stowed on both OSes; platform packages live under 
 |---------|---------------|-------|
 | `aerospace` | `~/.aerospace.toml`, `~/.local/bin/aerospace-launch-or-focus` | Tiling window manager; launch-or-focus helper for TUI bindings (stowed from `macos/aerospace/.local/bin/aerospace-launch-or-focus`) |
 | `borders` | `~/.config/borders/bordersrc` | Window border highlight (vendored binary copied to `~/.local/bin`) |
+| `ghostty` | `~/.config/ghostty/local.conf`, `~/.config/ghostty/ghostty-tmux.sh` | macOS Ghostty overrides (TokyoNight Moon, font-size 14, `macos-option-as-alt`, cmd unbinds) on top of the shared base |
 | `ssh` | `~/.ssh/config.d/personal.conf` | SSH config, macOS 1Password socket |
 
 **`omarchy/` (Linux only):**
@@ -45,15 +44,22 @@ Packages at repo **root** are stowed on both OSes; platform packages live under 
 |---------|---------------|-------|
 | `ssh` | `~/.ssh/config.d/personal.conf`, `~/.ssh/config.d/githubs.conf` | SSH config, Linux 1Password socket; `githubs.conf` defines the `ghjlai`/`ghstellar` (github.com) and `forgejo` (git.ts.jlai.ca) host aliases for the agent |
 | `uwsm` | `~/.config/uwsm/env.d/dotfiles` | Desktop-session env for Omarchy (sets `TERMINAL=ghostty`, 1Password `SSH_AUTH_SOCK`) |
-| `hypr` | `~/.config/hypr/` | Hyprland window manager configs (`hyprland.lua`, `bindings.lua`, `monitors.lua`, `input.lua`, `looknfeel.lua`, `autostart.lua`, `hyprsunset.conf`, `xdph.conf`) |
+| `ghostty` | `~/.config/ghostty/local.conf`, `~/.config/ghostty/overrides.conf` | `local.conf` includes omarchy's packaged default (read-only `/usr/share/omarchy/config/ghostty/config`) then `overrides.conf`; only the deviation (`font-size = 8`) is tracked — omarchy updates keep flowing |
+| `hypr` | `~/.config/hypr/` | Hyprland **user overrides** (`bindings.lua`, `input.lua`, `monitors.lua`) + `~/.local/bin/omarchy-hyprland-window-quit-app`. The entry point and templates (`hyprland.lua`, `looknfeel.lua`, `autostart.lua`, `hyprsunset.conf`, `xdph.conf`) are omarchy-owned real files on disk — NOT tracked; `hyprland.lua` requires `hypr.looknfeel`/`hypr.autostart`, so those two templates must exist |
 | `omarchy-shell` | `~/.config/omarchy/` | Omarchy shell config (`shell.json`, `hooks/post-update.d/*.hook`, `defaults/agent`) |
-| `bash` | `~/.bashrc`, `~/.bash_profile` | Bash profile snapshot (Omarchy uses zsh; this is a preserved baseline) |
 | `mise` | `~/.config/mise/config.toml` | mise tool manifest (codex/gh/node/opencode); `main.zsh` runs `mise install` on Linux |
 | `keyd` | `/etc/keyd/default.conf` | Hyper key: hold CapsLock = Hyper (C-A-S-M chord), tap = Esc. Stowed with `sudo stow -d omarchy -t / keyd` (only package targeting `/`); `main.zsh` enables the unit, or run `task keyd:restore`. Hyprland bindings address the chord as `SUPER + SHIFT + CONTROL + ALT + <key>` |
 | `fcitx5` | `~/.config/fcitx5/config` | XCompose IME (compose sequences via fcitx5); trigger keys cleared so `ctrl+space` reaches herdr's prefix instead of toggling the IME |
 
 ### Platform gating
-`main.zsh` sets `OS="$(uname -s)"`. Root packages (common) are stowed on both OSes via `_stow`. macOS-only content (`macos/aerospace`, `macos/borders` + vendored binary, `macos/ssh`, `macos/system/` desktoppr + `--osx`, `--apps`/brew) is only run when `OS == Darwin`; Linux uses `omarchy/ssh`, `omarchy/uwsm`, and `--linux-apps`. Both use the `_stow_group <dir> <pkg>` helper (`stow -d <dir> -t ~ <pkg>`). The `macos/ssh` and `omarchy/ssh` packages differ by the 1Password agent socket path (and `omarchy/ssh` adds the `githubs.conf` host aliases). The `zsh/` configs branch on `$OS` internally via `case`/`if` for platform-specific PATH, plugin, and env settings.
+`main.zsh` sets `OS="$(uname -s)"`. Root packages (common) are stowed on both OSes via `_stow`. macOS-only content (`macos/aerospace`, `macos/borders` + vendored binary, `macos/ghostty`, `macos/ssh`, `macos/system/` desktoppr + `--osx`, `--apps`/brew) is only run when `OS == Darwin`; Linux uses `omarchy/ssh`, `omarchy/uwsm`, `omarchy/ghostty`, `omarchy/hypr`, `omarchy/omarchy-shell`, `omarchy/mise`, and `--linux-apps`. Both use the `_stow_group <dir> <pkg>` helper (`stow -d <dir> -t ~ <pkg>`). The `macos/ssh` and `omarchy/ssh` packages differ by the 1Password agent socket path (and `omarchy/ssh` adds the `githubs.conf` host aliases). The `zsh/` configs branch on `$OS` internally via `case`/`if` for platform-specific PATH, plugin, and env settings. `main.zsh` pre-creates `~/.config/ghostty` and `~/.config/cliamp` so stow never folds those dirs into the repo.
+
+### Maintenance philosophy — track deviations only
+Files identical to (or pure comment-templates of) upstream defaults are NOT tracked. Pristine references on Omarchy:
+- `/usr/share/omarchy/config/<app>/` — user-config templates omarchy installs to `~/.config/` (e.g. `hypr/`, `ghostty/`)
+- `/usr/share/omarchy/default/hypr/` — the hypr lua module library loaded via `require("default.hypr.*")`
+- `/etc/skel/.config/nvim/` — omarchy-nvim's nvim baseline
+Before editing a config that omarchy owns, diff against the pristine copy; only keep the delta in this repo. Watch out when comparing: `diff | head` hides diff's exit code, and stow-created symlinks make "the same file" mean "the repo file" — check `readlink` before `rm`.
 
 ### SSH host aliases (git `insteadOf` shortcuts)
 `git/.config/git/config` defines `gh:`/`ghjlai:`/`ghstellar:`/`forgejo:` URL rewrites. `omarchy/ssh/.ssh/config.d/githubs.conf` provides the matching host aliases on Linux (1Password agent socket); the macOS side's aliases come from `~/.dotfiles_private/ssh/.ssh/config.privated/jlai.conf`. On Linux, `config.d/*.conf` is included before `config.privated/*.conf`, so the agent socket here overrides the macOS socket in the private config.
@@ -78,7 +84,7 @@ Only `skills/personal/` (code-like-joey) lives in-repo — symlinked to agent di
 
 ### CodeGraph
 - CLI installed via standalone bundle (`~/.codegraph/` + `~/.local/bin/codegraph`); `main.zsh` installs it if missing and runs `codegraph install --target=opencode --location=global --yes` to wire the MCP server
-- opencode MCP entry (`mcp.codegraph`) is committed in `opencode/.config/opencode/opencode.json`; `main.zsh` does `rm -f ~/.config/opencode/opencode.json` before `_stow opencode` because `codegraph install` replaces the stow symlink with a real file
+- opencode MCP entry (`mcp.codegraph`) is committed in `opencode/.config/opencode/opencode.jsonc` (codegraph is jsonc-aware); `main.zsh` does `rm -f ~/.config/opencode/opencode.json{,c}` before `_stow opencode` because `codegraph install` replaces the stow symlink with a real file
 - The `CODEGRAPH_START`/`CODEGRAPH_END` block in `global-agent-rules.md` is maintained by `codegraph install` — keep it in sync if rerunning the installer
 - Index projects with `codegraph init` (creates `.codegraph/`); upgrade CLI with `codegraph upgrade`
 - Only opencode is wired (not Claude/Gemini MCP)
@@ -99,6 +105,7 @@ Never commit private dotfiles content to this repo.
 - Verify skills: `npx skills list -g`
 - Update skills: `npx skills update -g` or `task skills:update`
 - Verify codegraph: `codegraph --version` and `codegraph install --print-config opencode`
+- Check a config against omarchy's pristine default: `diff /usr/share/omarchy/config/<app>/<file> <repo copy>` (full file, never `| head` — it swallows diff's exit code)
 - Backup before testing: `cp ~/.zshrc ~/.zshrc.backup`
 - Backup Antigravity: `task antigravity:backup`
 - Backup Zen: `task zen:backup`
@@ -110,6 +117,7 @@ Never commit private dotfiles content to this repo.
 - `zsh/aliases.zsh`: Command aliases and utility functions
 - `zsh/sources.zsh`: Plugin sourcing (zsh-autosuggestions, syntax-highlighting)
 - `zsh/hooks.zsh`: Zsh hooks (auto-ls, git auto-pull, lazy mise activation)
+- `zsh/keys.zsh`: Key bindings (alt-arrow word motion, etc.)
 - `zsh/overrides.zsh`: zsh-compat wrappers for Omarchy's bash-indexed `tsl`/`hsl` (via `emulate -L bash`)
 - `zsh/op.zsh`: 1Password-backed secrets. `_op_env <VAR> <op://ref> [ttl]` reads from the macOS Keychain (silent, encrypted) and bootstraps from 1Password when absent, storing under service name `dotfiles/cache/op_env/<VAR>`; `op-env-reset <VAR>` (or `--all`) deletes cached entries to force a re-read. Explicitly sourced at the top of `exports.zsh` (alphabetical load would run it too late). Uses `command grep` to bypass the `grep='rg'` alias.
 - Use snake_case for function names
