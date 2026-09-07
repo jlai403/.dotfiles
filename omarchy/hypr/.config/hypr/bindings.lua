@@ -66,3 +66,28 @@ o.bind("ALT + SHIFT + H", "Swap window left", hl.dsp.window.swap({ direction = "
 o.bind("ALT + SHIFT + J", "Swap window down", hl.dsp.window.swap({ direction = "d" }))
 o.bind("ALT + SHIFT + K", "Swap window up", hl.dsp.window.swap({ direction = "u" }))
 o.bind("ALT + SHIFT + L", "Swap window right", hl.dsp.window.swap({ direction = "r" }))
+
+-- macOS app-key parity: release SUPER+letters to apps so Zen gets its
+-- Cmd-shortcuts (K search, L URL, T tab, W close tab, F find, S save,
+-- J downloads, P print, Shift+N/W/P). Displaced window functions are
+-- re-homed on the HYPER chord (CapsLock) and ALT below.
+for _, key in ipairs({ "K", "L", "T", "W", "F", "S", "J", "P" }) do
+  hl.unbind("SUPER + " .. key)
+end
+hl.unbind("SUPER + SHIFT + N") -- was: Editor
+hl.unbind("SUPER + SHIFT + W") -- was: Omawrite
+hl.unbind("SUPER + SHIFT + P") -- was: Google Photos
+
+-- Re-homes.
+o.bind("SUPER + SHIFT + CONTROL + ALT + L", "Toggle workspace layout", "omarchy-hyprland-workspace-layout-toggle")
+o.bind("SUPER + SHIFT + CONTROL + ALT + F", "Toggle window floating/tiling", hl.dsp.window.float({ action = "toggle" }))
+o.bind("SUPER + SHIFT + CONTROL + ALT + S", "Toggle scratchpad", hl.dsp.workspace.toggle_special("scratchpad"))
+o.bind("ALT + SLASH", "Toggle split direction", hl.dsp.layout("togglesplit"))
+
+-- macOS Cmd+Q analog: quit the focused app (close all its windows).
+o.bind("SUPER + Q", "Quit focused app", "omarchy-hyprland-window-quit-app")
+
+-- App launchers, moved off SUPER+SHIFT to free Cmd+Shift combos.
+o.bind("SUPER + CTRL + N", "Editor", { omarchy = "editor" })
+o.bind("SUPER + CTRL + W", "Omawrite", { launch = "omawrite" })
+o.bind("SUPER + CTRL + P", "Google Photos", { webapp = "https://photos.google.com/", focus = true })

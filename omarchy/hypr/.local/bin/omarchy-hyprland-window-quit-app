@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# Quit all windows of the focused app — macOS Cmd+Q analog.
+
+set -euo pipefail
+
+cls=$(hyprctl activewindow -j | jq -r '.class // empty')
+[ -n "$cls" ] || exit 0
+
+hyprctl clients -j | jq -r --arg c "$cls" '.[] | select(.class == $c) | .address' |
+  while read -r addr; do
+    hyprctl dispatch closewindow "address:$addr"
+  done
