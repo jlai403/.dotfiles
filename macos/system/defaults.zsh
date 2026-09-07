@@ -84,6 +84,18 @@ configure_macos_defaults() {
 	# --- Finder ---
 	defaults write com.apple.finder FXPreferredViewStyle -string "Nlsv"
 
+	# --- Tailscale ---
+	# Reject tailnet subnet routes: home-LAN IPs use the local router path; the
+	# subnet router (alpine-caddy) stays reachable via its 100.x address when away
+	local ts_cli="/Applications/Tailscale.app/Contents/MacOS/Tailscale"
+	if [[ -x "$ts_cli" ]]; then
+		if "$ts_cli" set --accept-routes=false 2>/dev/null; then
+			echo "${GREEN}Tailscale: accept-routes=false${NC}"
+		else
+			echo "${YELLOW}Tailscale: could not apply (Option-click the menu bar icon to toggle subnet routes)${NC}"
+		fi
+	fi
+
 	# --- Apps ---
 	# Stats - menu bar system monitor
 	defaults import eu.exelban.Stats "$(pwd)/stats-menu/Stats.plist"

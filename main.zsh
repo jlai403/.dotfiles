@@ -111,6 +111,18 @@ if [[ "$OS" == "Linux" ]] && command -v mise >/dev/null 2>&1; then
   echo "${GREEN}Mise tools installed${NC}"
 fi
 
+# Tailscale: reject tailnet subnet routes so home-LAN IPs always use the local
+# router path; the subnet router (alpine-caddy) stays reachable via its 100.x IP
+if [[ "$OS" == "Linux" ]]; then
+  if ! command -v tailscale >/dev/null 2>&1; then
+    echo "${YELLOW}Tailscale: skipped (not installed)${NC}"
+  elif tailscale set --accept-routes=false 2>/dev/null || sudo -n tailscale set --accept-routes=false 2>/dev/null; then
+    echo "${GREEN}Tailscale: accept-routes=false${NC}"
+  else
+    echo "${YELLOW}Tailscale: could not apply (service inactive? run: sudo tailscale set --accept-routes=false)${NC}"
+  fi
+fi
+
 #################################
 # update .zshrc
 #################################
