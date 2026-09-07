@@ -58,8 +58,9 @@ new_tab = "prefix+c"
 rename_tab = "prefix+r"
 close_tab = "prefix+k"
 switch_tab = ["prefix+1..9", "alt+1..9"]
-previous_tab = ["prefix+p", "alt+left"]
-next_tab = ["prefix+n", "alt+right"]
+# alt+left/right stay with the caret (word motion) — tab nav lives on prefix+p/n
+previous_tab = "prefix+p"
+next_tab = "prefix+n"
 
 # Like swap-window -t -1/+1 on M-S-Left/Right
 move_tab_previous = "alt+shift+left"
