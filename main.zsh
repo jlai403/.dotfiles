@@ -42,10 +42,15 @@ _install_linux_apps() {
     echo "${RED}Missing package list: ${pkgfile}${NC}"
     return 1
   fi
-  local pkgs=(${(f)$(grep -vE '^\s*(#|$)' "$pkgfile")})
+  local pkgs=(${(f)"$(grep -vE '^\s*(#|$)' "$pkgfile")"})
 
-  echo "${BGREEN}Installing Linux apps via pacman: ${pkgs[*]}${NC}"
-  sudo pacman -S --needed --noconfirm "${pkgs[@]}"
+  if ! command -v yay >/dev/null 2>&1; then
+    echo "${YELLOW}yay not found, installing via pacman...${NC}"
+    sudo pacman -S --needed --noconfirm yay
+  fi
+
+  echo "${BGREEN}Installing Linux apps via yay: ${pkgs[*]}${NC}"
+  yay -S --needed --noconfirm --answerdiff None --answerclean None "${pkgs[@]}"
 
   if [[ -x /usr/bin/zsh && "$(basename "$SHELL")" != "zsh" ]]; then
     echo "${YELLOW}Set zsh as your default shell:  chsh -s /usr/bin/zsh${NC}"
@@ -276,7 +281,7 @@ else
   ssh_config_appends=$(cat "${DOTS_DIR}/omarchy/ssh/config.append")
 fi
 if ! grep -q "${ssh_config_appends}" ~/.ssh/config; then
-  ssh_backup_file="~/.ssh/config.bak_$(date '+%Y%m%d')"
+  ssh_backup_file="$HOME/.ssh/config.bak_$(date '+%Y%m%d')"
   cp ~/.ssh/config ${ssh_backup_file}
   echo "created backup of ~/.ssh/config -> ${ssh_backup_file}"
 

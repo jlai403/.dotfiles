@@ -7,11 +7,11 @@ GNU Stow-based dotfiles repo for macOS (silicon Mac) and [Omarchy](https://omarc
 ### Key Files
 - `main.zsh` — bootstrap script (stow packages, append to .zshrc, link agent rules, SSH setup)
   - `--apps` — install Homebrew packages from `Brewfile` + global bun packages
-  - `--linux-apps` — install Linux packages listed in `omarchy/Pkgfile` via pacman
+  - `--linux-apps` — install Linux packages listed in `omarchy/Pkgfile` via yay (pacman only bootstraps `yay` itself if missing)
   - `--osx` — apply macOS defaults from `macos/system/defaults.zsh`
 - `.stowrc` — global stow ignore rules (`\.DS_Store`, `^\.stow-local-ignore$`); read automatically because `main.zsh` runs every stow from `$DOTS_DIR`
 - `Brewfile` — Homebrew brews and casks
-- `omarchy/Pkgfile` — pacman package list (Linux Brewfile equivalent) consumed by `main.zsh --linux-apps`; dev toolchains stay in mise
+- `omarchy/Pkgfile` — package list (Linux Brewfile equivalent) consumed by `main.zsh --linux-apps`; official-repo and AUR packages can be mixed (yay resolves each name, repo packages go through pacman's backend); dev toolchains stay in mise
 - `Taskfile.yml` — backup/restore tasks for Antigravity (VS Code fork), Zen browser, the 1Password allowed-browsers list (`omarchy/backups/1password/custom_allowed_browsers`), the keyd hyper-key config (`keyd:restore`), and skill updates (`task skills:update` runs `npx skills update -g`)
 - `global-agent-rules.md` — shared AI agent rules, symlinked to `~/.claude/CLAUDE.md`, `~/.config/opencode/AGENTS.md`, `~/.gemini/AGENTS.md`; contains the marker-fenced `CODEGRAPH_START`/`CODEGRAPH_END` block written by `codegraph install`
 
@@ -74,7 +74,7 @@ Defined in `skills/skills.yml` — single source of truth for install + linking.
 `main.zsh` nukes all installed skills and reinstalls from config (idempotent).
 Only `skills/personal/` (code-like-joey) lives in-repo — symlinked to agent dirs.
 
-**Zsh array note**: The `npx skills add` call in `main.zsh` uses zsh arrays (`agent_flags=()`, `skill_flags=()`) with `"${arr[@]}"` expansion — never string concatenation. Zsh does not word-split unquoted variables, so `$skill_flags $agent_flags` would pass everything as a single arg.
+**Zsh array note**: The `npx skills add` call in `main.zsh` uses zsh arrays (`agent_flags=()`, `skill_flags=()`) with `"${arr[@]}"` expansion — never string concatenation. Zsh does not word-split unquoted variables, so `$skill_flags $agent_flags` would pass everything as a single arg. Related pitfall: an **unquoted** `$(...)` nested inside `${(...)}` (e.g. `${(f)$(grep ...)}`) has its lines joined with the first IFS char *before* the flag applies, collapsing everything into one element — always quote the substitution: `${(f)"$(...)"}`. (This silently broke `--linux-apps` package parsing; `_install_linux_apps` now uses the quoted form.)
 
 ### CodeGraph
 - CLI installed via standalone bundle (`~/.codegraph/` + `~/.local/bin/codegraph`); `main.zsh` installs it if missing and runs `codegraph install --target=opencode --location=global --yes` to wire the MCP server
