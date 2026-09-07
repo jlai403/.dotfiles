@@ -107,11 +107,14 @@ for _, ws in ipairs({ "a", "e", "w", "c", "n", "d" }) do
     hl.dsp.window.move({ workspace = "name:" .. ws, follow = false }))
 end
 
--- aero alt-m: music workspace + cliamp (focus if running, launch on m otherwise).
-o.bind("ALT + M", "Music (workspace m + cliamp)", function()
+-- Music: workspace m + cliamp (focus if running, launch otherwise). Shared by
+-- the aero ALT+M bind and the Cmd+Ctrl+M launcher re-home below.
+local function launch_music()
   hl.dispatch(hl.dsp.focus({ workspace = "name:m" }))
   hl.exec_cmd("omarchy-launch-or-focus-tui cliamp")
-end)
+end
+
+o.bind("ALT + M", "Music (workspace m + cliamp)", launch_music)
 
 -- Focus with ALT+hjkl, swap window with ALT+SHIFT+hjkl.
 o.bind("ALT + H", "Focus left", hl.dsp.focus({ direction = "l" }))
@@ -138,16 +141,27 @@ hl.unbind("SUPER + SHIFT + C") -- was: Hey Calendar webapp
 -- Re-homes.
 o.bind("SUPER + SHIFT + CONTROL + ALT + L", "Toggle workspace layout", "omarchy-hyprland-workspace-layout-toggle")
 o.bind("SUPER + SHIFT + CONTROL + ALT + F", "Toggle window floating/tiling", hl.dsp.window.float({ action = "toggle" }))
+o.bind("CTRL + ALT + F", "Toggle tiled full screen", "omarchy-hyprland-window-tiled-fullscreen-toggle")
 o.bind("SUPER + SHIFT + CONTROL + ALT + S", "Toggle scratchpad", hl.dsp.workspace.toggle_special("scratchpad"))
 o.bind("ALT + SLASH", "Toggle split direction", hl.dsp.layout("togglesplit"))
 
 -- macOS Cmd+Q analog: quit the focused app (close all its windows).
 o.bind("SUPER + Q", "Quit focused app", "omarchy-hyprland-window-quit-app")
 
--- App launchers, moved off SUPER+SHIFT to free Cmd+Shift combos.
+-- App launchers, moved off SUPER+SHIFT to free Cmd+Shift combos. Omarchy's
+-- SUPER+CTRL toggles on F/O/D are released to make room (tiled-fullscreen
+-- re-homes to CTRL+ALT+F below; menu/monitor panels live in the omarchy menu).
+for _, key in ipairs({ "F", "O", "D" }) do
+  hl.unbind("SUPER + CTRL + " .. key)
+end
 o.bind("SUPER + CTRL + N", "Editor", { omarchy = "editor" })
 o.bind("SUPER + CTRL + W", "Omawrite", { launch = "omawrite" })
 o.bind("SUPER + CTRL + P", "Google Photos", { webapp = "https://photos.google.com/", focus = true })
+o.bind("SUPER + CTRL + F", "Files", { omarchy = "nautilus" })
+o.bind("SUPER + CTRL + O", "Obsidian", { launch = "obsidian", focus = "^obsidian$" })
+o.bind("SUPER + CTRL + D", "Docker TUI", { tui = "omarchy-launch-docker-tui" })
+o.bind("SUPER + CTRL + M", "Music (workspace m + cliamp)", launch_music)
+o.bind("SUPER + CTRL + SHIFT + M", "Spotify", { omarchy = "spotify" })
 
 -- macOS Cmd shim: forward SUPER+key as CTRL+key to the focused app, for
 -- apps without a Cmd native mode (Chrome, Electron). Zen gets the full set
@@ -178,7 +192,10 @@ end
 -- Cmd brackets = back/forward in Firefox/Zen.
 for _, key in ipairs({ "LEFT", "RIGHT", "UP", "DOWN" }) do
   hl.unbind("SUPER + " .. key) -- was: focus on left/right/above/below window
+  hl.unbind("SUPER + SHIFT + " .. key) -- was: swap window (swap lives on ALT+SHIFT+hjkl)
 end
+hl.unbind("SUPER + TAB") -- was: next workspace
+hl.unbind("SUPER + SHIFT + TAB") -- was: previous workspace
 
 o.bind("ALT + LEFT", "Move word left (Option shim)", option_shortcut("CTRL", "ALT", "LEFT"))
 o.bind("ALT + RIGHT", "Move word right (Option shim)", option_shortcut("CTRL", "ALT", "RIGHT"))
@@ -197,3 +214,27 @@ o.bind("SUPER + UP", "Doc top (Cmd shim)", mac_shortcut("", "PAGE_UP"))
 o.bind("SUPER + DOWN", "Doc bottom (Cmd shim)", mac_shortcut("", "PAGE_DOWN"))
 o.bind("SUPER + BRACKETLEFT", "Back (Cmd shim)", mac_shortcut("CTRL", "BRACKETLEFT"))
 o.bind("SUPER + BRACKETRIGHT", "Forward (Cmd shim)", mac_shortcut("CTRL", "BRACKETRIGHT"))
+
+-- Cmd+Shift: select to line/doc boundaries (mirrors the Cmd+arrows shims) and
+-- forward the rest of the Cmd+Shift space as Ctrl+Shift so apps keep their
+-- shortcuts (bookmarks bar, project search, find previous, go to symbol,
+-- save as, search tabs, duplicate line, tab switching). Silent in terminals
+-- like all Cmd shims. Launchers displaced by these live on SUPER+CTRL above.
+for _, key in ipairs({ "B", "F", "G", "O", "S", "A", "E", "M", "D" }) do
+  hl.unbind("SUPER + SHIFT + " .. key) -- was: omarchy launcher (re-homed on SUPER+CTRL)
+end
+o.bind("SUPER + SHIFT + LEFT", "Select to line start (Cmd shim)", mac_shortcut("SHIFT", "HOME"))
+o.bind("SUPER + SHIFT + RIGHT", "Select to line end (Cmd shim)", mac_shortcut("SHIFT", "END"))
+o.bind("SUPER + SHIFT + UP", "Select to doc top (Cmd shim)", mac_shortcut("CTRL + SHIFT", "HOME"))
+o.bind("SUPER + SHIFT + DOWN", "Select to doc bottom (Cmd shim)", mac_shortcut("CTRL + SHIFT", "END"))
+o.bind("SUPER + TAB", "Next tab (Cmd shim)", mac_shortcut("CTRL", "TAB"))
+o.bind("SUPER + SHIFT + TAB", "Previous tab (Cmd shim)", mac_shortcut("CTRL + SHIFT", "TAB"))
+o.bind("SUPER + SHIFT + B", "Bookmarks bar (Cmd shim)", mac_shortcut("CTRL + SHIFT", "B"))
+o.bind("SUPER + SHIFT + F", "Project search (Cmd shim)", mac_shortcut("CTRL + SHIFT", "F"))
+o.bind("SUPER + SHIFT + G", "Find previous (Cmd shim)", mac_shortcut("CTRL + SHIFT", "G"))
+o.bind("SUPER + SHIFT + O", "Go to symbol (Cmd shim)", mac_shortcut("CTRL + SHIFT", "O"))
+o.bind("SUPER + SHIFT + S", "Save As (Cmd shim)", mac_shortcut("CTRL + SHIFT", "S"))
+o.bind("SUPER + SHIFT + A", "Search tabs (Cmd shim)", mac_shortcut("CTRL + SHIFT", "A"))
+o.bind("SUPER + SHIFT + E", "App chord (Cmd shim)", mac_shortcut("CTRL + SHIFT", "E"))
+o.bind("SUPER + SHIFT + M", "App chord (Cmd shim)", mac_shortcut("CTRL + SHIFT", "M"))
+o.bind("SUPER + SHIFT + D", "Duplicate line (Cmd shim)", mac_shortcut("CTRL + SHIFT", "D"))
