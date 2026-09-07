@@ -5,18 +5,10 @@
 
 set -euo pipefail
 
-log() { echo "[$(date +%T)] $*" >> /tmp/quit-app.log; }
-
-log "invoked, HIS=${HYPRLAND_INSTANCE_SIGNATURE:-unset}"
-
 cls=$(hyprctl activewindow -j | jq -r '.class // empty')
-log "focused class: '${cls}'"
 [ -n "$cls" ] || exit 0
 
-addresses=$(hyprctl clients -j | jq -r --arg c "$cls" '.[] | select(.class == $c) | .address')
-log "targets: $(echo "$addresses" | tr '\n' ' ')"
-
-echo "$addresses" | while read -r addr; do
-  log "closing $addr"
-  hyprctl dispatch "hl.dsp.window.close({ window = \"address:$addr\" })" >/dev/null
-done
+hyprctl clients -j | jq -r --arg c "$cls" '.[] | select(.class == $c) | .address' |
+  while read -r addr; do
+    hyprctl dispatch "hl.dsp.window.close({ window = \"address:$addr\" })" >/dev/null
+  done
