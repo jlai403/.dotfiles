@@ -251,7 +251,13 @@ for repo in "${repos[@]}"; do
 done
 
 echo "${YELLOW}Linking personal skills...${NC}"
+personal_real="$(readlink -f "$(pwd)/skills/personal/skills/code-like-joey")"
 for dir in ~/.claude/skills ~/.gemini/antigravity/skills ~/.gemini/skills ~/.config/opencode/skills; do
+  mkdir -p "$dir"
+  # Skip agent dirs that resolve into the personal skill itself — linking
+  # through them would drop links inside the repo's own skill dir.
+  dir_real="$(readlink -f "$dir")"
+  [[ "$dir_real" == "$personal_real" || "$dir_real" == "$personal_real"/* ]] && continue
   ln -sf "$(pwd)/skills/personal/skills/"* "$dir"
 done
 
