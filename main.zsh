@@ -199,10 +199,9 @@ _stow tmux
 rm -f ~/.local/bin/zed-tmux
 _stow zed
 mkdir -p ~/.local/bin
-cp "${DOTS_DIR}/zed/.config/zed/zed-tmux.sh" ~/.local/bin/zed-tmux
+cp "${DOTS_DIR}/zed/.local/bin/zed-tmux" ~/.local/bin/zed-tmux
 chmod +x ~/.local/bin/zed-tmux
 echo "${GREEN}Installed zed-tmux wrapper to ~/.local/bin/zed-tmux${NC}"
-_stow starship
 _stow television
 
 echo "${YELLOW}Installing codegraph CLI + wiring opencode...${NC}"
@@ -262,7 +261,6 @@ done
 
 rm -f ~/.config/opencode/opencode.json ~/.config/opencode/opencode.jsonc
 _stow opencode
-_stow gemini
 
 # ssh
 mkdir -p ~/.ssh
@@ -278,7 +276,6 @@ else
   _stow_group omarchy ghostty
   _stow_group omarchy hypr
   _stow_group omarchy omarchy-shell
-  _stow_group omarchy bash
   _stow_group omarchy mise
   _stow_group omarchy fcitx5
   # Hyper key (keyd): hold CapsLock = Hyper (C-A-S-M), tap = Esc.
