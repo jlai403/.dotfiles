@@ -113,6 +113,12 @@ for _, ws in ipairs({ "a", "e", "w", "c", "n", "d" }) do
     hl.dsp.window.move({ workspace = "name:" .. ws, follow = false }))
 end
 
+-- aero alt-m: music workspace + cliamp (focus if running, launch on m otherwise).
+o.bind("ALT + M", "Music (workspace m + cliamp)", function()
+  hl.dispatch(hl.dsp.focus({ workspace = "name:m" }))
+  hl.exec_cmd("omarchy-launch-or-focus-tui cliamp")
+end)
+
 -- Focus with ALT+hjkl, swap window with ALT+SHIFT+hjkl.
 o.bind("ALT + H", "Focus left", hl.dsp.focus({ direction = "l" }))
 o.bind("ALT + J", "Focus down", hl.dsp.focus({ direction = "d" }))
