@@ -24,7 +24,7 @@ Packages at repo **root** are stowed on both OSes; platform packages live under 
 | `ghostty` | `~/.config/ghostty/` | Terminal emulator |
 | `git` | `~/.config/git/config`, `~/.config/git/scripts/tidy` | Git global config; `tidy` alias runs `scripts/tidy` |
 | `nvim` | `~/.config/nvim/` | Neovim (LazyVim) |
-| `herdr` | `~/.config/herdr/config.toml` | Terminal multiplexer (stowed with `--no-folding`) |
+| `herdr` | `~/.config/herdr/config.toml` | Terminal multiplexer (stowed with `--no-folding`); shared keymap — mac `ctrl+hjkl` pane focus + alt-chord fast path (Hyprland passes ALT through to terminals) |
 | `tmux` | `~/.tmux.conf` | Tmux config |
 | `zed` | `~/.config/zed/` | Zed editor; terminal wrapper `zed-tmux` installed to `~/.local/bin/zed-tmux` (source is stow-ignored) |
 | `starship` | `~/.config/starship/` | Prompt theme |
@@ -50,6 +50,7 @@ Packages at repo **root** are stowed on both OSes; platform packages live under 
 | `bash` | `~/.bashrc`, `~/.bash_profile` | Bash profile snapshot (Omarchy uses zsh; this is a preserved baseline) |
 | `mise` | `~/.config/mise/config.toml` | mise tool manifest (codex/gh/node/opencode); `main.zsh` runs `mise install` on Linux |
 | `keyd` | `/etc/keyd/default.conf` | Hyper key: hold CapsLock = Hyper (C-A-S-M chord), tap = Esc. Stowed with `sudo stow -d omarchy -t / keyd` (only package targeting `/`); `main.zsh` enables the unit, or run `task keyd:restore`. Hyprland bindings address the chord as `SUPER + SHIFT + CONTROL + ALT + <key>` |
+| `fcitx5` | `~/.config/fcitx5/config` | XCompose IME (compose sequences via fcitx5); trigger keys cleared so `ctrl+space` reaches herdr's prefix instead of toggling the IME |
 
 ### Platform gating
 `main.zsh` sets `OS="$(uname -s)"`. Root packages (common) are stowed on both OSes via `_stow`. macOS-only content (`macos/aerospace`, `macos/borders` + vendored binary, `macos/ssh`, `macos/system/` desktoppr + `--osx`, `--apps`/brew) is only run when `OS == Darwin`; Linux uses `omarchy/ssh`, `omarchy/uwsm`, and `--linux-apps`. Both use the `_stow_group <dir> <pkg>` helper (`stow -d <dir> -t ~ <pkg>`). The `macos/ssh` and `omarchy/ssh` packages differ by the 1Password agent socket path (and `omarchy/ssh` adds the `githubs.conf` host aliases). The `zsh/` configs branch on `$OS` internally via `case`/`if` for platform-specific PATH, plugin, and env settings.
