@@ -90,17 +90,11 @@ end
 -- AeroSpace-style bindings: ALT navigates, HYPER (keyd CapsLock chord) moves.
 
 -- Workspaces 1-5. code:10..14 are the digit keycodes, matching Omarchy's
--- layout-robust convention for number binds. In terminals ALT+1..5 pass
--- through as Alt so herdr's alt+1..9 tab switching still works.
+-- layout-robust convention for number binds.
 for workspace = 1, 5 do
   local key = "code:" .. tostring(workspace + 9)
-  o.bind("ALT + " .. key, "Switch to workspace " .. workspace, function()
-    if active_window_is_terminal() then
-      send_shortcut_once("ALT", tostring(workspace))()
-    else
-      hl.dispatch(hl.dsp.focus({ workspace = tostring(workspace) }))
-    end
-  end)
+  o.bind("ALT + " .. key, "Switch to workspace " .. workspace,
+    hl.dsp.focus({ workspace = tostring(workspace) }))
   o.bind("SUPER + SHIFT + CONTROL + ALT + " .. key, "Move window to workspace " .. workspace,
     hl.dsp.window.move({ workspace = tostring(workspace), follow = false }))
 end
