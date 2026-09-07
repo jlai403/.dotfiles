@@ -92,3 +92,54 @@ o.bind("SUPER + Q", "Quit focused app", "omarchy-hyprland-window-quit-app")
 o.bind("SUPER + CTRL + N", "Editor", { omarchy = "editor" })
 o.bind("SUPER + CTRL + W", "Omawrite", { launch = "omawrite" })
 o.bind("SUPER + CTRL + P", "Google Photos", { webapp = "https://photos.google.com/", focus = true })
+
+-- macOS Cmd shim: forward SUPER+key as CTRL+key to the focused app, for
+-- apps without a Cmd native mode (Chrome, Electron). Zen gets the full set
+-- natively via ui.key.accelKey; this covers everything else.
+-- Terminals are skipped — Cmd+key does nothing in Terminal.app either, and
+-- forwarding would leak Ctrl chords into the shell (Ctrl+T transposes, etc.).
+local function send_shortcut_once(mods, key)
+  return function()
+    hl.dispatch(hl.dsp.send_key_state({ mods = mods, key = key, state = "down" }))
+    hl.timer(function()
+      hl.dispatch(hl.dsp.send_key_state({ mods = mods, key = key, state = "up" }))
+    end, { timeout = 50, type = "oneshot" })
+  end
+end
+
+local function active_window_is_terminal()
+  local window = hl.get_active_window()
+  if not window then
+    return false
+  end
+  for _, tag in ipairs(window.tags or {}) do
+    if tag:gsub("%*$", "") == "terminal" then
+      return true
+    end
+  end
+  return false
+end
+
+local function mac_shortcut(mods, key)
+  return function()
+    if not active_window_is_terminal() then
+      send_shortcut_once(mods, key)()
+    end
+  end
+end
+
+o.bind("SUPER + T", "New tab (Cmd shim)", mac_shortcut("CTRL", "T"))
+o.bind("SUPER + W", "Close tab (Cmd shim)", mac_shortcut("CTRL", "W"))
+o.bind("SUPER + F", "Find (Cmd shim)", mac_shortcut("CTRL", "F"))
+o.bind("SUPER + K", "Search (Cmd shim)", mac_shortcut("CTRL", "K"))
+o.bind("SUPER + L", "URL bar (Cmd shim)", mac_shortcut("CTRL", "L"))
+o.bind("SUPER + J", "Downloads (Cmd shim)", mac_shortcut("CTRL", "J"))
+o.bind("SUPER + S", "Save (Cmd shim)", mac_shortcut("CTRL", "S"))
+o.bind("SUPER + P", "Print (Cmd shim)", mac_shortcut("CTRL", "P"))
+o.bind("SUPER + N", "New window (Cmd shim)", mac_shortcut("CTRL", "N"))
+o.bind("SUPER + SHIFT + T", "Reopen tab (Cmd shim)", mac_shortcut("CTRL + SHIFT", "T"))
+o.bind("SUPER + SHIFT + N", "Private window (Cmd shim)", mac_shortcut("CTRL + SHIFT", "N"))
+for tab = 1, 9 do
+  o.bind("SUPER + code:" .. tostring(tab + 9), "Switch to tab " .. tab .. " (Cmd shim)",
+    mac_shortcut("CTRL", tostring(tab)))
+end
