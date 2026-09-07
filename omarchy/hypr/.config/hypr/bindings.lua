@@ -143,3 +143,29 @@ for tab = 1, 9 do
   o.bind("SUPER + code:" .. tostring(tab + 9), "Switch to tab " .. tab .. " (Cmd shim)",
     mac_shortcut("CTRL", tostring(tab)))
 end
+
+-- macOS Option text-nav (word move/select/delete via Ctrl equivalents) and
+-- Cmd navigation keys. Cmd+arrows = line start/end + doc top/bottom
+-- (Super+arrows were Omarchy's window focus — that lives on ALT+hjkl here);
+-- Cmd brackets = back/forward in Firefox/Zen.
+for _, key in ipairs({ "LEFT", "RIGHT", "UP", "DOWN" }) do
+  hl.unbind("SUPER + " .. key) -- was: focus on left/right/above/below window
+end
+
+o.bind("ALT + LEFT", "Move word left (Option shim)", mac_shortcut("CTRL", "LEFT"))
+o.bind("ALT + RIGHT", "Move word right (Option shim)", mac_shortcut("CTRL", "RIGHT"))
+o.bind("ALT + UP", "Move word up (Option shim)", mac_shortcut("CTRL", "UP"))
+o.bind("ALT + DOWN", "Move word down (Option shim)", mac_shortcut("CTRL", "DOWN"))
+o.bind("ALT + SHIFT + LEFT", "Select word left (Option shim)", mac_shortcut("CTRL + SHIFT", "LEFT"))
+o.bind("ALT + SHIFT + RIGHT", "Select word right (Option shim)", mac_shortcut("CTRL + SHIFT", "RIGHT"))
+o.bind("ALT + SHIFT + UP", "Select word up (Option shim)", mac_shortcut("CTRL + SHIFT", "UP"))
+o.bind("ALT + SHIFT + DOWN", "Select word down (Option shim)", mac_shortcut("CTRL + SHIFT", "DOWN"))
+o.bind("ALT + BACKSPACE", "Delete word (Option shim)", mac_shortcut("CTRL", "BACKSPACE"))
+o.bind("ALT + DELETE", "Delete word forward (Option shim)", mac_shortcut("CTRL", "DELETE"))
+
+o.bind("SUPER + LEFT", "Line start (Cmd shim)", mac_shortcut("", "HOME"))
+o.bind("SUPER + RIGHT", "Line end (Cmd shim)", mac_shortcut("", "END"))
+o.bind("SUPER + UP", "Doc top (Cmd shim)", mac_shortcut("", "PAGE_UP"))
+o.bind("SUPER + DOWN", "Doc bottom (Cmd shim)", mac_shortcut("", "PAGE_DOWN"))
+o.bind("SUPER + BRACKETLEFT", "Back (Cmd shim)", mac_shortcut("CTRL", "BRACKETLEFT"))
+o.bind("SUPER + BRACKETRIGHT", "Forward (Cmd shim)", mac_shortcut("CTRL", "BRACKETRIGHT"))
