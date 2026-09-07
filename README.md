@@ -10,7 +10,7 @@ GNU Stow-based dotfiles for macOS (silicon Mac) and [Omarchy](https://omarchy.or
 ## Installation
 
 ```bash
-git clone https://github.com/jlai403/dotfiles.git ~/.dotfiles
+git clone git@github.com:jlai403/.dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
 ./main.zsh
 ```
