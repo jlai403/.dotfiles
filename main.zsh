@@ -169,6 +169,10 @@ fi
 # update dotfiles via symlinks
 #################################
 
+# Real config dirs keep stow from folding ~/.config/<app> into the repo
+# (a folded dir would capture app-written logs/state into the dotfiles tree).
+mkdir -p ~/.config/ghostty ~/.config/cliamp
+
 if [[ "$OS" == "Darwin" ]]; then
   _stow_group macos aerospace
   _stow_group macos borders
@@ -182,6 +186,8 @@ if [[ "$OS" == "Darwin" ]]; then
   cp "${DOTS_DIR}/macos/borders/bin/${BINARY_NAME}" ~/.local/bin/borders
   chmod +x ~/.local/bin/borders
   echo "${GREEN}Installed vendored borders binary to ~/.local/bin/borders (${ARCH})${NC}"
+  # Ghostty: shared base config (root pkg) + macOS overrides in local.conf
+  _stow_group macos ghostty
 fi
 _stow cliamp
 _stow ghostty
@@ -268,6 +274,8 @@ if [[ "$OS" == "Darwin" ]]; then
 else
   _stow_group omarchy ssh
   _stow_group omarchy uwsm
+  # Ghostty: shared base config (root pkg) + Omarchy overrides in local.conf
+  _stow_group omarchy ghostty
   _stow_group omarchy hypr
   _stow_group omarchy omarchy-shell
   _stow_group omarchy bash

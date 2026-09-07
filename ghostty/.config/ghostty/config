@@ -1,10 +1,17 @@
-#command = /bin/zsh -i -c ~/.config/ghostty/ghostty-tmux.sh
-theme = TokyoNight Moon
-window-show-tab-bar = never
-keybind = cmd+t=unbind
-keybind = cmd+shift+t=unbind
-macos-option-as-alt = true
+# Shared Ghostty base (both OSes).
+# Platform settings live in local.conf, stowed from macos/ghostty or
+# omarchy/ghostty. Loaded last, so platform files can override anything here.
+
+# Cursor
 cursor-style = block
-cursor-style-blink = true
+
+# Shell integration
 shell-integration-features = no-cursor
-font-size = 14
+
+# Send Shift+Enter as CSI-u so TUIs can distinguish it from Enter.
+keybind = shift+enter=csi:13;2u
+# Legacy encoding sends Alt+Shift+Enter the same as Alt+Enter; send CSI-u so tmux can match M-S-Enter.
+keybind = alt+shift+enter=csi:13;4u
+
+# Platform overrides
+config-file = local.conf
