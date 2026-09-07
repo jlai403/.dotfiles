@@ -164,6 +164,9 @@ o.bind("SUPER + P", "Print (Cmd shim)", mac_shortcut("CTRL", "P"))
 o.bind("SUPER + N", "New window (Cmd shim)", mac_shortcut("CTRL", "N"))
 o.bind("SUPER + SHIFT + T", "Reopen tab (Cmd shim)", mac_shortcut("CTRL + SHIFT", "T"))
 o.bind("SUPER + SHIFT + N", "Private window (Cmd shim)", mac_shortcut("CTRL + SHIFT", "N"))
+o.bind("SUPER + A", "Select all (Cmd shim)", mac_shortcut("CTRL", "A"))
+o.bind("SUPER + Z", "Undo (Cmd shim)", mac_shortcut("CTRL", "Z"))
+o.bind("SUPER + SHIFT + Z", "Redo (Cmd shim)", mac_shortcut("CTRL + SHIFT", "Z"))
 for tab = 1, 9 do
   o.bind("SUPER + code:" .. tostring(tab + 9), "Switch to tab " .. tab .. " (Cmd shim)",
     mac_shortcut("CTRL", tostring(tab)))
