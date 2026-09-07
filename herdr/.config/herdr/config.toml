@@ -57,7 +57,8 @@ rename_pane = "prefix+shift+o"
 new_tab = "prefix+c"
 rename_tab = "prefix+r"
 close_tab = "prefix+k"
-switch_tab = ["prefix+1..9", "alt+1..9"]
+# alt+digits belong to the caret (mac parity: panes see Option+digits)
+switch_tab = "prefix+1..9"
 # alt+left/right stay with the caret (word motion) — tab nav lives on prefix+p/n
 previous_tab = "prefix+p"
 next_tab = "prefix+n"
