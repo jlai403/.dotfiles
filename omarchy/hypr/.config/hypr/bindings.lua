@@ -77,6 +77,7 @@ end
 hl.unbind("SUPER + SHIFT + N") -- was: Editor
 hl.unbind("SUPER + SHIFT + W") -- was: Omawrite
 hl.unbind("SUPER + SHIFT + P") -- was: Google Photos
+hl.unbind("SUPER + SHIFT + C") -- was: Hey Calendar webapp
 
 -- Re-homes.
 o.bind("SUPER + SHIFT + CONTROL + ALT + L", "Toggle workspace layout", "omarchy-hyprland-workspace-layout-toggle")
