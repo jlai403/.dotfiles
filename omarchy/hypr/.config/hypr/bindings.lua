@@ -37,14 +37,70 @@ for workspace = 1, 10 do
   hl.unbind("SUPER + SHIFT + ALT + " .. key) -- was: move window (silent)
 end
 
+-- Shared helpers for the mac shims. send_shortcut_once injects a chord into
+-- the focused surface (down + delayed up — Hyprland's send_shortcut can leave
+-- synthetic key state stuck). Terminals are detected via the tag Omarchy's
+-- defaults apply to terminal windows.
+local function send_shortcut_once(mods, key)
+  return function()
+    hl.dispatch(hl.dsp.send_key_state({ mods = mods, key = key, state = "down" }))
+    hl.timer(function()
+      hl.dispatch(hl.dsp.send_key_state({ mods = mods, key = key, state = "up" }))
+    end, { timeout = 50, type = "oneshot" })
+  end
+end
+
+local function active_window_is_terminal()
+  local window = hl.get_active_window()
+  if not window then
+    return false
+  end
+  for _, tag in ipairs(window.tags or {}) do
+    if tag:gsub("%*$", "") == "terminal" then
+      return true
+    end
+  end
+  return false
+end
+
+-- mac_shortcut: Cmd-style forward (CTRL), silent in terminals — Cmd+key does
+-- nothing in Terminal.app either, and forwarding would leak Ctrl chords into
+-- the shell (Ctrl+T transposes, etc.).
+local function mac_shortcut(mods, key)
+  return function()
+    if not active_window_is_terminal() then
+      send_shortcut_once(mods, key)()
+    end
+  end
+end
+
+-- option_shortcut: forwards CTRL outside terminals; passes the native ALT
+-- chord through inside terminals so herdr's alt-driven keymap still receives
+-- physical Option presses unchanged.
+local function option_shortcut(default_mods, terminal_mods, key)
+  return function()
+    if active_window_is_terminal() then
+      send_shortcut_once(terminal_mods, key)()
+    else
+      send_shortcut_once(default_mods, key)()
+    end
+  end
+end
+
 -- AeroSpace-style bindings: ALT navigates, HYPER (keyd CapsLock chord) moves.
 
 -- Workspaces 1-5. code:10..14 are the digit keycodes, matching Omarchy's
--- layout-robust convention for number binds.
+-- layout-robust convention for number binds. In terminals ALT+1..5 pass
+-- through as Alt so herdr's alt+1..9 tab switching still works.
 for workspace = 1, 5 do
   local key = "code:" .. tostring(workspace + 9)
-  o.bind("ALT + " .. key, "Switch to workspace " .. workspace,
-    hl.dsp.focus({ workspace = tostring(workspace) }))
+  o.bind("ALT + " .. key, "Switch to workspace " .. workspace, function()
+    if active_window_is_terminal() then
+      send_shortcut_once("ALT", tostring(workspace))()
+    else
+      hl.dispatch(hl.dsp.focus({ workspace = tostring(workspace) }))
+    end
+  end)
   o.bind("SUPER + SHIFT + CONTROL + ALT + " .. key, "Move window to workspace " .. workspace,
     hl.dsp.window.move({ workspace = tostring(workspace), follow = false }))
 end
@@ -96,38 +152,7 @@ o.bind("SUPER + CTRL + P", "Google Photos", { webapp = "https://photos.google.co
 -- macOS Cmd shim: forward SUPER+key as CTRL+key to the focused app, for
 -- apps without a Cmd native mode (Chrome, Electron). Zen gets the full set
 -- natively via ui.key.accelKey; this covers everything else.
--- Terminals are skipped — Cmd+key does nothing in Terminal.app either, and
--- forwarding would leak Ctrl chords into the shell (Ctrl+T transposes, etc.).
-local function send_shortcut_once(mods, key)
-  return function()
-    hl.dispatch(hl.dsp.send_key_state({ mods = mods, key = key, state = "down" }))
-    hl.timer(function()
-      hl.dispatch(hl.dsp.send_key_state({ mods = mods, key = key, state = "up" }))
-    end, { timeout = 50, type = "oneshot" })
-  end
-end
-
-local function active_window_is_terminal()
-  local window = hl.get_active_window()
-  if not window then
-    return false
-  end
-  for _, tag in ipairs(window.tags or {}) do
-    if tag:gsub("%*$", "") == "terminal" then
-      return true
-    end
-  end
-  return false
-end
-
-local function mac_shortcut(mods, key)
-  return function()
-    if not active_window_is_terminal() then
-      send_shortcut_once(mods, key)()
-    end
-  end
-end
-
+-- Terminals are skipped (see mac_shortcut above).
 o.bind("SUPER + T", "New tab (Cmd shim)", mac_shortcut("CTRL", "T"))
 o.bind("SUPER + W", "Close tab (Cmd shim)", mac_shortcut("CTRL", "W"))
 o.bind("SUPER + F", "Find (Cmd shim)", mac_shortcut("CTRL", "F"))
@@ -152,16 +177,16 @@ for _, key in ipairs({ "LEFT", "RIGHT", "UP", "DOWN" }) do
   hl.unbind("SUPER + " .. key) -- was: focus on left/right/above/below window
 end
 
-o.bind("ALT + LEFT", "Move word left (Option shim)", mac_shortcut("CTRL", "LEFT"))
-o.bind("ALT + RIGHT", "Move word right (Option shim)", mac_shortcut("CTRL", "RIGHT"))
-o.bind("ALT + UP", "Move word up (Option shim)", mac_shortcut("CTRL", "UP"))
-o.bind("ALT + DOWN", "Move word down (Option shim)", mac_shortcut("CTRL", "DOWN"))
-o.bind("ALT + SHIFT + LEFT", "Select word left (Option shim)", mac_shortcut("CTRL + SHIFT", "LEFT"))
-o.bind("ALT + SHIFT + RIGHT", "Select word right (Option shim)", mac_shortcut("CTRL + SHIFT", "RIGHT"))
-o.bind("ALT + SHIFT + UP", "Select word up (Option shim)", mac_shortcut("CTRL + SHIFT", "UP"))
-o.bind("ALT + SHIFT + DOWN", "Select word down (Option shim)", mac_shortcut("CTRL + SHIFT", "DOWN"))
-o.bind("ALT + BACKSPACE", "Delete word (Option shim)", mac_shortcut("CTRL", "BACKSPACE"))
-o.bind("ALT + DELETE", "Delete word forward (Option shim)", mac_shortcut("CTRL", "DELETE"))
+o.bind("ALT + LEFT", "Move word left (Option shim)", option_shortcut("CTRL", "ALT", "LEFT"))
+o.bind("ALT + RIGHT", "Move word right (Option shim)", option_shortcut("CTRL", "ALT", "RIGHT"))
+o.bind("ALT + UP", "Move word up (Option shim)", option_shortcut("CTRL", "ALT", "UP"))
+o.bind("ALT + DOWN", "Move word down (Option shim)", option_shortcut("CTRL", "ALT", "DOWN"))
+o.bind("ALT + SHIFT + LEFT", "Select word left (Option shim)", option_shortcut("CTRL + SHIFT", "ALT + SHIFT", "LEFT"))
+o.bind("ALT + SHIFT + RIGHT", "Select word right (Option shim)", option_shortcut("CTRL + SHIFT", "ALT + SHIFT", "RIGHT"))
+o.bind("ALT + SHIFT + UP", "Select word up (Option shim)", option_shortcut("CTRL + SHIFT", "ALT + SHIFT", "UP"))
+o.bind("ALT + SHIFT + DOWN", "Select word down (Option shim)", option_shortcut("CTRL + SHIFT", "ALT + SHIFT", "DOWN"))
+o.bind("ALT + BACKSPACE", "Delete word (Option shim)", option_shortcut("CTRL", "ALT", "BACKSPACE"))
+o.bind("ALT + DELETE", "Delete word forward (Option shim)", option_shortcut("CTRL", "ALT", "DELETE"))
 
 o.bind("SUPER + LEFT", "Line start (Cmd shim)", mac_shortcut("", "HOME"))
 o.bind("SUPER + RIGHT", "Line end (Cmd shim)", mac_shortcut("", "END"))
