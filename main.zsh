@@ -199,6 +199,7 @@ _stow tmux
 mkdir -p ~/.local/bin
 _stow zed
 _stow television
+_stow starship
 
 echo "${YELLOW}Installing codegraph CLI + wiring opencode...${NC}"
 if ! command -v codegraph >/dev/null 2>&1; then
