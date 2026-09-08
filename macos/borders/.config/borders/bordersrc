@@ -5,7 +5,7 @@
 #   - Screen & System Audio Recording
 
 options=(
-	active_color=0xff00cfe6
+	active_color=0xff7aa2f7
 	inactive_color=0xff494d64
 	width=4.0
 )
