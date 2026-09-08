@@ -126,13 +126,6 @@ o.bind("ALT + SHIFT + J", "Swap window down", hl.dsp.window.swap({ direction = "
 o.bind("ALT + SHIFT + K", "Swap window up", hl.dsp.window.swap({ direction = "u" }))
 o.bind("ALT + SHIFT + L", "Swap window right", hl.dsp.window.swap({ direction = "r" }))
 
--- macOS app-key parity: release SUPER+letters to apps so Zen gets its
--- Cmd-shortcuts (K search, L URL, T tab, W close tab, F find, S save,
--- J downloads, P print, Shift+N/W/P). Displaced window functions are
--- re-homed on the HYPER chord (CapsLock) and ALT below.
-for _, key in ipairs({ "K", "L", "T", "W", "F", "S", "J", "P" }) do
-  hl.unbind("SUPER + " .. key)
-end
 hl.unbind("SUPER + SHIFT + N") -- was: Editor
 hl.unbind("SUPER + SHIFT + W") -- was: Omawrite
 hl.unbind("SUPER + SHIFT + P") -- was: Google Photos
@@ -163,33 +156,42 @@ o.bind("SUPER + CTRL + D", "Docker TUI", { tui = "omarchy-launch-docker-tui" })
 o.bind("SUPER + CTRL + M", "Music (workspace m + cliamp)", launch_music)
 o.bind("SUPER + CTRL + SHIFT + M", "Spotify", { omarchy = "spotify" })
 
--- macOS Cmd shim: forward SUPER+key as CTRL+key to the focused app, for
--- apps without a Cmd native mode (Chrome, Electron). Zen gets the full set
--- natively via ui.key.accelKey; this covers everything else.
--- Terminals are skipped (see mac_shortcut above).
-o.bind("SUPER + T", "New tab (Cmd shim)", mac_shortcut("CTRL", "T"))
-o.bind("SUPER + W", "Close tab (Cmd shim)", mac_shortcut("CTRL", "W"))
-o.bind("SUPER + F", "Find (Cmd shim)", mac_shortcut("CTRL", "F"))
-o.bind("SUPER + K", "Search (Cmd shim)", mac_shortcut("CTRL", "K"))
-o.bind("SUPER + L", "URL bar (Cmd shim)", mac_shortcut("CTRL", "L"))
-o.bind("SUPER + J", "Downloads (Cmd shim)", mac_shortcut("CTRL", "J"))
-o.bind("SUPER + S", "Save (Cmd shim)", mac_shortcut("CTRL", "S"))
-o.bind("SUPER + P", "Print (Cmd shim)", mac_shortcut("CTRL", "P"))
-o.bind("SUPER + N", "New window (Cmd shim)", mac_shortcut("CTRL", "N"))
+-- macOS Cmd shim (catch-all): forward plain SUPER+key as CTRL+key to the
+-- focused app. Sheets-style web apps check e.ctrlKey on Linux and Zen's
+-- accelKey only covers browser chrome, so every Cmd chord forwards here
+-- instead of a per-key list. Silent in terminals. Keys with compositor jobs
+-- are excluded: Q quit-app, O pop-out, RETURN terminal, SPACE menu, ESC
+-- system menu, BACKSPACE transparency, comma notifications. Cmd+arrows are
+-- special-cased below (line/doc nav, not Ctrl word-jump); Cmd+Shift is a
+-- curated list further down.
+local cmd_keys = {
+  "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N",
+  "P", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
+  "TAB", "MINUS", "EQUAL", "SEMICOLON", "APOSTROPHE", "PERIOD", "SLASH",
+  "GRAVE", "BRACKETLEFT", "BRACKETRIGHT",
+}
+for _, key in ipairs(cmd_keys) do
+  hl.unbind("SUPER + " .. key)
+  o.bind("SUPER + " .. key, "Cmd shim (catch-all)", mac_shortcut("CTRL", key))
+end
+-- Cmd digits = app tab switching (Cmd+0 = reset zoom). code:10..19 map to
+-- the digit keys 1..9,0 robustly across layouts.
+for digit = 0, 9 do
+  local key = "code:" .. tostring(digit + 9)
+  hl.unbind("SUPER + " .. key)
+  o.bind("SUPER + " .. key, "Cmd shim (catch-all)",
+    mac_shortcut("CTRL", tostring((digit + 1) % 10)))
+end
+-- Cmd+Shift: reopen tab / private window / redo (the rest of the Cmd+Shift
+-- space lives further down).
 o.bind("SUPER + SHIFT + T", "Reopen tab (Cmd shim)", mac_shortcut("CTRL + SHIFT", "T"))
 o.bind("SUPER + SHIFT + N", "Private window (Cmd shim)", mac_shortcut("CTRL + SHIFT", "N"))
-o.bind("SUPER + A", "Select all (Cmd shim)", mac_shortcut("CTRL", "A"))
-o.bind("SUPER + Z", "Undo (Cmd shim)", mac_shortcut("CTRL", "Z"))
 o.bind("SUPER + SHIFT + Z", "Redo (Cmd shim)", mac_shortcut("CTRL + SHIFT", "Z"))
-for tab = 1, 9 do
-  o.bind("SUPER + code:" .. tostring(tab + 9), "Switch to tab " .. tab .. " (Cmd shim)",
-    mac_shortcut("CTRL", tostring(tab)))
-end
 
 -- macOS Option text-nav (word move/select/delete via Ctrl equivalents) and
 -- Cmd navigation keys. Cmd+arrows = line start/end + doc top/bottom
 -- (Super+arrows were Omarchy's window focus — that lives on ALT+hjkl here);
--- Cmd brackets = back/forward in Firefox/Zen.
+-- Cmd brackets = back/forward via the catch-all above.
 for _, key in ipairs({ "LEFT", "RIGHT", "UP", "DOWN" }) do
   hl.unbind("SUPER + " .. key) -- was: focus on left/right/above/below window
   hl.unbind("SUPER + SHIFT + " .. key) -- was: swap window (swap lives on ALT+SHIFT+hjkl)
@@ -212,8 +214,6 @@ o.bind("SUPER + LEFT", "Line start (Cmd shim)", mac_shortcut("", "HOME"))
 o.bind("SUPER + RIGHT", "Line end (Cmd shim)", mac_shortcut("", "END"))
 o.bind("SUPER + UP", "Doc top (Cmd shim)", mac_shortcut("", "PAGE_UP"))
 o.bind("SUPER + DOWN", "Doc bottom (Cmd shim)", mac_shortcut("", "PAGE_DOWN"))
-o.bind("SUPER + BRACKETLEFT", "Back (Cmd shim)", mac_shortcut("CTRL", "BRACKETLEFT"))
-o.bind("SUPER + BRACKETRIGHT", "Forward (Cmd shim)", mac_shortcut("CTRL", "BRACKETRIGHT"))
 
 -- Cmd+Shift: select to line/doc boundaries (mirrors the Cmd+arrows shims) and
 -- forward the rest of the Cmd+Shift space as Ctrl+Shift so apps keep their
@@ -227,7 +227,6 @@ o.bind("SUPER + SHIFT + LEFT", "Select to line start (Cmd shim)", mac_shortcut("
 o.bind("SUPER + SHIFT + RIGHT", "Select to line end (Cmd shim)", mac_shortcut("SHIFT", "END"))
 o.bind("SUPER + SHIFT + UP", "Select to doc top (Cmd shim)", mac_shortcut("CTRL + SHIFT", "HOME"))
 o.bind("SUPER + SHIFT + DOWN", "Select to doc bottom (Cmd shim)", mac_shortcut("CTRL + SHIFT", "END"))
-o.bind("SUPER + TAB", "Next tab (Cmd shim)", mac_shortcut("CTRL", "TAB"))
 o.bind("SUPER + SHIFT + TAB", "Previous tab (Cmd shim)", mac_shortcut("CTRL + SHIFT", "TAB"))
 o.bind("SUPER + SHIFT + B", "Bookmarks bar (Cmd shim)", mac_shortcut("CTRL + SHIFT", "B"))
 o.bind("SUPER + SHIFT + F", "Project search (Cmd shim)", mac_shortcut("CTRL + SHIFT", "F"))
