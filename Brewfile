@@ -24,6 +24,8 @@ brew "bat"
 brew "btop"
 # Cloudflare Tunnel client (formerly Argo Tunnel)
 brew "cloudflared"
+# Zero-config VPN for secure private networking
+brew "tailscale"
 # Secure runtime for JavaScript and TypeScript
 brew "deno"
 # Good-lookin' diffs with diff-highlight and more
