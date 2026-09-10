@@ -188,6 +188,7 @@ if [[ "$OS" == "Darwin" ]]; then
   echo "${GREEN}Installed vendored borders binary to ~/.local/bin/borders (${ARCH})${NC}"
   # Ghostty: shared base config (root pkg) + macOS overrides in local.conf
   _stow_group macos ghostty
+  _stow_group macos mise
 fi
 _stow cliamp
 _stow ghostty
