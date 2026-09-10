@@ -25,6 +25,7 @@ GNU Stow-based dotfiles repo for macOS. Each top-level directory is a stow packa
 | `zed` | `~/.config/zed/` | Zed editor; terminal wrapper `zed-tmux` stowed as `~/.local/bin/zed-tmux` (from `zed/.local/bin/zed-tmux`) |
 | `starship` | `~/.config/starship/` | Prompt theme |
 | `television` | `~/.config/television/` | TUI fuzzy finder |
+| `mise` | `~/.config/mise/config.toml` | Mise tool version manager; pins `python = "system"` globally to avoid shim conflicts with pyenv |
 | `opencode` | `~/.config/opencode/` | OpenCode AI tool config |
 | `gemini` | `~/.gemini/` | Gemini CLI config |
 | `ssh` | `~/.ssh/config.d/personal.conf` | SSH config (includes prepended via `config.append`) |

@@ -148,6 +148,8 @@ rm -f ~/.local/bin/zed-tmux
 _stow zed
 _stow starship
 _stow television
+rm -f ~/.config/mise/config.toml
+_stow mise
 
 echo "${YELLOW}Installing codegraph CLI + wiring opencode...${NC}"
 if ! command -v codegraph >/dev/null 2>&1; then
