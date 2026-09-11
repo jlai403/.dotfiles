@@ -39,6 +39,7 @@ Packages at repo **root** are stowed on both OSes; platform packages live under 
 | `borders` | `~/.config/borders/bordersrc` | Window border highlight (vendored binary copied to `~/.local/bin`) |
 | `ghostty` | `~/.config/ghostty/local.conf`, `~/.config/ghostty/ghostty-tmux.sh` | macOS Ghostty overrides (TokyoNight Moon, font-size 14, `macos-option-as-alt`, cmd unbinds) on top of the shared base |
 | `ssh` | `~/.ssh/config.d/personal.conf` | SSH config, macOS 1Password socket |
+| `mise` | `~/.config/mise/config.toml` | Pins `python = "system"` globally to avoid shim conflicts with pyenv (Linux uses `omarchy/mise` for tool manifest) |
 
 **`omarchy/` (Linux only):**
 | Package | Target pattern | Notes |

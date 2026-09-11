@@ -220,6 +220,7 @@ if [[ "$OS" == "Darwin" ]]; then
   echo "${GREEN}Installed vendored borders binary to ~/.local/bin/borders (${ARCH})${NC}"
   # Ghostty: shared base config (root pkg) + macOS overrides in local.conf
   _stow_group macos ghostty
+  _stow_group macos mise
 fi
 _stow cliamp
 _stow ghostty
@@ -231,6 +232,7 @@ _stow tmux
 mkdir -p ~/.local/bin
 _stow zed
 _stow television
+_stow starship
 
 echo "${YELLOW}Installing codegraph CLI + wiring opencode...${NC}"
 if ! command -v codegraph >/dev/null 2>&1; then
