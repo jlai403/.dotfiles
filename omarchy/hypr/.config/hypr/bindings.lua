@@ -161,12 +161,15 @@ o.bind("SUPER + CTRL + SHIFT + M", "Spotify", { omarchy = "spotify" })
 -- accelKey only covers browser chrome, so every Cmd chord forwards here
 -- instead of a per-key list. Silent in terminals. Keys with compositor jobs
 -- are excluded: Q quit-app, O pop-out, RETURN terminal, SPACE menu, ESC
--- system menu, BACKSPACE transparency, comma notifications. Cmd+arrows are
--- special-cased below (line/doc nav, not Ctrl word-jump); Cmd+Shift is a
--- curated list further down.
+-- system menu, BACKSPACE transparency, comma notifications. C/V/X are also
+-- excluded — the clipboard trio keeps omarchy's smart routing (clips.lua):
+-- Cmd+C -> Ctrl+Insert / Cmd+V -> Shift+Insert in terminals (ghostty's native
+-- copy/paste chords, which reach panes inside herdr), Ctrl equivalents in
+-- apps. Never shimmed here. Cmd+W and Cmd+arrows are special-cased below
+-- (terminal window close, line/doc nav); Cmd+Shift is a curated list further down.
 local cmd_keys = {
-  "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N",
-  "P", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
+  "A", "B", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N",
+  "P", "R", "S", "T", "U", "Y", "Z",
   "TAB", "MINUS", "EQUAL", "SEMICOLON", "APOSTROPHE", "PERIOD", "SLASH",
   "GRAVE", "BRACKETLEFT", "BRACKETRIGHT",
 }
@@ -174,6 +177,21 @@ for _, key in ipairs(cmd_keys) do
   hl.unbind("SUPER + " .. key)
   o.bind("SUPER + " .. key, "Cmd shim (catch-all)", mac_shortcut("CTRL", key))
 end
+-- Cmd+W: close the focused tab in apps (Ctrl+W shim), but close the terminal
+-- window itself when focus is a terminal (mac: Cmd+W closes the window).
+hl.unbind("SUPER + W") -- was: omarchy close-window (always closes the window)
+o.bind("SUPER + W", "Close tab / terminal window (Cmd shim)", function()
+  if active_window_is_terminal() then
+    local w = hl.get_active_window()
+    if w and w.address then
+      hl.dispatch(hl.dsp.window.close({ window = "address:" .. w.address }))
+    else
+      hl.dispatch(hl.dsp.window.close())
+    end
+  else
+    send_shortcut_once("CTRL", "W")()
+  end
+end)
 -- Cmd digits = app tab switching (Cmd+0 = reset zoom). code:10..19 map to
 -- the digit keys 1..9,0 robustly across layouts.
 for digit = 0, 9 do
