@@ -16,7 +16,7 @@ zsh-syntax-highlighting
 zsh-autosuggestions
 omarchy-zsh
 
-# Hyper key daemon: hold CapsLock = Hyper (C-A-S-M), tap = Esc
+# Hyper key daemon: hold CapsLock = Hyper (C-M-A), tap = Esc
 keyd
 
 # 3D printing (AUR): UltiMaker Cura slicer, wraps the official AppImage

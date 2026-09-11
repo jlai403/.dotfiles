@@ -111,7 +111,7 @@ tasks:
     cmds:
       - sudo stow -d "{{.DOTS_DIR}}/omarchy" -t / keyd
       - sudo systemctl enable --now keyd
-      - echo "keyd installed — hold CapsLock = Hyper (C-A-S-M), tap = Esc"
+      - echo "keyd installed — hold CapsLock = Hyper (C-M-A), tap = Esc"
 
   zen:restore:
     desc: Restore Zen browser config from dotfiles

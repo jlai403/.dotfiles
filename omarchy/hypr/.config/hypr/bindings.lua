@@ -95,7 +95,7 @@ for workspace = 1, 5 do
   local key = "code:" .. tostring(workspace + 9)
   o.bind("ALT + " .. key, "Switch to workspace " .. workspace,
     hl.dsp.focus({ workspace = tostring(workspace) }))
-  o.bind("SUPER + SHIFT + CONTROL + ALT + " .. key, "Move window to workspace " .. workspace,
+  o.bind("SUPER + CONTROL + ALT + " .. key, "Move window to workspace " .. workspace,
     hl.dsp.window.move({ workspace = tostring(workspace), follow = false }))
 end
 
@@ -103,7 +103,7 @@ end
 for _, ws in ipairs({ "a", "e", "w", "c", "n", "d" }) do
   o.bind("ALT + " .. ws:upper(), "Switch to workspace " .. ws,
     hl.dsp.focus({ workspace = "name:" .. ws }))
-  o.bind("SUPER + SHIFT + CONTROL + ALT + " .. ws:upper(), "Move window to workspace " .. ws,
+  o.bind("SUPER + CONTROL + ALT + " .. ws:upper(), "Move window to workspace " .. ws,
     hl.dsp.window.move({ workspace = "name:" .. ws, follow = false }))
 end
 
@@ -132,24 +132,46 @@ hl.unbind("SUPER + SHIFT + P") -- was: Google Photos
 hl.unbind("SUPER + SHIFT + C") -- was: Hey Calendar webapp
 
 -- Re-homes.
-o.bind("SUPER + SHIFT + CONTROL + ALT + L", "Toggle workspace layout", "omarchy-hyprland-workspace-layout-toggle")
-o.bind("SUPER + SHIFT + CONTROL + ALT + F", "Toggle window floating/tiling", hl.dsp.window.float({ action = "toggle" }))
+o.bind("SUPER + CONTROL + ALT + L", "Toggle workspace layout", "omarchy-hyprland-workspace-layout-toggle")
+o.bind("SUPER + CONTROL + ALT + F", "Toggle window floating/tiling", hl.dsp.window.float({ action = "toggle" }))
 o.bind("CTRL + ALT + F", "Toggle tiled full screen", "omarchy-hyprland-window-tiled-fullscreen-toggle")
-o.bind("SUPER + SHIFT + CONTROL + ALT + S", "Toggle scratchpad", hl.dsp.workspace.toggle_special("scratchpad"))
+o.bind("SUPER + CONTROL + ALT + S", "Toggle scratchpad", hl.dsp.workspace.toggle_special("scratchpad"))
 o.bind("ALT + SLASH", "Toggle split direction", hl.dsp.layout("togglesplit"))
+
+-- Panel toggles move off SUPER+CTRL+ALT to SUPER+ALT. Keyd's hyper dropped
+-- SHIFT (AeroSpace parity), so hyper now owns the whole SUPER+CTRL+ALT chord
+-- and needs W/D free for workspace moves. Calendar re-homes to C (hyprctl-binds
+-- audit, 2026-09-11).
+for _, key in ipairs({ "W", "D", "B", "T", "R", "Z" }) do
+  hl.unbind("SUPER + CTRL + ALT + " .. key)
+end
+o.bind("SUPER + ALT + W", "Toggle weather", "omarchy-notification-weather")
+o.bind("SUPER + ALT + C", "Calendar", "omarchy-shell shell toggle omarchy.clock")
+o.bind("SUPER + ALT + B", "Show battery remaining", "omarchy-notification-battery")
+o.bind("SUPER + ALT + T", "Show time", "omarchy-notification-time")
+o.bind("SUPER + ALT + R", "Show reminders", "omarchy-reminder show")
+o.bind("SUPER + ALT + Z", "Reset zoom", function()
+  hl.config({ cursor = { zoom_factor = 1 } })
+end)
+
+-- Hyper resize (AeroSpace parity: resize smart -50/+50). Omarchy's
+-- SUPER+code:20/21 are the physical MINUS/EQUAL keys the Cmd shim grabs, so
+-- unbind them here to keep Cmd +/- as the catch-all; resize lives on hyper.
+hl.unbind("SUPER + code:20")
+hl.unbind("SUPER + code:21")
+o.bind("SUPER + CONTROL + ALT + MINUS", "Resize window smaller", hl.dsp.window.resize({ x = -50, y = 0, relative = true }))
+o.bind("SUPER + CONTROL + ALT + EQUAL", "Resize window larger", hl.dsp.window.resize({ x = 50, y = 0, relative = true }))
 
 -- macOS Cmd+Q analog: quit the focused app (close all its windows).
 o.bind("SUPER + Q", "Quit focused app", "omarchy-hyprland-window-quit-app")
 
--- App launchers, moved off SUPER+SHIFT to free Cmd+Shift combos. Omarchy's
--- SUPER+CTRL toggles on F/O/D are released to make room (tiled-fullscreen
--- re-homes to CTRL+ALT+F below; menu/monitor panels live in the omarchy menu).
+-- App launchers. Omarchy's SUPER+CTRL toggles on F/O/D are released to make
+-- room (tiled-fullscreen re-homes to CTRL+ALT+F below; menu/monitor panels
+-- live in the omarchy menu). Editor/Omawrite/Photos (SUPER+CTRL+N/W/P) were
+-- dropped outright — omarchy's nightlight/network/power win the chord.
 for _, key in ipairs({ "F", "O", "D" }) do
   hl.unbind("SUPER + CTRL + " .. key)
 end
-o.bind("SUPER + CTRL + N", "Editor", { omarchy = "editor" })
-o.bind("SUPER + CTRL + W", "Omawrite", { launch = "omawrite" })
-o.bind("SUPER + CTRL + P", "Google Photos", { webapp = "https://photos.google.com/", focus = true })
 o.bind("SUPER + CTRL + F", "Files", { omarchy = "nautilus" })
 o.bind("SUPER + CTRL + O", "Obsidian", { launch = "obsidian", focus = "^obsidian$" })
 o.bind("SUPER + CTRL + D", "Docker TUI", { tui = "omarchy-launch-docker-tui" })
@@ -214,7 +236,6 @@ for _, key in ipairs({ "LEFT", "RIGHT", "UP", "DOWN" }) do
   hl.unbind("SUPER + " .. key) -- was: focus on left/right/above/below window
   hl.unbind("SUPER + SHIFT + " .. key) -- was: swap window (swap lives on ALT+SHIFT+hjkl)
 end
-hl.unbind("SUPER + TAB") -- was: next workspace
 hl.unbind("SUPER + SHIFT + TAB") -- was: previous workspace
 
 o.bind("ALT + LEFT", "Move word left (Option shim)", option_shortcut("CTRL", "ALT", "LEFT"), { repeating = true })
