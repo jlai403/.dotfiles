@@ -1,0 +1,10 @@
+# Omarchy shell plugins: git-cloned into ~/.config/omarchy/plugins/<id>/.
+# To add: append an entry then run ./main.zsh.
+# Plugins run as unsandboxed code inside the long-lived omarchy-shell
+# process — only add repos you trust. First-party plugins are not listed here.
+# This repo manages the plugin manifest; the clones themselves live in
+# ~/.config/omarchy/plugins/ (untracked, safe from stow).
+
+plugins:
+  - url: https://github.com/niraj-envision/touch-bar.git
+    enable: true

@@ -57,6 +57,38 @@ _install_linux_apps() {
   fi
 }
 
+_install_omarchy_plugins() {
+  local yaml="${DOTS_DIR}/omarchy/plugins.yml"
+  if ! command -v omarchy >/dev/null 2>&1; then
+    echo "${YELLOW}omarchy CLI not found, skipping plugins${NC}"
+    return 0
+  fi
+  if [[ ! -f "$yaml" ]]; then
+    echo "${RED}Missing plugin manifest: ${yaml}${NC}"
+    return 1
+  fi
+  if ! command -v yq >/dev/null 2>&1; then
+    echo "${YELLOW}yq not found, skipping omarchy plugins${NC}"
+    return 0
+  fi
+
+  local urls=("${(@f)"$(yq '.plugins[].url' "$yaml")"}")
+  local enables=("${(@f)"$(yq '.plugins[].enable // "false"' "$yaml")"}")
+
+  for i in {1..${#urls}}; do
+    local url="$urls[i]"
+    local name="${url:t:r}"
+    if [[ -d "$HOME/.config/omarchy/plugins/$name" ]]; then
+      echo "${YELLOW}omarchy plugin ${name} already installed, skipping${NC}"
+      continue
+    fi
+    local args=(add "$url")
+    [[ "${enables[i]}" == "true" ]] && args+=(--enable)
+    omarchy plugin "${args[@]}" --yes 2>/dev/null \
+      || echo "${RED}failed to add omarchy plugin ${url}${NC}"
+  done
+}
+
 _stow() {
   stow -v ${1}
   echo "${GREEN}Symlink updated for ${1}${NC}"
@@ -278,6 +310,7 @@ else
   _stow_group omarchy ghostty
   _stow_group omarchy hypr
   _stow_group omarchy omarchy-shell
+  _install_omarchy_plugins
   _stow_group omarchy mise
   _stow_group omarchy fcitx5
   # Hyper key (keyd): hold CapsLock = Hyper (C-A-S-M), tap = Esc.
