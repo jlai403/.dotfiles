@@ -4,5 +4,13 @@
   "plugin": [
     "./herdr-tui-session.js",
     "@slkiser/opencode-quota@latest"
-  ]
+  ],
+  // Free home/end for input cursor nav. Defaults bind them to message-list
+  // scroll (messages_first/last) in base mode, shadowing input.buffer.home/end
+  // even when the prompt textarea is focused. Scroll stays on ctrl+g /
+  // ctrl+alt+g, so Super+Left/Right (CMD shim -> HOME/END) move the cursor.
+  "keybinds": {
+    "messages_first": "ctrl+g",
+    "messages_last": "ctrl+alt+g"
+  }
 }
