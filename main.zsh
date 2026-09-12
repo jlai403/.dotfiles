@@ -309,6 +309,13 @@ done
 rm -f ~/.config/opencode/opencode.json ~/.config/opencode/opencode.jsonc
 _stow opencode
 
+# herdr owns its opencode integration files (agent-state plugin + tui session);
+# stowing them would freeze herdr-managed versions in the repo. Provision them
+# so fresh machines get the current integration without tracking herdr's glue.
+if command -v herdr >/dev/null 2>&1; then
+  herdr integration install opencode >/dev/null
+fi
+
 # ssh
 mkdir -p ~/.ssh
 
