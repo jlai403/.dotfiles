@@ -62,9 +62,19 @@
     "transparent": false
   },
   "idle": {
-    "lock": 300,
-    "screensaver": 150
+    "lock": 900,
+    "screensaver": 600
   },
-  "plugins": [],
-  "version": 1
+  "plugins": [
+    {
+      "id": "jlai.idle"
+    }
+  ],
+  "version": 1,
+  "disabledPlugins": [
+    "omarchy.idle"
+  ],
+  "cloneSourceRestores": [
+    "jlai.idle"
+  ]
 }
