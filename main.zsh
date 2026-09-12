@@ -233,6 +233,17 @@ mkdir -p ~/.local/bin
 _stow zed
 _stow television
 _stow starship
+# Remove legacy ~/.config/starship.toml (starship prefers it over the stowed path)
+if [ -f ~/.config/starship.toml ]; then
+  if cmp -s ~/.config/starship.toml ~/.config/starship/starship.toml \
+    || { [ -f /usr/share/omarchy/config/starship.toml ] \
+      && cmp -s ~/.config/starship.toml /usr/share/omarchy/config/starship.toml; }; then
+    rm -f ~/.config/starship.toml
+    echo "${GREEN}Removed legacy ~/.config/starship.toml${NC}"
+  else
+    echo "${YELLOW}~/.config/starship.toml differs from stowed config; remove manually${NC}"
+  fi
+fi
 
 echo "${YELLOW}Installing codegraph CLI + wiring opencode...${NC}"
 if ! command -v codegraph >/dev/null 2>&1; then

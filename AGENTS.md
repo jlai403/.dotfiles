@@ -31,6 +31,7 @@ Packages at repo **root** are stowed on both OSes; platform packages live under 
 | `television` | `~/.config/television/` | TUI fuzzy finder (not installed on Omarchy yet — mac-only in practice) |
 | `opencode` | `~/.config/opencode/` | `opencode.jsonc` + `tui.jsonc` + local plugins (`herdr-tui-session.js`, `plugins/herdr-agent-state.js`, `opencode-quota/quota-toast.jsonc`) + on-demand `opencode-bedrock.json`; `share` disabled, codegraph MCP wired |
 | `cliamp` | `~/.config/cliamp/config.toml` | Spotify TUI (cross-platform; stowed on Darwin and Linux) |
+| `starship` | `~/.config/starship/starship.toml` | Shared look on both OSes: **stock preset** + suppressed python module, `command_timeout = 200`. `main.zsh` removes the legacy `~/.config/starship.toml` (which starship prefers over the stowed path and where omarchy's cyan preset used to live) when it matches the stowed file or omarchy's pristine |
 
 **`macos/` (Darwin only):**
 | Package | Target pattern | Notes |
