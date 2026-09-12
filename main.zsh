@@ -349,6 +349,10 @@ else
   sudo stow -d "${DOTS_DIR}/omarchy" -t / keyd
   sudo systemctl enable --now keyd
   echo "${GREEN}keyd hyper key installed (hold CapsLock = Hyper, tap = Esc)${NC}"
+  # libinput palm-rejection override for the built-in Apple trackpad.
+  # Lives in /etc/libinput, so this stow needs root.
+  sudo stow -d "${DOTS_DIR}/omarchy" -t / libinput
+  echo "${GREEN}libinput trackpad quirks installed (palm rejection)${NC}"
   ssh_config_appends=$(cat "${DOTS_DIR}/omarchy/ssh/config.append")
 fi
 if ! grep -q "${ssh_config_appends}" ~/.ssh/config; then
