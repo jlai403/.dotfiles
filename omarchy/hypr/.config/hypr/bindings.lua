@@ -206,7 +206,11 @@ local cmd_keys = {
 }
 for _, key in ipairs(cmd_keys) do
   hl.unbind("SUPER + " .. key)
-  o.bind("SUPER + " .. key, "Cmd shim (catch-all)", mac_shortcut("CTRL", key))
+  -- Cmd+A must also reach the lock screen (select-all in the password field),
+  -- so opt it into `locked`; Hyprland drops binds while a session lock is
+  -- active unless the bind opts in.
+  local opts = key == "A" and { locked = true } or nil
+  o.bind("SUPER + " .. key, "Cmd shim (catch-all)", mac_shortcut("CTRL", key), opts)
 end
 -- Cmd+W: close the focused tab in apps (Ctrl+W shim), but close the terminal
 -- window itself when focus is a terminal (mac: Cmd+W closes the window).
@@ -286,3 +290,14 @@ o.bind("SUPER + SHIFT + A", "Search tabs (Cmd shim)", mac_shortcut("CTRL + SHIFT
 o.bind("SUPER + SHIFT + E", "App chord (Cmd shim)", mac_shortcut("CTRL + SHIFT", "E"))
 o.bind("SUPER + SHIFT + M", "App chord (Cmd shim)", mac_shortcut("CTRL + SHIFT", "M"))
 o.bind("SUPER + SHIFT + D", "Duplicate line (Cmd shim)", mac_shortcut("CTRL + SHIFT", "D"))
+
+-- Lid open: reconcile displays normally, but defer while the session is
+-- locked. Reconciling monitors under an active lock makes Hyprland drop the
+-- lock surface's keyboard/pointer focus (hyprwm/Hyprland#1548 / #5072 /
+-- #6785; omarchy#7811), leaving the unlock screen input-dead. Unlocking runs
+-- omarchy-system-wake, which reconciles the clamshell state anyway. Clamshell
+-- mode never suspends, so the internal output can't be left disabled here.
+hl.unbind("switch:off:Lid Switch") -- was: omarchy-hyprland-monitor-clamshell
+o.bind("switch:off:Lid Switch", "Lid open: reconcile displays (deferred while locked)", function()
+  hl.exec_cmd([[ [ "$(omarchy-shell lock isLocked 2>/dev/null)" = "true" ] || omarchy-hyprland-monitor-clamshell ]])
+end, { locked = true })
