@@ -333,6 +333,17 @@ else
   _install_omarchy_plugins
   _stow_group omarchy mise
   _stow_group omarchy fcitx5
+  # Google Drive mount: rclone remote gdrive: -> ~/Google Drive
+  mkdir -p "$HOME/Google Drive"
+  _stow_group omarchy rclone
+  systemctl --user daemon-reload
+  if rclone listremotes 2>/dev/null | grep -q '^gdrive:$'; then
+    systemctl --user enable --now rclone-gdrive.service
+    echo "${GREEN}Google Drive mount enabled${NC}"
+  else
+    echo "${YELLOW}No rclone 'gdrive:' remote yet; run 'rclone config reconnect gdrive:' to authorize${NC}"
+  fi
+  sudo loginctl enable-linger "$USER"
   # Hyper key (keyd): hold CapsLock = Hyper (C-M-A), tap = Esc.
   # Lives in /etc/keyd, so this stow needs root.
   sudo stow -d "${DOTS_DIR}/omarchy" -t / keyd

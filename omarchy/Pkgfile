@@ -21,3 +21,6 @@ keyd
 
 # 3D printing (AUR): UltiMaker Cura slicer, wraps the official AppImage
 cura-bin
+
+# Google Drive FUSE mount (rclone)
+rclone
