@@ -226,7 +226,7 @@ end)
 -- Cmd digits = app tab switching (Cmd+0 = reset zoom). code:10..19 map to
 -- the digit keys 1..9,0 robustly across layouts.
 for digit = 0, 9 do
-  local key = "code:" .. tostring(digit + 9)
+  local key = "code:" .. tostring(digit + 10)
   hl.unbind("SUPER + " .. key)
   o.bind("SUPER + " .. key, "Cmd shim (catch-all)",
     mac_shortcut("CTRL", tostring((digit + 1) % 10)))
