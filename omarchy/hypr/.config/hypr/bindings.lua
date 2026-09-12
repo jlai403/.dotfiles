@@ -74,6 +74,15 @@ local function mac_shortcut(mods, key)
   end
 end
 
+-- nav_shortcut: always sends the key, in terminals and apps alike. Cmd+arrows
+-- are line/doc nav (HOME/END/PAGE) — safe anywhere, unlike the Ctrl-chord shims
+-- that must stay silent in terminals to avoid leaking into the shell.
+local function nav_shortcut(mods, key)
+  return function()
+    send_shortcut_once(mods, key)()
+  end
+end
+
 -- option_shortcut: forwards CTRL outside terminals; passes the native ALT
 -- chord through inside terminals so herdr's alt-driven keymap still receives
 -- physical Option presses unchanged.
@@ -249,23 +258,24 @@ o.bind("ALT + SHIFT + DOWN", "Select word down (Option shim)", option_shortcut("
 o.bind("ALT + BACKSPACE", "Delete word (Option shim)", option_shortcut("CTRL", "ALT", "BACKSPACE"), { repeating = true })
 o.bind("ALT + DELETE", "Delete word forward (Option shim)", option_shortcut("CTRL", "ALT", "DELETE"), { repeating = true })
 
-o.bind("SUPER + LEFT", "Line start (Cmd shim)", mac_shortcut("", "HOME"))
-o.bind("SUPER + RIGHT", "Line end (Cmd shim)", mac_shortcut("", "END"))
-o.bind("SUPER + UP", "Doc top (Cmd shim)", mac_shortcut("", "PAGE_UP"))
-o.bind("SUPER + DOWN", "Doc bottom (Cmd shim)", mac_shortcut("", "PAGE_DOWN"))
+o.bind("SUPER + LEFT", "Line start (Cmd shim)", nav_shortcut("", "HOME"), { repeating = true })
+o.bind("SUPER + RIGHT", "Line end (Cmd shim)", nav_shortcut("", "END"), { repeating = true })
+o.bind("SUPER + UP", "Doc top (Cmd shim)", nav_shortcut("", "PAGE_UP"), { repeating = true })
+o.bind("SUPER + DOWN", "Doc bottom (Cmd shim)", nav_shortcut("", "PAGE_DOWN"), { repeating = true })
 
 -- Cmd+Shift: select to line/doc boundaries (mirrors the Cmd+arrows shims) and
 -- forward the rest of the Cmd+Shift space as Ctrl+Shift so apps keep their
 -- shortcuts (bookmarks bar, project search, find previous, go to symbol,
 -- save as, search tabs, duplicate line, tab switching). Silent in terminals
--- like all Cmd shims. Launchers displaced by these live on SUPER+CTRL above.
+-- like all Cmd shims except the arrow nav above. Launchers displaced by these
+-- live on SUPER+CTRL above.
 for _, key in ipairs({ "B", "F", "G", "O", "S", "A", "E", "M", "D" }) do
   hl.unbind("SUPER + SHIFT + " .. key) -- was: omarchy launcher (re-homed on SUPER+CTRL)
 end
-o.bind("SUPER + SHIFT + LEFT", "Select to line start (Cmd shim)", mac_shortcut("SHIFT", "HOME"))
-o.bind("SUPER + SHIFT + RIGHT", "Select to line end (Cmd shim)", mac_shortcut("SHIFT", "END"))
-o.bind("SUPER + SHIFT + UP", "Select to doc top (Cmd shim)", mac_shortcut("CTRL + SHIFT", "HOME"))
-o.bind("SUPER + SHIFT + DOWN", "Select to doc bottom (Cmd shim)", mac_shortcut("CTRL + SHIFT", "END"))
+o.bind("SUPER + SHIFT + LEFT", "Select to line start (Cmd shim)", nav_shortcut("SHIFT", "HOME"), { repeating = true })
+o.bind("SUPER + SHIFT + RIGHT", "Select to line end (Cmd shim)", nav_shortcut("SHIFT", "END"), { repeating = true })
+o.bind("SUPER + SHIFT + UP", "Select to doc top (Cmd shim)", nav_shortcut("CTRL + SHIFT", "HOME"), { repeating = true })
+o.bind("SUPER + SHIFT + DOWN", "Select to doc bottom (Cmd shim)", nav_shortcut("CTRL + SHIFT", "END"), { repeating = true })
 o.bind("SUPER + SHIFT + TAB", "Previous tab (Cmd shim)", mac_shortcut("CTRL + SHIFT", "TAB"))
 o.bind("SUPER + SHIFT + B", "Bookmarks bar (Cmd shim)", mac_shortcut("CTRL + SHIFT", "B"))
 o.bind("SUPER + SHIFT + F", "Project search (Cmd shim)", mac_shortcut("CTRL + SHIFT", "F"))
