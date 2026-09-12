@@ -331,6 +331,9 @@ else
   _stow_group omarchy hypr
   _stow_group omarchy omarchy-shell
   _install_omarchy_plugins
+  # Cloned idle service (dismisses the screensaver on pointer motion); lives in
+  # ~/.config/omarchy/plugins/, so it rides alongside the cloned plugins above.
+  _stow_group omarchy idle
   _stow_group omarchy mise
   _stow_group omarchy fcitx5
   # Google Drive mount: rclone remote gdrive: -> ~/Google Drive
