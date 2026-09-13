@@ -7,8 +7,8 @@ import qs.Ui
 Panel {
   id: root
 
-  moduleName: "jlai.stats"
-  ipcTarget: "jlai.stats"
+  moduleName: "jlai.menu-stats-bar"
+  ipcTarget: "jlai.menu-stats-bar"
 
   // ---------------------------------------------------------------- theme
   readonly property color foreground: bar ? bar.barForeground : Color.foreground
@@ -29,10 +29,17 @@ Panel {
   readonly property int tempC: hasData && s.temp !== undefined ? s.temp : -1
   readonly property var cores: hasData && s.cores ? s.cores : []
 
-  readonly property bool cpuDanger: cpuPct > 80
-  readonly property bool ramDanger: ramPct > 80
-  readonly property bool diskDanger: diskPct > 90
-  readonly property bool tempDanger: tempC > 90
+  // Thresholds are configurable via the plugin's barWidget settings; 0 turns
+  // the corresponding alert off.
+  readonly property int cpuAlertPct: Number(root.setting("cpuAlertPct", 80))
+  readonly property int ramAlertPct: Number(root.setting("ramAlertPct", 80))
+  readonly property int diskAlertPct: Number(root.setting("diskAlertPct", 90))
+  readonly property int tempAlertC: Number(root.setting("tempAlertC", 90))
+
+  readonly property bool cpuDanger: cpuAlertPct > 0 && cpuPct > cpuAlertPct
+  readonly property bool ramDanger: ramAlertPct > 0 && ramPct > ramAlertPct
+  readonly property bool diskDanger: diskAlertPct > 0 && diskPct > diskAlertPct
+  readonly property bool tempDanger: tempAlertC > 0 && tempC > tempAlertC
 
   readonly property var tempSeries: sampler.series("temp")
   readonly property int tempMin: tempSeries.length ? Math.min.apply(null, tempSeries) : tempC
@@ -84,7 +91,11 @@ Panel {
   implicitWidth: barRow.implicitWidth + Style.space(12)
   implicitHeight: bar ? bar.barSize : Style.space(26)
 
-  Sampler { id: sampler }
+  Sampler {
+    id: sampler
+    intervalMs: Number(root.setting("intervalSec", 2)) * 1000
+    historyLimit: Number(root.setting("historySamples", 300))
+  }
 
   Timer {
     interval: 3000

@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "id": "jlai.menu-stats-bar",
+  "name": "Menu Stats Bar",
+  "version": "1.0.0",
+  "author": "jlai",
+  "license": "MIT",
+  "description": "iStat-style CPU, memory, disk, and temperature monitor with sparklines and a detail popup.",
+  "kinds": [
+    "bar-widget"
+  ],
+  "entryPoints": {
+    "barWidget": "Stats.qml"
+  },
+  "barWidget": {
+    "displayName": "Menu Stats Bar",
+    "description": "CPU, memory, disk, and temperature with per-metric sparklines and a click-through detail panel.",
+    "category": "System",
+    "allowMultiple": false,
+    "defaultSection": "center",
+    "defaults": {
+      "intervalSec": 2,
+      "historySamples": 300,
+      "cpuAlertPct": 80,
+      "ramAlertPct": 80,
+      "diskAlertPct": 90,
+      "tempAlertC": 90
+    },
+    "schema": [
+      { "key": "intervalSec", "type": "integer", "label": "Refresh interval (seconds)", "min": 1, "max": 10, "step": 1, "defaultValue": 2 },
+      { "key": "historySamples", "type": "integer", "label": "History samples", "min": 60, "max": 900, "step": 30, "defaultValue": 300, "description": "Samples kept per metric; the graphs show this window." },
+      { "key": "cpuAlertPct", "type": "integer", "label": "CPU alert (%)", "min": 0, "max": 100, "step": 5, "defaultValue": 80, "description": "Tint the CPU metric above this usage. 0 disables the alert." },
+      { "key": "ramAlertPct", "type": "integer", "label": "Memory alert (%)", "min": 0, "max": 100, "step": 5, "defaultValue": 80, "description": "Tint the memory metric above this usage. 0 disables the alert." },
+      { "key": "diskAlertPct", "type": "integer", "label": "Disk alert (%)", "min": 0, "max": 100, "step": 5, "defaultValue": 90, "description": "Tint the disk metric above this usage. 0 disables the alert." },
+      { "key": "tempAlertC", "type": "integer", "label": "Temperature alert (°C)", "min": 0, "max": 110, "step": 1, "defaultValue": 90, "description": "Tint the temperature metric above this reading. 0 disables the alert." }
+    ]
+  }
+}

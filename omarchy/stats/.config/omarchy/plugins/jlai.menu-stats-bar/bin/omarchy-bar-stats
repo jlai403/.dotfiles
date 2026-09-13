@@ -8,7 +8,7 @@
 #   --top            top CPU / memory processes as JSON, for the popup
 set -uo pipefail
 
-CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/omarchy-bar-stats"
+CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/jlai.menu-stats-bar"
 CACHE="$CACHE_DIR/history.ndjson"
 KEEP=300      # samples retained (~10 min at a 2s interval)
 G=1048576     # KiB per GiB

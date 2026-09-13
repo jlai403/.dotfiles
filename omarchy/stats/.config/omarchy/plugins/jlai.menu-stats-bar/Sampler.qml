@@ -9,7 +9,10 @@ Item {
   id: sampler
   visible: false
 
-  property string script: "~/.local/bin/omarchy-bar-stats"
+  // The sampler ships inside the plugin (`bin/omarchy-bar-stats`); resolve it
+  // relative to this file so the plugin is self-contained and installable from
+  // a repo, with no dependency on ~/.local/bin.
+  readonly property string script: Qt.resolvedUrl("bin/omarchy-bar-stats").toString().replace(/^file:\/\//, "")
   property int intervalMs: 2000
   property int historyLimit: 300
 
@@ -45,7 +48,7 @@ Item {
 
   Process {
     id: historyProc
-    command: ["bash", "-lc", sampler.script + " --history " + sampler.historyLimit]
+    command: ["bash", sampler.script, "--history", String(sampler.historyLimit)]
     stdout: StdioCollector {
       waitForEnd: true
       onStreamFinished: {
@@ -63,7 +66,7 @@ Item {
 
   Process {
     id: sampleProc
-    command: ["bash", "-lc", sampler.script]
+    command: ["bash", sampler.script]
     stdout: StdioCollector {
       waitForEnd: true
       onStreamFinished: {
@@ -85,7 +88,7 @@ Item {
 
   Process {
     id: topProc
-    command: ["bash", "-lc", sampler.script + " --top"]
+    command: ["bash", sampler.script, "--top"]
     stdout: StdioCollector {
       waitForEnd: true
       onStreamFinished: {
