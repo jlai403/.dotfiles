@@ -47,6 +47,30 @@ BarWidget {
     root.bar.run("hyprctl dispatch " + Util.shellQuote("hl.dsp.focus({ workspace = \"" + ws.name + "\" })"))
   }
 
+  // Opaque mix of two hex colors, `t` from a (0) to b (1). Falls back to muted
+  // when either input isn't a parseable "#rrggbb(aa)" string.
+  function colorMix(a, b, t) {
+    function rgb(hex) {
+      var match = /^#([0-9a-f]{6}|[0-9a-f]{8})$/i.exec(String(hex))
+      var h = match ? match[1] : ""
+      if (h.length !== 6 && h.length !== 8) return null
+      var i = h.length === 8 ? 2 : 0
+      return [
+        parseInt(h.substr(i, 2), 16),
+        parseInt(h.substr(i + 2, 2), 16),
+        parseInt(h.substr(i + 4, 2), 16)
+      ]
+    }
+    var A = rgb(a)
+    var B = rgb(b)
+    if (!A || !B) return Color.muted
+    return Qt.rgba(
+      (A[0] + (B[0] - A[0]) * t) / 255,
+      (A[1] + (B[1] - A[1]) * t) / 255,
+      (A[2] + (B[2] - A[2]) * t) / 255,
+      1)
+  }
+
   readonly property real trailingGap: root.vertical ? 0 : Style.spaceReal(1.5)
 
   implicitWidth: grid.implicitWidth + trailingGap
@@ -64,8 +88,10 @@ BarWidget {
       model: root.shownWorkspaces
 
       // Every slot is a plain number/letter at Style.font.body (uniform size
-      // everywhere); the focused slot adds a filled rounded accent box behind
-      // the character, drawn in the bar's contrast foreground.
+      // everywhere); the focused slot adds a filled sharp-cornered accent box
+      // behind the character with a bg→accent blended bottom border. The
+      // character sits on the accent square itself (anchored above the border),
+      // not the full slot, so it stays centered in the visible box.
       Item {
         id: slot
         required property var modelData
@@ -84,16 +110,18 @@ BarWidget {
         }
 
         Rectangle {
+          id: border
           anchors.left: parent.left
           anchors.right: parent.right
           anchors.bottom: parent.bottom
           height: Style.space(2)
           visible: slot.focused
-          color: Color.muted
+          color: root.colorMix(Color.background, Color.accent, 0.6)
         }
 
         WidgetButton {
           anchors.fill: parent
+          anchors.bottomMargin: border.height
           bar: root.bar
           text: slot.numbered ? (slot.workspace.id === 10 ? "0" : String(slot.workspace.id)) : slot.workspace.name
           foreground: slot.focused
