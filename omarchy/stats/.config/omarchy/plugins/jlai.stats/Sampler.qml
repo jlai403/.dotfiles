@@ -31,6 +31,8 @@ Item {
       else if (name === "disk") v = s.disk ? s.disk.pct : undefined
       else if (name === "temp") v = s.temp
       else if (name === "io") v = s.disk ? (s.disk.read + s.disk.write) : undefined
+      else if (name === "read") v = s.disk ? s.disk.read : undefined
+      else if (name === "write") v = s.disk ? s.disk.write : undefined
       if (v !== undefined && v !== null) out.push(v)
     }
     if (limit && out.length > limit) return out.slice(out.length - limit)

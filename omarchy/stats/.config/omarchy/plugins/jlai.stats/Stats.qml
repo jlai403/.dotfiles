@@ -39,6 +39,17 @@ Panel {
   readonly property int tempMax: tempSeries.length ? Math.max.apply(null, tempSeries) : tempC
   readonly property var ioSeries: sampler.series("io")
 
+  // Shared scale for the bar's dual read/write activity bars: the peak of
+  // either direction over the recent window, so the two are comparable.
+  readonly property real rwPeak: {
+    var rs = sampler.series("read", 40)
+    var ws = sampler.series("write", 40)
+    var m = 1
+    for (var i = 0; i < rs.length; i++) if (rs[i] > m) m = rs[i]
+    for (var j = 0; j < ws.length; j++) if (ws[j] > m) m = ws[j]
+    return m
+  }
+
   function fmtRate(bytes) {
     var b = Number(bytes || 0)
     if (b >= 1048576) return (b / 1048576).toFixed(1) + " MB/s"
@@ -100,6 +111,10 @@ Panel {
       property var spark: []
       property real low: 0
       property real high: 100
+      property bool rw: false
+      property real read: 0
+      property real write: 0
+      property real peak: 1
 
       spacing: Style.space(3)
 
@@ -120,6 +135,7 @@ Panel {
       }
 
       Sparkline {
+        visible: !metric.rw
         anchors.verticalCenter: parent.verticalCenter
         width: Style.space(20)
         height: Style.space(11)
@@ -129,10 +145,22 @@ Panel {
         valueMax: metric.high
         lineColor: metric.danger ? root.urgent : root.graphColor
       }
+
+      RWActivity {
+        visible: metric.rw
+        anchors.verticalCenter: parent.verticalCenter
+        read: metric.read
+        write: metric.write
+        peak: metric.peak
+        readColor: metric.danger ? root.urgent : root.graphColor
+        writeColor: metric.danger
+          ? Qt.rgba(root.urgent.r, root.urgent.g, root.urgent.b, 0.45)
+          : Qt.rgba(Color.accent.r, Color.accent.g, Color.accent.b, 0.45)
+      }
     }
 
     Metric {
-      icon: "󰻠"
+      icon: "\uf2db"
       text: root.cpuPct + "%"
       danger: root.cpuDanger
       spark: sampler.series("cpu", 40)
@@ -149,11 +177,14 @@ Panel {
       icon: "󰋊"
       text: root.diskPct + "%"
       danger: root.diskDanger
-      spark: sampler.series("disk", 40)
+      rw: true
+      read: root.hasData ? root.s.disk.read : 0
+      write: root.hasData ? root.s.disk.write : 0
+      peak: root.rwPeak
     }
 
     Metric {
-      icon: "󰔄"
+      icon: "\uf050f"
       text: root.tempC >= 0 ? root.tempC + "°" : "—"
       danger: root.tempDanger
       spark: sampler.series("temp", 40)
@@ -167,7 +198,7 @@ Panel {
     id: verticalIcon
     anchors.centerIn: parent
     visible: root.vertical
-    text: "󰻠"
+    text: "\uf2db"
     color: root.cpuDanger ? root.urgent : root.foreground
     font.family: root.fontFamily
     font.pixelSize: Style.font.body
@@ -457,6 +488,64 @@ Panel {
   }
 
   // ---------------------------------------------------------------- parts
+  // Two stacked horizontal bars for disk read (top) and write (bottom),
+  // sharing one scale so the two directions are comparable.
+  component RWActivity: Item {
+    id: rw
+    property real read: 0
+    property real write: 0
+    property real peak: 1
+    property color readColor: root.graphColor
+    property color writeColor: root.graphColor
+
+    implicitWidth: Style.space(20)
+    implicitHeight: Style.space(11)
+    readonly property real barHeight: Math.round(implicitHeight * 4 / 11)
+
+    function ratio(v) {
+      var p = rw.peak > 0 ? rw.peak : 1
+      return Math.max(0, Math.min(1, Number(v) / p))
+    }
+
+    Rectangle {
+      id: readTrack
+      anchors.top: parent.top
+      width: parent.width
+      height: rw.barHeight
+      radius: height / 2
+      color: root.track
+
+      Rectangle {
+        anchors.left: parent.left
+        anchors.verticalCenter: parent.verticalCenter
+        height: parent.height
+        radius: height / 2
+        width: readTrack.width * rw.ratio(rw.read)
+        color: rw.readColor
+        Behavior on width { NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
+      }
+    }
+
+    Rectangle {
+      id: writeTrack
+      anchors.bottom: parent.bottom
+      width: parent.width
+      height: rw.barHeight
+      radius: height / 2
+      color: root.track
+
+      Rectangle {
+        anchors.left: parent.left
+        anchors.verticalCenter: parent.verticalCenter
+        height: parent.height
+        radius: height / 2
+        width: writeTrack.width * rw.ratio(rw.write)
+        color: rw.writeColor
+        Behavior on width { NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
+      }
+    }
+  }
+
   component Section: Column {
     id: section
     property string title
