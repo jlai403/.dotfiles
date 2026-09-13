@@ -19,10 +19,7 @@
           "id": "omarchy.weather"
         },
         {
-          "exec": "~/.local/bin/omarchy-bar-stats",
-          "id": "stats",
-          "interval": 3,
-          "type": "command"
+          "id": "jlai.stats"
         },
         {
           "id": "omarchy.system-update"

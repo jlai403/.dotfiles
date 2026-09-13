@@ -339,6 +339,8 @@ else
   # Cloned workspaces bar widget (only occupied numbered workspaces + the focused
   # one; lettered workspaces show their letter only while focused).
   _stow_group omarchy workspaces
+  # iStat-style stats bar widget (CPU/RAM/disk/temp sparklines + detail popup).
+  _stow_group omarchy stats
   _stow_group omarchy mise
   _stow_group omarchy fcitx5
   # Google Drive mount: rclone remote gdrive: -> ~/Google Drive
