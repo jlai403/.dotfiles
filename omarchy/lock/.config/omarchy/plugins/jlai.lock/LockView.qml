@@ -60,6 +60,53 @@ Item {
     passwordTextEdited("")
   }
 
+  // Cmd+Delete / Option+Delete (mac habits) in the password field. Qt only
+  // ships the Linux Ctrl-based variants, so implement the mac behavior here.
+  // NB: the Apple "delete" key is Backspace, so the Backspace variants are the
+  // ones Cmd/Option+delete actually produce; the forward Delete variants cover
+  // Fn+Delete.
+  function removeSelection() {
+    if (passwordInput.selectedText.length > 0) {
+      passwordInput.remove(passwordInput.selectionStart, passwordInput.selectionEnd)
+      return true
+    }
+    return false
+  }
+
+  function deleteToLineStart() {
+    if (removeSelection()) return
+    if (passwordInput.cursorPosition > 0) passwordInput.remove(0, passwordInput.cursorPosition)
+  }
+
+  function deleteToLineEnd() {
+    if (removeSelection()) return
+    if (passwordInput.cursorPosition < passwordInput.text.length) {
+      passwordInput.remove(passwordInput.cursorPosition, passwordInput.text.length)
+    }
+  }
+
+  function deleteWordBackward() {
+    if (removeSelection()) return
+    var pos = passwordInput.cursorPosition
+    if (pos <= 0) return
+    var text = passwordInput.text
+    var start = pos
+    while (start > 0 && !/[A-Za-z0-9_]/.test(text.charAt(start - 1))) start--
+    while (start > 0 && /[A-Za-z0-9_]/.test(text.charAt(start - 1))) start--
+    passwordInput.remove(start, pos)
+  }
+
+  function deleteWordForward() {
+    if (removeSelection()) return
+    var pos = passwordInput.cursorPosition
+    var text = passwordInput.text
+    if (pos >= text.length) return
+    var end = pos
+    while (end < text.length && !/[A-Za-z0-9_]/.test(text.charAt(end))) end++
+    while (end < text.length && /[A-Za-z0-9_]/.test(text.charAt(end))) end++
+    passwordInput.remove(pos, end)
+  }
+
   function syncPasswordText() {
     if (passwordInput.text === passwordText) return
     syncingPasswordText = true
@@ -184,6 +231,35 @@ Item {
             passwordInput.selectAll()
             event.accepted = true
             return
+          }
+
+          // Cmd+Delete = delete to line start, Option+Delete = delete word
+          // backward (Backspace variants, since the Apple delete key is
+          // Backspace), handled here because the Cmd/Option shims don't run
+          // while the session is locked.
+          if (event.modifiers & Qt.MetaModifier) {
+            if (event.key === Qt.Key_Backspace) {
+              root.deleteToLineStart()
+              event.accepted = true
+              return
+            }
+            if (event.key === Qt.Key_Delete) {
+              root.deleteToLineEnd()
+              event.accepted = true
+              return
+            }
+          }
+          if (event.modifiers & Qt.AltModifier) {
+            if (event.key === Qt.Key_Backspace) {
+              root.deleteWordBackward()
+              event.accepted = true
+              return
+            }
+            if (event.key === Qt.Key_Delete) {
+              root.deleteWordForward()
+              event.accepted = true
+              return
+            }
           }
 
           // Ignore auto-repeat for character keys so a held/wedged key can't
