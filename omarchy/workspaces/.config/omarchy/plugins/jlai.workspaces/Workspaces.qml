@@ -73,26 +73,12 @@ BarWidget {
         text: workspace.focused && numbered
           ? "\uDB85\uDCFB"
           : (numbered ? (workspace.id === 10 ? "0" : String(workspace.id)) : workspace.name)
-        active: workspace.focused
-        activeColor: root.bar ? root.bar.background : Color.background
+        opacity: workspace.focused || workspace.toplevels.values.length > 0 ? 1 : 0.5
         horizontalMargin: 6
         verticalPadding: 6
         fixedWidth: root.vertical ? root.barSize : Style.space(20)
         fixedHeight: root.barSize
         onPressed: function() { root.focusWorkspace(workspace) }
-
-        // Inverted highlight: the active slot gets a foreground-coloured chip
-        // with the label knocked out in the bar background colour.
-        BorderSurface {
-          z: -1
-          visible: workspace.focused
-          anchors.horizontalCenter: parent.horizontalCenter
-          anchors.verticalCenter: parent.verticalCenter
-          width: Math.min(parent.width, labelWidth + Style.space(6))
-          height: parent.height - Style.space(2)
-          color: root.bar ? root.bar.barForeground : Color.foreground
-          radius: Math.min(Style.cornerRadius, height / 2)
-        }
       }
     }
   }
