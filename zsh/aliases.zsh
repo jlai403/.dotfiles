@@ -132,6 +132,13 @@ alias cat='bat --style=auto'
 alias ls='eza --icons --group-directories-first'
 alias lg=lazygit
 
+# cliamp: resolve the Spotify client_id from 1Password on launch (personal
+# account), cached in the Keychain for 24h.
+cliamp() {
+  [[ -n "$SPOTIFY_CLIENT_ID" ]] || _op_env SPOTIFY_CLIENT_ID 'op://Private/spotify keys/client_id' 86400 my.1password.ca
+  command cliamp "$@"
+}
+
 # suffix aliases
 if [[ "$SHELL" == *"zsh"* ]]; then
   alias -s {md,txt,json,yaml,yml,toml,conf,ini}=nvim

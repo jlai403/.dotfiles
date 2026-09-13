@@ -105,7 +105,7 @@ Modular configs sourced from `~/.zshrc`:
 - `zsh/hooks.zsh` — hooks (auto-ls on cd, git auto-pull on checkout main)
 - `zsh/keys.zsh` — key bindings (alt-arrow word motion)
 - `zsh/overrides.zsh` — zsh-compat wrappers for Omarchy's bash-indexed `tsl`/`hsl`
-- `zsh/op.zsh` — 1Password-backed secret env
+- `zsh/op.zsh` — 1Password-backed secret env (resolved lazily on use, e.g. by the `cliamp()` wrapper)
 
 ### Non-stowed Configs
 

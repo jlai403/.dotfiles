@@ -4,10 +4,6 @@ _dots_os="$HOME/.dotfiles/zsh/os/${(L)$(uname -s)}.zsh"
 [[ -f "$_dots_os" ]] && source "$_dots_os"
 unset _dots_os
 
-source ~/.dotfiles/zsh/op.zsh
-
-_op_env SPOTIFY_CLIENT_ID 'op://Private/spotify keys/client_id' 86400
-
 # Put pyenv shims first without duplicating them (the OS layer's `typeset -U PATH`
 # also keeps repeated prepends deduped).
 export PATH="$PYENV_ROOT/shims:${PATH//:$PYENV_ROOT\/shims/}"

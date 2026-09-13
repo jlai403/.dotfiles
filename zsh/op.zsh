@@ -1,18 +1,22 @@
 # op-backed env secrets: Keychain cache (macOS), bootstrapped from 1Password.
-# Usage: _op_env <VAR> <op://reference> [ttl_seconds]
+# Usage: _op_env <VAR> <op://reference> [ttl_seconds] [account]
 #   Service name is derived as "$_OP_NS/$VAR" for a uniform, greppable namespace.
 #   ttl_seconds > 0 re-reads op when the Keychain entry is older than TTL.
+#   account selects the 1Password account (sign-in address or ID) when multiple
+#   are signed in; without it op falls back to its default and may prompt.
 #   Rotate/force-refresh: op-env-reset <VAR> then open a new shell.
 #   Linux (no `security` CLI): value is resolved from op on each shell; no cache.
 
 _OP_NS="dotfiles/cache/op_env"
 
 _op_env() {
-  local var="$1" ref="$2" ttl="${3:-0}" svc="$_OP_NS/$1" val created age
+  local var="$1" ref="$2" ttl="${3:-0}" account="$4" svc="$_OP_NS/$1" val created age
+  local -a op_args=(read)
+  [[ -n "$account" ]] && op_args+=(--account "$account")
 
   if [[ "$(uname -s)" != "Darwin" ]]; then
     # No `security` CLI: resolve from 1Password each shell, no cache.
-    [[ -x "$(command -v op)" ]] && export "$var"="$(op read "$ref" 2>/dev/null)"
+    [[ -x "$(command -v op)" ]] && export "$var"="$(op "${op_args[@]}" "$ref")"
     return 0
   fi
 
@@ -28,7 +32,7 @@ _op_env() {
 
   val="$(security find-generic-password -s "$svc" -a "$USER" -w 2>/dev/null)"
   if [[ -z "$val" && -x "$(command -v op)" ]]; then
-    val="$(op read "$ref" 2>/dev/null)"
+    val="$(op "${op_args[@]}" "$ref")"
     [[ -n "$val" ]] && security add-generic-password -U -s "$svc" -a "$USER" -w "$val" >/dev/null 2>&1
   fi
   [[ -n "$val" ]] && export "$var"="$val"

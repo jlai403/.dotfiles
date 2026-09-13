@@ -144,7 +144,7 @@ Never commit private dotfiles content to this repo.
 - `zsh/hooks.zsh`: Zsh hooks (auto-ls, git auto-pull, lazy mise activation)
 - `zsh/keys.zsh`: Key bindings (alt-arrow word motion, etc.)
 - `zsh/overrides.zsh`: zsh-compat wrappers for Omarchy's bash-indexed `tsl`/`hsl` (via `emulate -L bash`)
-- `zsh/op.zsh`: 1Password-backed secrets. `_op_env <VAR> <op://ref> [ttl]` reads from the macOS Keychain (silent, encrypted) and bootstraps from 1Password when absent, storing under service name `dotfiles/cache/op_env/<VAR>`; `op-env-reset <VAR>` (or `--all`) deletes cached entries to force a re-read. Explicitly sourced at the top of `exports.zsh` (alphabetical load would run it too late). Uses `command grep` to bypass the `grep='rg'` alias.
+- `zsh/op.zsh`: 1Password-backed secrets. `_op_env <VAR> <op://ref> [ttl] [account]` reads from the macOS Keychain (silent, encrypted) and bootstraps from 1Password when absent, storing under service name `dotfiles/cache/op_env/<VAR>`; `op-env-reset <VAR>` (or `--all`) deletes cached entries to force a re-read. `account` (sign-in address/ID) selects the 1Password account — required when multiple are signed in, or op uses its default and prompts each call; `op read` errors are no longer swallowed so a misconfigured account is visible. Uses `command grep` to bypass the `grep='rg'` alias. Consumers resolve lazily, not at shell startup: `zsh/aliases.zsh` defines a `cliamp()` wrapper that calls `_op_env SPOTIFY_CLIENT_ID 'op://Private/spotify keys/client_id' 86400 my.1password.ca` on launch (the item lives in the personal account, while op would otherwise default to the work account).
 - Use snake_case for function names
 - Define color constants at file top (RED, GREEN, etc.)
 - Check file existence before modifications
