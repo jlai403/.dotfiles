@@ -233,35 +233,6 @@ Item {
             return
           }
 
-          // Cmd+Delete = delete to line start, Option+Delete = delete word
-          // backward (Backspace variants, since the Apple delete key is
-          // Backspace), handled here because the Cmd/Option shims don't run
-          // while the session is locked.
-          if (event.modifiers & Qt.MetaModifier) {
-            if (event.key === Qt.Key_Backspace) {
-              root.deleteToLineStart()
-              event.accepted = true
-              return
-            }
-            if (event.key === Qt.Key_Delete) {
-              root.deleteToLineEnd()
-              event.accepted = true
-              return
-            }
-          }
-          if (event.modifiers & Qt.AltModifier) {
-            if (event.key === Qt.Key_Backspace) {
-              root.deleteWordBackward()
-              event.accepted = true
-              return
-            }
-            if (event.key === Qt.Key_Delete) {
-              root.deleteWordForward()
-              event.accepted = true
-              return
-            }
-          }
-
           // Ignore auto-repeat for character keys so a held/wedged key can't
           // flood the password buffer (omarchy#7805: the display-wake modeset
           // stall otherwise repeats the wake key dozens of times).
@@ -309,5 +280,31 @@ Item {
         verticalAlignment: Text.AlignVCenter
       }
     }
+  }
+
+  // Cmd/Option+Delete are window-level shortcuts rather than Keys handlers:
+  // on Wayland the TextInput can receive editing keys (Backspace/Delete) via
+  // the input-method path, so a Keys.onPressed handler on the field never sees
+  // them. The Apple delete key is Backspace, so the Backspace sequences are
+  // what ⌘/⌥+delete actually produce; forward Delete covers Fn+Delete.
+  Shortcut {
+    sequence: "Meta+Backspace"
+    context: Qt.WindowShortcut
+    onActivated: root.deleteToLineStart()
+  }
+  Shortcut {
+    sequence: "Meta+Delete"
+    context: Qt.WindowShortcut
+    onActivated: root.deleteToLineEnd()
+  }
+  Shortcut {
+    sequence: "Alt+Backspace"
+    context: Qt.WindowShortcut
+    onActivated: root.deleteWordBackward()
+  }
+  Shortcut {
+    sequence: "Alt+Delete"
+    context: Qt.WindowShortcut
+    onActivated: root.deleteWordForward()
   }
 }
