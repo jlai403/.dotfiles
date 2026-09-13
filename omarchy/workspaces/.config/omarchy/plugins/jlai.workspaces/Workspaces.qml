@@ -90,8 +90,7 @@ BarWidget {
       // Every slot is a plain number/letter at Style.font.body (uniform size
       // everywhere); the focused slot adds a filled sharp-cornered accent box
       // behind the character with a bg→accent blended bottom border. The
-      // character sits on the accent square itself (anchored above the border),
-      // not the full slot, so it stays centered in the visible box.
+      // character sits on the accent square itself (anchored above the border).
       Item {
         id: slot
         required property var modelData
@@ -99,9 +98,23 @@ BarWidget {
         readonly property var workspace: modelData
         readonly property bool numbered: root.isNumbered(workspace.name)
         readonly property bool focused: workspace.focused
+        readonly property string label: slot.numbered
+          ? (slot.workspace.id === 10 ? "0" : String(slot.workspace.id))
+          : slot.workspace.name
 
         implicitWidth: Style.space(20)
         implicitHeight: root.barSize
+
+        // Pixel-perfect ink centering: WidgetButton centers the label by its
+        // advance metrics, but the native renderer's hinting shifts the ink —
+        // measured +1.5 physical px right, 0 vertical, for every glyph at this
+        // size; TextMetrics/boundingRect don't model that. Calibrated nudge
+        // dx=-0.5 logical (= -1 physical @2x) is the crisp option (integer
+        // pixel shift) and lands the ink box within half a physical px of the
+        // accent square's center; subpixel dx values buy nothing (rendering
+        // quantizes) and just soften the glyph.
+        readonly property real dx: -0.5
+        readonly property real dy: 0
 
         Rectangle {
           anchors.fill: parent
@@ -123,7 +136,8 @@ BarWidget {
           anchors.fill: parent
           anchors.bottomMargin: border.height
           bar: root.bar
-          text: slot.numbered ? (slot.workspace.id === 10 ? "0" : String(slot.workspace.id)) : slot.workspace.name
+          text: slot.label
+          transform: Translate { x: slot.dx; y: slot.dy }
           foreground: slot.focused
             ? (root.bar ? root.bar.background : Color.background)
             : (root.bar ? root.bar.barForeground : Color.foreground)
