@@ -98,7 +98,7 @@ configure_macos_defaults() {
 
 	# --- Apps ---
 	# Stats - menu bar system monitor
-	defaults import eu.exelban.Stats "$(pwd)/stats-menu/Stats.plist"
+	defaults import eu.exelban.Stats "$DOTS_DIR/macos/backups/stats-menu/Stats.plist"
 
 	# Enable press and hold for special characters
 	defaults write com.microsoft.VSCode ApplePressAndHoldEnabled -bool false
