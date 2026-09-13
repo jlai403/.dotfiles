@@ -12,6 +12,31 @@ BarWidget {
     return /^[0-9]+$/.test(String(name))
   }
 
+  // Material Design "boxed" glyphs (Supplementary PUA, so encoded as surrogate
+  // pairs): a filled rounded square with the digit/letter knocked out, so the
+  // active slot shows the character *inside* the highlight. Digits 0-9 + 10;
+  // letters a-z are contiguous from 0xF0B08.
+  readonly property var digitBox: ({
+    0: 0xF03A1, 1: 0xF03A4, 2: 0xF03A7, 3: 0xF03AA, 4: 0xF03AD,
+    5: 0xF03B1, 6: 0xF03B3, 7: 0xF03B6, 8: 0xF03B9, 9: 0xF03BC,
+    10: 0xF0F7D
+  })
+
+  function glyph(cp) {
+    if (cp <= 0xFFFF) return String.fromCharCode(cp)
+    cp -= 0x10000
+    return String.fromCharCode(0xD800 + (cp >> 10), 0xDC00 + (cp & 0x3FF))
+  }
+
+  function boxedGlyph(ws) {
+    if (isNumbered(ws.name)) {
+      var cp = digitBox[ws.id]
+      return cp ? glyph(cp) : String(ws.id)
+    }
+    var index = String(ws.name).toLowerCase().charCodeAt(0) - 97
+    return index >= 0 && index < 26 ? glyph(0xF0B08 + index) : ws.name
+  }
+
   // Numbered workspaces that currently hold windows, ascending, plus the
   // focused workspace so the active slot is always visible. Named (lettered)
   // workspaces only appear while focused — they carry no fixed number to pin.
@@ -71,13 +96,12 @@ BarWidget {
 
         bar: root.bar
         text: workspace.focused
-          ? (numbered ? "\uDB85\uDCFB" : "\uDB85\uDCFB" + workspace.name)
+          ? root.boxedGlyph(workspace)
           : (numbered ? (workspace.id === 10 ? "0" : String(workspace.id)) : workspace.name)
         opacity: workspace.focused || workspace.toplevels.values.length > 0 ? 1 : 0.5
         horizontalMargin: 6
         verticalPadding: 6
-        fixedWidth: root.vertical ? root.barSize
-          : (workspace.focused && !numbered ? -1 : Style.space(20))
+        fixedWidth: root.vertical ? root.barSize : Style.space(20)
         fixedHeight: root.barSize
         onPressed: function() { root.focusWorkspace(workspace) }
       }
