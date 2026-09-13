@@ -287,6 +287,22 @@ o.bind("SUPER + SHIFT + E", "App chord (Cmd shim)", mac_shortcut("CTRL + SHIFT",
 o.bind("SUPER + SHIFT + M", "App chord (Cmd shim)", mac_shortcut("CTRL + SHIFT", "M"))
 o.bind("SUPER + SHIFT + D", "Duplicate line (Cmd shim)", mac_shortcut("CTRL + SHIFT", "D"))
 
+-- Cmd+click: SUPER+left becomes CTRL+left so apps get the Linux new-tab /
+-- multi-select modifier, mirroring the keyboard Cmd shim (Zen opens the link
+-- in a new tab). The bind consumes the physical click, so re-emit it with
+-- CTRL; terminals get a plain click so CTRL never leaks into the shell.
+-- Window move-by-drag re-homes to the hyper chord (SUPER+CTRL+ALT+left).
+local function cmd_click()
+  local mods = active_window_is_terminal() and "" or "CTRL"
+  hl.dispatch(hl.dsp.send_key_state({ mods = mods, key = "mouse:272", state = "down" }))
+  hl.dispatch(hl.dsp.send_key_state({ mods = mods, key = "mouse:272", state = "up" }))
+end
+
+hl.unbind("SUPER + mouse:272") -- was: Move window (drag, now on hyper)
+o.bind("SUPER + mouse:272", "Cmd+click (open link in new tab)", cmd_click, { click = true })
+o.bind("SUPER + CONTROL + ALT + mouse:272", "Move window (hyper drag)",
+  hl.dsp.window.drag(), { mouse = true })
+
 -- Lid open: reconcile displays normally, but defer while the session is
 -- locked. Reconciling monitors under an active lock makes Hyprland drop the
 -- lock surface's keyboard/pointer focus (hyprwm/Hyprland#1548 / #5072 /
