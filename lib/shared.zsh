@@ -4,13 +4,10 @@
 _stow_shared() {
   # Real config dirs keep stow from folding ~/.config/<app> into the repo
   # (a folded dir would capture app-written logs/state into the dotfiles tree).
-  mkdir -p ~/.config/ghostty ~/.config/cliamp ~/.local/bin
+  # herdr writes logs/sockets/session.json beside its config, hence its dir too.
+  mkdir -p ~/.config/ghostty ~/.config/cliamp ~/.config/herdr ~/.local/bin
 
-  _stow cliamp ghostty git nvim inputrc tmux zed television starship
-
-  # herdr manages its own files next to the stowed config, so it must not fold.
-  stow -v --no-folding -d "$DOTS_DIR" -t ~ herdr
-  echo "${GREEN}Symlink updated: herdr${NC}"
+  _stow cliamp ghostty git herdr nvim inputrc tmux zed television starship
 
   # Root package + per-OS override (local.conf / config.toml) exist on both OSes.
   _stow_platform ghostty mise
