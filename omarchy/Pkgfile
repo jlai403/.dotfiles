@@ -25,5 +25,8 @@ cura-bin
 # Google Drive FUSE mount (rclone)
 rclone
 
+# Remote desktop: VNC server for the wlroots/Hyprland session (Tailscale + PAM)
+wayvnc
+
 # Chat
 discord

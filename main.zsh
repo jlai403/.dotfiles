@@ -353,6 +353,17 @@ else
   else
     echo "${YELLOW}No rclone 'gdrive:' remote yet; run 'rclone config reconnect gdrive:' to authorize${NC}"
   fi
+  # Remote desktop: VNC server bound to the Tailscale interface, PAM auth.
+  # Pre-create the dir so stow never folds ~/.config/wayvnc into the repo.
+  mkdir -p "$HOME/.config/wayvnc"
+  _stow_group omarchy wayvnc
+  if command -v wayvnc >/dev/null 2>&1; then
+    systemctl --user enable --now wayvnc.service
+    echo "${GREEN}wayvnc enabled (Tailscale + PAM); allow it with: sudo ufw allow in on tailscale0 to any port 5900 proto tcp${NC}"
+  else
+    systemctl --user enable wayvnc.service
+    echo "${YELLOW}wayvnc unit enabled but the package is missing; run 'omarchy pkg add wayvnc' then 'systemctl --user start wayvnc'${NC}"
+  fi
   sudo loginctl enable-linger "$USER"
   # Hyper key (keyd): hold CapsLock = Hyper (C-M-A), tap = Esc.
   # Lives in /etc/keyd, so this stow needs root.
