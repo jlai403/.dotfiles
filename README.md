@@ -61,7 +61,7 @@ Three layers, two mechanisms:
 - `_os_configure` — services, mise, Tailscale, privileged `/etc` stows
 - `_os_finalize` — wallpaper + macOS defaults (`--osx`)
 
-Shared steps live in `lib/shared.zsh` (`_stow_shared`, `_link_zshrc`, `_setup_agents`, `_setup_ssh`, `_setup_private`); stow helpers in `lib/stow.zsh` (`_stow` for root packages, `_stow_platform` for the current OS dir). Packages present on both platforms (`ghostty`, `mise`, `ssh`) are stowed via `_stow_platform`.
+Shared steps live in `lib/shared.zsh` (`_stow_shared`, `_link_zshrc`, `_setup_agents`, `_setup_ssh`, `_setup_private`); stow helpers in `lib/stow.zsh` (`_stow` for root packages, `_stow_platform` for the current OS dir). Root packages are stowed from `_stow_shared`; every `$OS_DIR` package — including the per-OS `ghostty`/`mise`/`ssh` overrides — is stowed from that OS's `_os_stow_packages`.
 
 The shell mirrors this: shared `zsh/*.zsh` modules with **one OS file per OS** — `zsh/os/darwin.zsh` / `zsh/os/linux.zsh` — each sourced if present, so the shared files contain no platform branching. `typeset -U PATH` keeps prepends deduped across re-sources and nested shells.
 

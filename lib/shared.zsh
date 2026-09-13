@@ -2,15 +2,11 @@
 # macos/setup.zsh | omarchy/setup.zsh.
 
 _stow_shared() {
-  # Real config dirs keep stow from folding ~/.config/<app> into the repo
-  # (a folded dir would capture app-written logs/state into the dotfiles tree).
-  # herdr writes logs/sockets/session.json beside its config, hence its dir too.
-  mkdir -p ~/.config/ghostty ~/.config/cliamp ~/.config/herdr ~/.local/bin
+  # Real dirs keep stow from folding them into the repo (a folded dir would
+  # capture app-written state: herdr logs/sockets, ~/.ssh known_hosts, ...).
+  mkdir -p ~/.config/ghostty ~/.config/cliamp ~/.config/herdr ~/.local/bin ~/.ssh
 
   _stow cliamp ghostty git herdr nvim inputrc tmux zed television starship
-
-  # Root package + per-OS override (local.conf / config.toml) exist on both OSes.
-  _stow_platform ghostty mise
 }
 
 _link_zshrc() {
@@ -127,9 +123,6 @@ _install_skills() {
 }
 
 _setup_ssh() {
-  mkdir -p ~/.ssh
-  _stow_platform ssh
-
   local appends="$(cat "$DOTS_DIR/$OS_DIR/ssh/config.append")"
 
   # Only add Includes if not already present
