@@ -68,13 +68,18 @@
   "plugins": [
     {
       "id": "jlai.idle"
+    },
+    {
+      "id": "jlai.lock"
     }
   ],
   "version": 1,
   "disabledPlugins": [
-    "omarchy.idle"
+    "omarchy.idle",
+    "omarchy.lock"
   ],
   "cloneSourceRestores": [
-    "jlai.idle"
+    "jlai.idle",
+    "jlai.lock"
   ]
 }

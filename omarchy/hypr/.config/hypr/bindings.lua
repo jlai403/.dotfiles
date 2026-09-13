@@ -206,11 +206,7 @@ local cmd_keys = {
 }
 for _, key in ipairs(cmd_keys) do
   hl.unbind("SUPER + " .. key)
-  -- Cmd+A must also reach the lock screen (select-all in the password field),
-  -- so opt it into `locked`; Hyprland drops binds while a session lock is
-  -- active unless the bind opts in.
-  local opts = key == "A" and { locked = true } or nil
-  o.bind("SUPER + " .. key, "Cmd shim (catch-all)", mac_shortcut("CTRL", key), opts)
+  o.bind("SUPER + " .. key, "Cmd shim (catch-all)", mac_shortcut("CTRL", key))
 end
 -- Cmd+W: close the focused tab in apps (Ctrl+W shim), but close the terminal
 -- window itself when focus is a terminal (mac: Cmd+W closes the window).
