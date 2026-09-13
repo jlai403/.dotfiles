@@ -39,8 +39,8 @@ _install_omarchy_plugins() {
     return 0
   fi
 
-  local urls=("${(@f)"$(yq '.plugins[].url' "$yaml")"}")
-  local enables=("${(@f)"$(yq '.plugins[].enable // "false"' "$yaml")"}")
+  local urls=("${(@f)"$(yq -r '.plugins[].url' "$yaml")"}")
+  local enables=("${(@f)"$(yq -r '.plugins[].enable // false' "$yaml")"}")
 
   local i url name args
   for i in {1..${#urls}}; do

@@ -84,11 +84,11 @@ _install_skills() {
   rm -rf "$skills_src"/*(N)
 
   # install from config
-  local repos=("${(@f)$(yq '.install | keys | .[]' "$skills_file")}")
+  local repos=("${(@f)$(yq -r '.install | keys | .[]' "$skills_file")}")
   local repo skills_val agents_raw a s
   for repo in "${repos[@]}"; do
-    skills_val=$(yq ".install[\"$repo\"].skills" "$skills_file")
-    agents_raw=$(yq ".install[\"$repo\"].agents | join(\",\")" "$skills_file")
+    skills_val=$(yq -r ".install[\"$repo\"].skills" "$skills_file")
+    agents_raw=$(yq -r ".install[\"$repo\"].agents | join(\",\")" "$skills_file")
 
     local agent_flags=()
     for a in "${(@s:,:)agents_raw}"; do
@@ -99,7 +99,7 @@ _install_skills() {
     if [[ "$skills_val" == "*" ]]; then
       skill_flags=(--skill '*')
     else
-      local skill_names=("${(@f)$(yq ".install[\"$repo\"].skills | .[]" "$skills_file")}")
+      local skill_names=("${(@f)$(yq -r ".install[\"$repo\"].skills | .[]" "$skills_file")}")
       for s in "${skill_names[@]}"; do
         skill_flags+=(--skill "$s")
       done
