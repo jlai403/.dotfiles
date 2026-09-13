@@ -1,3 +1,8 @@
+# Platform layer (macOS-only aliases live in zsh/os/darwin.zsh)
+_dots_os="$HOME/.dotfiles/zsh/os/${(L)$(uname -s)}.zsh"
+[[ -f "$_dots_os" ]] && source "$_dots_os"
+unset _dots_os
+
 alias cls=clear
 
 function orphaned_symlinks() {
@@ -116,11 +121,6 @@ alias svenv='source .venv/bin/activate'
 # docker
 alias dc='docker-compose'
 
-# borders (macOS only)
-if [[ "$(uname -s)" == "Darwin" ]]; then
-  alias borders-start='nohup borders active_color=0xff00cfe6 inactive_color=0xff494d64 width=4.0 > /dev/null 2>&1 &'
-fi
-
 # dev
 alias v=nvim
 alias cd=z
@@ -131,9 +131,6 @@ alias find='fd'
 alias cat='bat --style=auto'
 alias ls='eza --icons --group-directories-first'
 alias lg=lazygit
-if [[ "$(uname -s)" == "Darwin" ]]; then
-  alias findlock="ioreg -l -w 0 | grep SecureInput"
-fi
 
 # suffix aliases
 if [[ "$SHELL" == *"zsh"* ]]; then
