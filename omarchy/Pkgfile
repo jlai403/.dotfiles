@@ -24,3 +24,6 @@ cura-bin
 
 # Google Drive FUSE mount (rclone)
 rclone
+
+# Chat
+discord
