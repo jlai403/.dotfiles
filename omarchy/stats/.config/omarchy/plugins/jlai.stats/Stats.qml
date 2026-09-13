@@ -184,7 +184,7 @@ Panel {
     }
 
     Metric {
-      icon: "\uf050f"
+      icon: "\uf2c8"
       text: root.tempC >= 0 ? root.tempC + "°" : "—"
       danger: root.tempDanger
       spark: sampler.series("temp", 40)
@@ -253,7 +253,7 @@ Panel {
         Column {
           id: column
           width: flick.width
-          spacing: Style.space(14)
+          spacing: Style.space(10)
 
           // ------------------------------------------------ CPU
           Section {
@@ -284,7 +284,7 @@ Panel {
 
             Sparkline {
               width: parent.width
-              height: Style.space(56)
+              height: Style.space(44)
               values: sampler.series("cpu")
               valueMin: 0
               valueMax: 100
@@ -292,24 +292,9 @@ Panel {
               fillColor: root.graphFill
             }
 
-            Grid {
-              id: coreGrid
+            CoreBars {
               width: parent.width
-              columns: 2
-              columnSpacing: Style.space(18)
-              rowSpacing: Style.space(4)
-
-              Repeater {
-                model: root.cores
-
-                CoreRow {
-                  required property var modelData
-                  required property int index
-                  width: (coreGrid.width - coreGrid.columnSpacing) / 2
-                  coreIndex: index
-                  pct: modelData
-                }
-              }
+              cores: root.cores
             }
 
             KV { label: "Uptime"; value: root.fmtUptime(root.s ? root.s.uptime : undefined) }
@@ -317,7 +302,7 @@ Panel {
             ProcList {
               width: parent.width
               heading: "Top CPU"
-              rows: root.samplerTop("cpu")
+              rows: root.samplerTop("cpu").slice(0, 4)
             }
           }
 
@@ -352,7 +337,7 @@ Panel {
 
             Sparkline {
               width: parent.width
-              height: Style.space(56)
+              height: Style.space(44)
               values: sampler.series("ram")
               valueMin: 0
               valueMax: 100
@@ -372,7 +357,7 @@ Panel {
             ProcList {
               width: parent.width
               heading: "Top Memory"
-              rows: root.samplerTop("mem")
+              rows: root.samplerTop("mem").slice(0, 4)
             }
           }
 
@@ -431,7 +416,7 @@ Panel {
 
             Sparkline {
               width: parent.width
-              height: Style.space(44)
+              height: Style.space(36)
               values: root.ioSeries
               autoScale: true
               lineColor: root.graphColor
@@ -475,7 +460,7 @@ Panel {
 
             Sparkline {
               width: parent.width
-              height: Style.space(56)
+              height: Style.space(44)
               values: root.tempSeries
               autoScale: true
               lineColor: root.graphColor
@@ -551,7 +536,7 @@ Panel {
     property string title
     default property alias body: inner.data
     width: parent ? parent.width : implicitWidth
-    spacing: Style.space(8)
+    spacing: Style.space(6)
 
     PanelSectionHeader {
       text: section.title
@@ -562,7 +547,7 @@ Panel {
     Column {
       id: inner
       width: parent.width
-      spacing: Style.space(8)
+      spacing: Style.space(6)
     }
   }
 
@@ -629,43 +614,55 @@ Panel {
     }
   }
 
-  component CoreRow: Item {
-    id: core
-    property int coreIndex: 0
-    property int pct: 0
-    implicitHeight: Math.max(coreLabel.implicitHeight, Style.space(14))
+  component CoreBars: Item {
+    id: bars
+    property var cores: []
+    implicitHeight: Style.space(30)
 
-    Text {
-      id: coreLabel
-      anchors.left: parent.left
-      anchors.verticalCenter: parent.verticalCenter
-      width: Style.space(48)
-      textFormat: Text.PlainText
-      text: "Core " + core.coreIndex
-      color: root.dim
-      font.family: root.fontFamily
-      font.pixelSize: Style.font.caption
-    }
+    Row {
+      id: coreRow
+      anchors.fill: parent
+      spacing: Style.space(3)
 
-    Meter {
-      anchors.left: coreLabel.right
-      anchors.right: corePct.left
-      anchors.rightMargin: Style.space(8)
-      anchors.verticalCenter: parent.verticalCenter
-      height: Style.space(5)
-      value: core.pct / 100
-      fillColor: core.pct > 80 ? root.urgent : root.graphColor
-    }
+      Repeater {
+        model: bars.cores
 
-    Text {
-      id: corePct
-      anchors.right: parent.right
-      anchors.verticalCenter: parent.verticalCenter
-      textFormat: Text.PlainText
-      text: core.pct + "%"
-      color: root.foreground
-      font.family: root.fontFamily
-      font.pixelSize: Style.font.caption
+        Item {
+          id: coreBar
+          required property var modelData
+          required property int index
+          readonly property int pct: Number(modelData)
+          width: bars.cores.length > 0
+            ? (coreRow.width - (bars.cores.length - 1) * coreRow.spacing) / bars.cores.length
+            : 0
+          height: coreRow.height
+
+          Rectangle {
+            anchors.fill: parent
+            radius: Math.min(Style.space(1), width / 2)
+            color: root.track
+          }
+
+          Rectangle {
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+            radius: Math.min(Style.space(1), width / 2)
+            height: parent.height * Math.max(0, Math.min(1, coreBar.pct / 100))
+            color: coreBar.pct > 80 ? root.urgent : root.graphColor
+
+            Behavior on height { NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
+          }
+
+          HoverHandler { id: coreHover }
+
+          PanelToolTip {
+            visible: coreHover.hovered
+            text: "Core " + coreBar.index + ": " + coreBar.pct + "%"
+            fontFamily: root.fontFamily
+          }
+        }
+      }
     }
   }
 
