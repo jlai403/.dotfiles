@@ -70,13 +70,14 @@ BarWidget {
         readonly property bool numbered: root.isNumbered(workspace.name)
 
         bar: root.bar
-        text: workspace.focused && numbered
-          ? "\uDB85\uDCFB"
+        text: workspace.focused
+          ? (numbered ? "\uDB85\uDCFB" : "\uDB85\uDCFB" + workspace.name)
           : (numbered ? (workspace.id === 10 ? "0" : String(workspace.id)) : workspace.name)
         opacity: workspace.focused || workspace.toplevels.values.length > 0 ? 1 : 0.5
         horizontalMargin: 6
         verticalPadding: 6
-        fixedWidth: root.vertical ? root.barSize : Style.space(20)
+        fixedWidth: root.vertical ? root.barSize
+          : (workspace.focused && !numbered ? -1 : Style.space(20))
         fixedHeight: root.barSize
         onPressed: function() { root.focusWorkspace(workspace) }
       }
