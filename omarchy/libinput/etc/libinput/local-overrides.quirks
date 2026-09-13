@@ -1,0 +1,15 @@
+# Local libinput quirks for the built-in Apple trackpad (T2, USB vhci).
+# Overrides the shipped values in /usr/share/libinput/50-system-apple.quirks
+# (same device match; local file takes precedence).
+#
+# CAUTION: libinput quirks are internal API — a parse error here disables ALL
+# quirks system-wide. Validate with `libinput quirks list /dev/input/event6`.
+
+[Apple Internal Trackpad palm rejection]
+MatchVendor=0x05AC
+MatchProduct=0x0340
+MatchUdevType=touchpad
+# Shipped default is 1600; lower it for more aggressive palm rejection.
+AttrPalmSizeThreshold=1200
+# Ignore clicks fired when no fingers are on the touchpad (case-bend noise).
+ModelTouchpadPhantomClicks=1

@@ -1,5 +1,5 @@
 [user]
-	name = joey
+	name = Joey Lai
 	email = 3282127+jlai403@users.noreply.github.com
 
 [url "ssh://git@github.com/"]
@@ -24,13 +24,15 @@
 
 [core]
 	compression = 9
-	whitespace = error
 	preloadindex = true
 
 [diff]
 	context = 3
 	renames = copies
 	interHunkContext = 10
+	algorithm = histogram
+	colorMoved = plain
+	mnemonicPrefix = true
 
 [pager]
 	diff = delta
@@ -38,16 +40,6 @@
 [delta]
 	features = side-by-side
 	whitespace = error
-
-[diff-so-fancy]
-	markEmptyLines = false
-
-[color "diff"]
-	meta = black bold
-	frag = magenta
-	context = white
-	whitespace = yellow reverse
-	old = red
 
 [push]
 	autoSetupRemote = true
@@ -83,22 +75,26 @@
 	sort = -committerdate
 
 [tag]
-	sort = -committerdate
+	sort = -version:refname
 
 [pager]
 	branch = false
 	tag = false
+
+[commit]
+	verbose = true
+
+[column]
+	ui = auto
+
+[rerere]
+	enabled = true
+	autoupdate = true
 
 [alias]
 	co = checkout
 	ci = commit
 	br = branch
 	st = status
-  sweep = "!git branch --merged | grep -v ^\\* | grep -v main | grep -v master | xargs -r git branch -d"
+	sweep = "!git branch --merged | grep -v ^\\* | grep -v main | grep -v master | xargs -r git branch -d"
 	tidy = !~/.config/git/scripts/tidy
-
-[filter "lfs"]
-	clean = git-lfs clean -- %f
-	smudge = git-lfs smudge -- %f
-	process = git-lfs filter-process
-	required = true

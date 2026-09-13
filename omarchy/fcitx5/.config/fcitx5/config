@@ -1,0 +1,5 @@
+# fcitx5 runs purely as the XCompose engine here (no IME switching), so
+# clearing the default trigger keys stops ctrl+space from being swallowed —
+# herdr's prefix needs it.
+[Hotkey]
+TriggerKeys=

@@ -1,0 +1,29 @@
+# Package list consumed by main.zsh --linux-apps (Brewfile equivalent).
+# One package per line; blank lines and # comments are ignored.
+# Installed via yay: official repo and AUR packages can be mixed
+# (repo packages go through pacman's backend).
+# Dev toolchains live in omarchy/mise, not here.
+
+# Bootstrap toolchain
+stow
+go-task
+yq
+yay
+
+# Shell
+zsh
+zsh-syntax-highlighting
+zsh-autosuggestions
+omarchy-zsh
+
+# Hyper key daemon: hold CapsLock = Hyper (C-M-A), tap = Esc
+keyd
+
+# 3D printing (AUR): UltiMaker Cura slicer, wraps the official AppImage
+cura-bin
+
+# Google Drive FUSE mount (rclone)
+rclone
+
+# Chat
+discord

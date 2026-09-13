@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# Quit all windows of the focused app — macOS Cmd+Q analog.
+# Dispatches use the hl.dsp lua form: this Omarchy build wraps hyprctl
+# dispatch through its lua runtime, so plain dispatcher syntax fails.
+
+set -euo pipefail
+
+cls=$(hyprctl activewindow -j | jq -r '.class // empty')
+[ -n "$cls" ] || exit 0
+
+hyprctl clients -j | jq -r --arg c "$cls" '.[] | select(.class == $c) | .address' |
+  while read -r addr; do
+    hyprctl dispatch "hl.dsp.window.close({ window = \"address:$addr\" })" >/dev/null
+  done

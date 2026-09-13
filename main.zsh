@@ -24,9 +24,10 @@ echo ""
 
 DOTS_DIR="$(pwd)"
 PRIVATE_DOTS_DIR="$(pwd)/../.dotfiles_private"
+OS="$(uname -s)"
 
 _configure_osx() {
-  source "$(pwd)/macos/defaults.zsh"
+  source "$(pwd)/macos/system/defaults.zsh"
   configure_macos_defaults
 }
 
@@ -35,9 +36,68 @@ _update_apps() {
   brew bundle install
 }
 
+_install_linux_apps() {
+  local pkgfile="${DOTS_DIR}/omarchy/Pkgfile"
+  if [[ ! -f "$pkgfile" ]]; then
+    echo "${RED}Missing package list: ${pkgfile}${NC}"
+    return 1
+  fi
+  local pkgs=(${(f)"$(grep -vE '^\s*(#|$)' "$pkgfile")"})
+
+  if ! command -v yay >/dev/null 2>&1; then
+    echo "${YELLOW}yay not found, installing via pacman...${NC}"
+    sudo pacman -S --needed --noconfirm yay
+  fi
+
+  echo "${BGREEN}Installing Linux apps via yay: ${pkgs[*]}${NC}"
+  yay -S --needed --noconfirm --answerdiff None --answerclean None "${pkgs[@]}"
+
+  if [[ -x /usr/bin/zsh && "$(basename "$SHELL")" != "zsh" ]]; then
+    echo "${YELLOW}Set zsh as your default shell:  chsh -s /usr/bin/zsh${NC}"
+  fi
+}
+
+_install_omarchy_plugins() {
+  local yaml="${DOTS_DIR}/omarchy/plugins.yml"
+  if ! command -v omarchy >/dev/null 2>&1; then
+    echo "${YELLOW}omarchy CLI not found, skipping plugins${NC}"
+    return 0
+  fi
+  if [[ ! -f "$yaml" ]]; then
+    echo "${RED}Missing plugin manifest: ${yaml}${NC}"
+    return 1
+  fi
+  if ! command -v yq >/dev/null 2>&1; then
+    echo "${YELLOW}yq not found, skipping omarchy plugins${NC}"
+    return 0
+  fi
+
+  local urls=("${(@f)"$(yq '.plugins[].url' "$yaml")"}")
+  local enables=("${(@f)"$(yq '.plugins[].enable // "false"' "$yaml")"}")
+
+  for i in {1..${#urls}}; do
+    local url="$urls[i]"
+    local name="${url:t:r}"
+    if [[ -d "$HOME/.config/omarchy/plugins/$name" ]]; then
+      echo "${YELLOW}omarchy plugin ${name} already installed, skipping${NC}"
+      continue
+    fi
+    local args=(add "$url")
+    [[ "${enables[i]}" == "true" ]] && args+=(--enable)
+    omarchy plugin "${args[@]}" --yes 2>/dev/null \
+      || echo "${RED}failed to add omarchy plugin ${url}${NC}"
+  done
+}
+
 _stow() {
   stow -v ${1}
   echo "${GREEN}Symlink updated for ${1}${NC}"
+}
+
+_stow_group() {
+  local dir="$1" pkg="$2"
+  stow -v -d "${DOTS_DIR}/${dir}" -t ~ "$pkg"
+  echo "${GREEN}Symlink updated for ${pkg} (${dir})${NC}"
 }
 
 #################################
@@ -56,6 +116,10 @@ while [[ $# -gt 0 ]]; do
       UPDATE_APPS=true
       shift
       ;;
+    --linux-apps)
+      UPDATE_LINUX_APPS=true
+      shift
+      ;;
     *)
       shift
       ;;
@@ -67,11 +131,33 @@ done
 #################################
 # install brew app
 #################################
-if [[ "$UPDATE_APPS" == "true" ]]; then
+if [[ "$UPDATE_APPS" == "true" && "$OS" == "Darwin" ]]; then
   _update_apps
   bun add -g btca
   brew install pipx
   pipx upgrade-all 2>/dev/null
+fi
+
+if [[ "$UPDATE_LINUX_APPS" == "true" && "$OS" == "Linux" ]]; then
+  _install_linux_apps
+fi
+
+if [[ "$OS" == "Linux" ]] && command -v mise >/dev/null 2>&1; then
+  echo "${YELLOW}Installing mise-managed tools...${NC}"
+  mise install
+  echo "${GREEN}Mise tools installed${NC}"
+fi
+
+# Tailscale: reject tailnet subnet routes so home-LAN IPs always use the local
+# router path; the subnet router (alpine-caddy) stays reachable via its 100.x IP
+if [[ "$OS" == "Linux" ]]; then
+  if ! command -v tailscale >/dev/null 2>&1; then
+    echo "${YELLOW}Tailscale: skipped (not installed)${NC}"
+  elif tailscale set --accept-routes=false 2>/dev/null || sudo -n tailscale set --accept-routes=false 2>/dev/null; then
+    echo "${GREEN}Tailscale: accept-routes=false${NC}"
+  else
+    echo "${YELLOW}Tailscale: could not apply (service inactive? run: sudo tailscale set --accept-routes=false)${NC}"
+  fi
 fi
 
 #################################
@@ -111,45 +197,53 @@ else
   echo "${YELLOW}zoxide already in ~/.zshrc ${NC}"
 fi
 
-if ! grep -q 'eval "$(mise activate zsh)"' ~/.zshrc; then
-  echo '
-# Load mise
-eval "$(mise activate zsh)"
-' >> ~/.zshrc
-  echo "${GREEN}Added mise to ~/.zshrc ${NC}"
-else
-  echo "${YELLOW}mise already in ~/.zshrc ${NC}"
-fi
-
 #################################
 # update dotfiles via symlinks
 #################################
 
-_stow stow
-_stow aerospace
-_stow borders
-mkdir -p ~/.local/bin
-ARCH=$(uname -m)
-if [[ "$ARCH" == "arm64" ]]; then
-  BINARY_NAME="borders-arm64"
-else
-  BINARY_NAME="borders-x86_64"
+# Real config dirs keep stow from folding ~/.config/<app> into the repo
+# (a folded dir would capture app-written logs/state into the dotfiles tree).
+mkdir -p ~/.config/ghostty ~/.config/cliamp
+
+if [[ "$OS" == "Darwin" ]]; then
+  _stow_group macos aerospace
+  _stow_group macos borders
+  mkdir -p ~/.local/bin
+  ARCH=$(uname -m)
+  if [[ "$ARCH" == "arm64" ]]; then
+    BINARY_NAME="borders-arm64"
+  else
+    BINARY_NAME="borders-x86_64"
+  fi
+  cp "${DOTS_DIR}/macos/borders/bin/${BINARY_NAME}" ~/.local/bin/borders
+  chmod +x ~/.local/bin/borders
+  echo "${GREEN}Installed vendored borders binary to ~/.local/bin/borders (${ARCH})${NC}"
+  # Ghostty: shared base config (root pkg) + macOS overrides in local.conf
+  _stow_group macos ghostty
+  _stow_group macos mise
 fi
-cp "${DOTS_DIR}/borders/bin/${BINARY_NAME}" ~/.local/bin/borders
-chmod +x ~/.local/bin/borders
-echo "${GREEN}Installed vendored borders binary to ~/.local/bin/borders (${ARCH})${NC}"
 _stow cliamp
 _stow ghostty
 _stow git
 _stow nvim
 stow -v --no-folding herdr && echo "${GREEN}Symlink updated for herdr${NC}"
+_stow inputrc
 _stow tmux
-rm -f ~/.local/bin/zed-tmux
+mkdir -p ~/.local/bin
 _stow zed
-_stow starship
 _stow television
-rm -f ~/.config/mise/config.toml
-_stow mise
+_stow starship
+# Remove legacy ~/.config/starship.toml (starship prefers it over the stowed path)
+if [ -f ~/.config/starship.toml ]; then
+  if cmp -s ~/.config/starship.toml ~/.config/starship/starship.toml \
+    || { [ -f /usr/share/omarchy/config/starship.toml ] \
+      && cmp -s ~/.config/starship.toml /usr/share/omarchy/config/starship.toml; }; then
+    rm -f ~/.config/starship.toml
+    echo "${GREEN}Removed legacy ~/.config/starship.toml${NC}"
+  else
+    echo "${YELLOW}~/.config/starship.toml differs from stowed config; remove manually${NC}"
+  fi
+fi
 
 echo "${YELLOW}Installing codegraph CLI + wiring opencode...${NC}"
 if ! command -v codegraph >/dev/null 2>&1; then
@@ -202,21 +296,75 @@ for repo in "${repos[@]}"; do
 done
 
 echo "${YELLOW}Linking personal skills...${NC}"
+personal_real="$(readlink -f "$(pwd)/skills/personal/skills/code-like-joey")"
 for dir in ~/.claude/skills ~/.gemini/antigravity/skills ~/.gemini/skills ~/.config/opencode/skills; do
+  mkdir -p "$dir"
+  # Skip agent dirs that resolve into the personal skill itself — linking
+  # through them would drop links inside the repo's own skill dir.
+  dir_real="$(readlink -f "$dir")"
+  [[ "$dir_real" == "$personal_real" || "$dir_real" == "$personal_real"/* ]] && continue
   ln -sf "$(pwd)/skills/personal/skills/"* "$dir"
 done
 
-rm -f ~/.config/opencode/opencode.json
+rm -f ~/.config/opencode/opencode.json ~/.config/opencode/opencode.jsonc
 _stow opencode
-_stow gemini
+
+# herdr owns its opencode integration files (agent-state plugin + tui session);
+# stowing them would freeze herdr-managed versions in the repo. Provision them
+# so fresh machines get the current integration without tracking herdr's glue.
+if command -v herdr >/dev/null 2>&1; then
+  herdr integration install opencode >/dev/null
+fi
 
 # ssh
 mkdir -p ~/.ssh
 
 # Only add Includes if not already present
-ssh_config_appends=$(cat $(pwd)/ssh/config.append)
+if [[ "$OS" == "Darwin" ]]; then
+  _stow_group macos ssh
+  ssh_config_appends=$(cat "${DOTS_DIR}/macos/ssh/config.append")
+else
+  _stow_group omarchy ssh
+  _stow_group omarchy uwsm
+  # Ghostty: shared base config (root pkg) + Omarchy overrides in local.conf
+  _stow_group omarchy ghostty
+  _stow_group omarchy hypr
+  _stow_group omarchy omarchy-shell
+  _install_omarchy_plugins
+  # Cloned idle service (dismisses the screensaver on pointer motion); lives in
+  # ~/.config/omarchy/plugins/, so it rides alongside the cloned plugins above.
+  _stow_group omarchy idle
+  # Cloned lock service (Cmd+A select-all + auto-repeat guard on the lock screen).
+  _stow_group omarchy lock
+  # Cloned workspaces bar widget (only occupied numbered workspaces + the focused
+  # one; lettered workspaces show their letter only while focused).
+  _stow_group omarchy workspaces
+  _stow_group omarchy mise
+  _stow_group omarchy fcitx5
+  # Google Drive mount: rclone remote gdrive: -> ~/Google Drive
+  mkdir -p "$HOME/Google Drive"
+  _stow_group omarchy rclone
+  systemctl --user daemon-reload
+  if rclone listremotes 2>/dev/null | grep -q '^gdrive:$'; then
+    systemctl --user enable --now rclone-gdrive.service
+    echo "${GREEN}Google Drive mount enabled${NC}"
+  else
+    echo "${YELLOW}No rclone 'gdrive:' remote yet; run 'rclone config reconnect gdrive:' to authorize${NC}"
+  fi
+  sudo loginctl enable-linger "$USER"
+  # Hyper key (keyd): hold CapsLock = Hyper (C-M-A), tap = Esc.
+  # Lives in /etc/keyd, so this stow needs root.
+  sudo stow -d "${DOTS_DIR}/omarchy" -t / keyd
+  sudo systemctl enable --now keyd
+  echo "${GREEN}keyd hyper key installed (hold CapsLock = Hyper, tap = Esc)${NC}"
+  # libinput palm-rejection override for the built-in Apple trackpad.
+  # Lives in /etc/libinput, so this stow needs root.
+  sudo stow -d "${DOTS_DIR}/omarchy" -t / libinput
+  echo "${GREEN}libinput trackpad quirks installed (palm rejection)${NC}"
+  ssh_config_appends=$(cat "${DOTS_DIR}/omarchy/ssh/config.append")
+fi
 if ! grep -q "${ssh_config_appends}" ~/.ssh/config; then
-  ssh_backup_file="~/.ssh/config.bak_$(date '+%Y%m%d')"
+  ssh_backup_file="$HOME/.ssh/config.bak_$(date '+%Y%m%d')"
   cp ~/.ssh/config ${ssh_backup_file}
   echo "created backup of ~/.ssh/config -> ${ssh_backup_file}"
 
@@ -228,8 +376,6 @@ if ! grep -q "${ssh_config_appends}" ~/.ssh/config; then
 else
   echo "${YELLOW}SSH Includes already present in ~/.ssh/config ${NC}"
 fi
-
-_stow ssh
 
 if [ -d $PRIVATE_DOTS_DIR ]; then
   echo "Symlinking private dotfiles ssh"
@@ -245,8 +391,10 @@ fi
 # Run OSX configuration if requested
 #################################
 
-desktoppr "$(pwd)/wallpaper/tokyo-night.jpg"
+if [[ "$OS" == "Darwin" ]]; then
+  desktoppr "$(pwd)/macos/system/wallpaper/tokyo-night.jpg"
 
-if [[ "$CONFIGURE_OSX" == "true" ]]; then
-  _configure_osx
+  if [[ "$CONFIGURE_OSX" == "true" ]]; then
+    _configure_osx
+  fi
 fi

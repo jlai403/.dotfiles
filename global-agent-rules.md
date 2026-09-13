@@ -36,6 +36,18 @@ Default to: **rg** (search), **bat** (view), **sd** (replace), **fd** (find), **
 
 When dispatching implementer subagents, include: "Load code-like-joey skill before writing code."
 
+## Feature Development Workflow
+
+For new features or significant changes, follow this pipeline in order. Each phase uses a superpower skill unless the task is trivial.
+
+1. **Understand** — `grill-with-docs` (loads `grilling` + `domain-modeling`) → produce a spec/design doc (CONTEXT.md, ADRs, glossary). The spec is the binding authority for everything downstream.
+2. **Plan** — `writing-plans` → task-by-task plan saved to `docs/superpowers/plans/YYYY-MM-DD-<feature>.md`.
+3. **Isolate before coding** — ask the user whether to work in a branch or a worktree; do NOT purely default to worktree. If worktree chosen, use `using-git-worktrees`; never implement on main/master without consent.
+4. **Execute** — `subagent-driven-development`: fresh implementer per task, task review after each, whole-branch review at the end. Dispatch each subagent with "Load code-like-joey skill before writing code" (it is in their available-skills list, but name it to be sure).
+5. **Close** — `finishing-a-development-branch`.
+
+Do not modify superpowers skills. Only use stock skills + `code-like-joey` (vendored personal skill, available to all sessions and subagents).
+
 ## Writing & Output
 
 Before delivering any prose output (explanations, docs, comments, commit messages), load the unslop skill and apply it.
