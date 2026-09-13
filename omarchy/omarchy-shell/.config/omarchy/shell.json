@@ -27,7 +27,7 @@
           "id": "omarchy.menu"
         },
         {
-          "id": "omarchy.workspaces"
+          "id": "jlai.workspaces"
         }
       ],
       "right": [
@@ -61,6 +61,14 @@
     "position": "top",
     "transparent": false
   },
+  "cloneSourceRestores": [
+    "jlai.idle",
+    "jlai.lock"
+  ],
+  "disabledPlugins": [
+    "omarchy.idle",
+    "omarchy.lock"
+  ],
   "idle": {
     "lock": 900,
     "screensaver": 600
@@ -73,13 +81,5 @@
       "id": "jlai.lock"
     }
   ],
-  "version": 1,
-  "disabledPlugins": [
-    "omarchy.idle",
-    "omarchy.lock"
-  ],
-  "cloneSourceRestores": [
-    "jlai.idle",
-    "jlai.lock"
-  ]
+  "version": 1
 }

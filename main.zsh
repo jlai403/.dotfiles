@@ -336,6 +336,9 @@ else
   _stow_group omarchy idle
   # Cloned lock service (Cmd+A select-all + auto-repeat guard on the lock screen).
   _stow_group omarchy lock
+  # Cloned workspaces bar widget (only occupied numbered workspaces + the focused
+  # one; lettered workspaces show their letter only while focused).
+  _stow_group omarchy workspaces
   _stow_group omarchy mise
   _stow_group omarchy fcitx5
   # Google Drive mount: rclone remote gdrive: -> ~/Google Drive
