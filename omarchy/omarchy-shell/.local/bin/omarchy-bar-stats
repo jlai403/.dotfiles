@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+set -uo pipefail
+
+# System stats for the bar's custom "stats" command module. Polled every ~3s
+# by Bar.qml's CustomCommandModule; stdout's LAST line must be a single JSON
+# object (Util.parseModuleJson only parses the final line).
+# class="active" tints the label to Color.urgent via WidgetButton.active.
+
+G=1048576
+
+snap_net() {
+  awk 'NR>2 && $1 != "lo:" { rx += $2; tx += $10 } END { printf "%d %d", rx, tx }' /proc/net/dev
+}
+
+snap() {
+  awk '/^cpu / { sum=0; for (i=2; i<=NF; i++) sum += $i; printf "%d %d", sum, $5+$6 }' /proc/stat
+  printf " "
+  snap_net
+}
+
+read -r n1 idle1 rx1 tx1 <<<"$(snap)"
+sleep 0.4
+read -r n2 idle2 rx2 tx2 <<<"$(snap)"
+rx=0; (( rx2 >= rx1 )) && rx=$(( (rx2 - rx1) * 10 / 4 ))
+tx=0; (( tx2 >= tx1 )) && tx=$(( (tx2 - tx1) * 10 / 4 ))
+
+cpu=0
+if (( n2 > n1 )); then
+  cpu=$(( (n2 - n1 - (idle2 - idle1)) * 100 / (n2 - n1) ))
+fi
+
+read -r mtotal mavail < <(awk '/^MemTotal:/{t=$2} /^MemAvailable:/{a=$2} END{print t+0, a+0}' /proc/meminfo)
+mused=$((mtotal - mavail))
+mused_pct=$((mused * 100 / mtotal))
+mused_s=$(awk -v k="$mused" -v g="$G" 'BEGIN{printf "%.1f", k/g}')
+mtotal_s=$(awk -v k="$mtotal" -v g="$G" 'BEGIN{printf "%.0f", k/g}')
+
+read -r dused dtotal dpct < <(df -P / | awk 'NR==2{printf "%d %d %d", $3, $2, $5}')
+dpct=${dpct%\%}
+dused_s=$(awk -v k="$dused" -v g="$G" 'BEGIN{printf "%.0f", k/g}')
+dtotal_s=$(awk -v k="$dtotal" -v g="$G" 'BEGIN{printf "%.0f", k/g}')
+
+temp=""
+while IFS= read -r hw; do
+  name=$(cat "$hw/name" 2>/dev/null) || continue
+  case "$name" in
+    k10temp|coretemp|cpu_thermal|zenpower)
+      t=$(awk -v f="$hw/temp1_input" '{printf "%.0f", $1/1000}' "$hw/temp1_input" 2>/dev/null) || continue
+      if [ -z "$temp" ] || [ "$t" -lt "$temp" ]; then temp=$t; fi
+      ;;
+  esac
+done < <(ls -d /sys/class/hwmon/hwmon* 2>/dev/null)
+
+hr() {
+  local v=$1
+  if (( v >= G )); then awk -v m="$v" -v g="$G" 'BEGIN{printf "%.1fM", m/g}'
+  elif (( v >= 1000 )); then printf "%dK" $((v / 1000))
+  else printf "%d" "$v"; fi
+}
+
+class=""
+if [ "$cpu" -ge 90 ] || [ "$mused_pct" -ge 90 ] || { [ -n "$temp" ] && [ "$temp" -ge 95 ]; }; then
+  class="active"
+fi
+
+text="  $cpu%  $mused_s/$mtotal_s  $dpct%  $(hr "$rx")/s $(hr "$tx")/s${temp:+ $temp°C}"
+tooltip="CPU $cpu%\nRAM $mused_s/$mtotal_s ($mused_pct%)\nDISK $dused_s/$dtotal_s ($dpct%)\nNET $(hr "$rx")/s down, $(hr "$tx")/s up\nTEMP ${temp:-?}°C"
+
+printf '{"text":"%s","tooltip":"%s","class":"%s"}\n' "$text" "$tooltip" "$class"
