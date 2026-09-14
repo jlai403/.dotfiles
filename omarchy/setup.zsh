@@ -172,6 +172,14 @@ _os_configure() {
   _ensure_login_shell
   _ensure_omarchy_zshrc
 
+  # Touch Bar: the plugin reads the digitizer and holds the backlight, both
+  # group `input`; tiny-dfr renders the panel. Its installer adds neither.
+  if _have tiny-dfr && ! id -nG "$USER" | grep -qw input; then
+    echo "${YELLOW}Adding $USER to the 'input' group (log out/in to take effect)...${NC}"
+    sudo usermod -aG input "$USER"
+  fi
+  _have tiny-dfr && sudo systemctl enable tiny-dfr
+
   # Hyper key (keyd): hold CapsLock = Hyper (C-M-A), tap = Esc.
   # Lives in /etc/keyd, so this stow needs root.
   sudo stow -d "$DOTS_DIR/omarchy" -t / keyd
@@ -179,8 +187,11 @@ _os_configure() {
   echo "${GREEN}keyd hyper key installed (hold CapsLock = Hyper, tap = Esc)${NC}"
 
   # libinput palm-rejection override for the built-in Apple trackpad.
-  # Lives in /etc/libinput, so this stow needs root.
-  sudo stow -d "$DOTS_DIR/omarchy" -t / libinput
+  # Copied, not stowed: sandboxed services (tiny-dfr, ProtectHome=true) can't
+  # follow a symlink pointing into ~/.dotfiles.
+  sudo install -Dm644 \
+    "$DOTS_DIR/omarchy/libinput/etc/libinput/local-overrides.quirks" \
+    /etc/libinput/local-overrides.quirks
   echo "${GREEN}libinput trackpad quirks installed (palm rejection)${NC}"
 }
 
