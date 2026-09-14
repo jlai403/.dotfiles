@@ -24,7 +24,7 @@ cd ~/.dotfiles
 | `--linux-apps` | Install Linux packages from `omarchy/Pkgfile` via yay (bootstraps `yay` via pacman if missing) |
 | `--osx` | Apply macOS defaults (Dock, trackpad, keyboard, login items) |
 
-On Omarchy, `./main.zsh` additionally runs `mise install` to install the tools declared in `omarchy/mise/.config/mise/config.toml` (codex, gh, node, opencode).
+On Omarchy, `./main.zsh` additionally runs `mise install` (tools declared in `omarchy/mise/.config/mise/config.toml`), sets the login shell to zsh (`sudo chsh -s /usr/bin/zsh`), and prepends the omarchy-zsh base to `~/.zshrc` (so completion, history, and omarchy's functions load).
 
 ### Backup/Restore
 

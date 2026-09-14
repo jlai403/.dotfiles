@@ -18,10 +18,6 @@ _os_install_apps() {
 
   echo "${BGREEN}Installing Linux apps via yay: ${pkgs[*]}${NC}"
   yay -S --needed --noconfirm --answerdiff None --answerclean None "${pkgs[@]}"
-
-  if [[ -x /usr/bin/zsh && "$(basename "$SHELL")" != "zsh" ]]; then
-    echo "${YELLOW}Set zsh as your default shell:  chsh -s /usr/bin/zsh${NC}"
-  fi
 }
 
 _install_omarchy_plugins() {
@@ -84,6 +80,49 @@ _os_stow_packages() {
   _stow_platform wayvnc
 }
 
+# Make zsh the login shell, and give ~/.zshrc the omarchy-zsh base (zoptions +
+# shell/all) it expects. `omarchy-setup-zsh` writes ~/.zshrc from a template but
+# also clobbers ~/.inputrc and ~/.bashrc, so we prepend the base ourselves.
+_ensure_login_shell() {
+  local target=/usr/bin/zsh
+  if [[ ! -x "$target" ]]; then
+    echo "${YELLOW}zsh not installed; skipping login-shell change${NC}"
+    return 0
+  fi
+  local current="$(getent passwd "$USER" | cut -d: -f7)"
+  if [[ "$current" == "$target" ]]; then
+    echo "${YELLOW}Login shell already zsh${NC}"
+    return 0
+  fi
+  echo "${BGREEN}Setting login shell to zsh (effective next login)...${NC}"
+  sudo chsh -s "$target" "$USER" \
+    || echo "${YELLOW}Failed; run manually:  chsh -s $target${NC}"
+}
+
+_ensure_omarchy_zshrc() {
+  if [[ ! -f /usr/share/omarchy-zsh/shell/zoptions ]]; then
+    echo "${YELLOW}omarchy-zsh not installed; skipping ~/.zshrc base${NC}"
+    return 0
+  fi
+  local zshrc="$HOME/.zshrc"
+  local marker="# omarchy-zsh base (managed by dotfiles)"
+  if [[ -f "$zshrc" ]] && grep -qF "$marker" "$zshrc"; then
+    echo "${YELLOW}omarchy-zsh base already in ~/.zshrc${NC}"
+    return 0
+  fi
+  local tmp="$(mktemp)"
+  {
+    echo "$marker"
+    echo '[[ $- != *i* ]] && return'
+    echo '[[ -f /usr/share/omarchy-zsh/shell/zoptions ]] && source /usr/share/omarchy-zsh/shell/zoptions'
+    echo '[[ -f /usr/share/omarchy-zsh/shell/all ]] && source /usr/share/omarchy-zsh/shell/all'
+    echo ''
+    [[ -f "$zshrc" ]] && cat "$zshrc"
+  } > "$tmp"
+  mv "$tmp" "$zshrc"
+  echo "${GREEN}Prepended omarchy-zsh base to ~/.zshrc${NC}"
+}
+
 _os_configure() {
   if _have mise; then
     echo "${YELLOW}Installing mise-managed tools...${NC}"
@@ -129,6 +168,9 @@ _os_configure() {
   fi
 
   sudo loginctl enable-linger "$USER"
+
+  _ensure_login_shell
+  _ensure_omarchy_zshrc
 
   # Hyper key (keyd): hold CapsLock = Hyper (C-M-A), tap = Esc.
   # Lives in /etc/keyd, so this stow needs root.
