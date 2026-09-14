@@ -1,9 +1,14 @@
 eq_preset = "Bose-tuned"
 
 eq = [-2, 0, 1, 2, 2, 2, 2, 1, 1, 2]
-visualizer = "Bricks"
+visualizer = "ClassicPeak"
 theme = "tokyo-night"
 
+shuffle = true
+repeat = "All"
+speed = 1.25
 [spotify]
 client_id = "${SPOTIFY_CLIENT_ID}"
 bitrate = 320
+[radio]
+country = "CA"

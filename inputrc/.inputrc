@@ -1,0 +1,8 @@
+# GNU readline word motion for mac-style Option (Alt) navigation.
+# Alt+arrows aren't bound by readline defaults or Arch's /etc/inputrc.
+$include /etc/inputrc
+"\e[1;3C": forward-word
+"\e[1;3D": backward-word
+"\e[1;5C": forward-word
+"\e[1;5D": backward-word
+"\e[3;3~": kill-word

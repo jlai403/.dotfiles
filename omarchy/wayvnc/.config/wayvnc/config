@@ -1,0 +1,13 @@
+# WayVNC — remote desktop for the Hyprland session.
+#
+# Bound to the Tailscale interface only, so the session is reachable from the
+# tailnet but not the LAN. Authentication is PAM (enable_pam), so there is no
+# secret in this file; the package ships /etc/pam.d/wayvnc. The WireGuard
+# transport encrypts the session, so no TLS certificate is needed.
+#
+# Connect from a VNC viewer over the tailnet, e.g. TigerVNC:
+#   TigerVNC viewer -> 100.89.42.8::5900   (auth: your Linux password)
+# If the Tailscale node IP ever changes, update `address` below.
+address=100.89.42.8
+port=5900
+enable_pam=true

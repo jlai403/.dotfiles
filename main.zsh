@@ -1,14 +1,16 @@
 #!/usr/bin/env zsh
 
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[0;33m'
-BLUE='\033[0;34m'
-BRED='\033[1;31m'
-BGREEN='\033[1;32m'
-BYELLOW='\033[1;33m'
-BBLUE='\033[1;34m'
-NC='\033[0m' # No Color
+# Bootstrap entry point. OS-agnostic: the only platform branch is selecting
+# $OS_DIR below. Platform behavior lives in macos/setup.zsh | omarchy/setup.zsh,
+# shared helpers in lib/, shared config in the repo root. See README "Architecture".
+
+DOTS_DIR="$(cd "$(dirname "$0")" && pwd)"
+cd "$DOTS_DIR" || exit 1            # stow reads .stowrc from the cwd
+PRIVATE_DOTS_DIR="$DOTS_DIR/../.dotfiles_private"
+OS="$(uname -s)"
+OS_DIR="$([[ "$OS" == Darwin ]] && echo macos || echo omarchy)"
+
+source "$DOTS_DIR/lib/common.zsh"
 
 echo "${BBLUE}"
 cat << 'EOF'
@@ -22,231 +24,21 @@ EOF
 echo "${NC}"
 echo ""
 
-DOTS_DIR="$(pwd)"
-PRIVATE_DOTS_DIR="$(pwd)/../.dotfiles_private"
+source "$DOTS_DIR/lib/stow.zsh"
+source "$DOTS_DIR/lib/shared.zsh"
+source "$DOTS_DIR/$OS_DIR/setup.zsh"
 
-_configure_osx() {
-  source "$(pwd)/macos/defaults.zsh"
-  configure_macos_defaults
-}
-
-_update_apps() {
-  echo "${BGREEN}Installing Brew apps...${NC}"
-  brew bundle install
-}
-
-_stow() {
-  stow -v ${1}
-  echo "${GREEN}Symlink updated for ${1}${NC}"
-}
+_parse_flags "$@"
 
 #################################
-# script start
+# pipeline — each _os_* self-gates on its flag; order is significant
 #################################
-
-# Parse arguments
-while [[ $# -gt 0 ]]; do
-  key="$1"
-  case $key in
-    --osx)
-      CONFIGURE_OSX=true
-      shift
-      ;;
-    --apps)
-      UPDATE_APPS=true
-      shift
-      ;;
-    *)
-      shift
-      ;;
-  esac
-done
-
-
-
-#################################
-# install brew app
-#################################
-if [[ "$UPDATE_APPS" == "true" ]]; then
-  _update_apps
-  bun add -g btca
-  brew install pipx
-  pipx upgrade-all 2>/dev/null
-fi
-
-#################################
-# update .zshrc
-#################################
-echo "${BGREEN}Updating .zshrc...${NC}"
-
-if ! grep -q '# Load .dotfiles zsh configs' ~/.zshrc; then
-  echo '
-# Load .dotfiles zsh configs
-for config in ~/.dotfiles/zsh/*.zsh; do
-  source "$config"
-done
-' >> ~/.zshrc
-  echo "${GREEN}Added .dotfile extensions to ~/.zshrc ${NC}"
-else
-  echo "${YELLOW}.dotfile extensions already in ~/.zshrc ${NC}"
-fi
-
-if ! grep -q 'eval "$(starship init zsh)"' ~/.zshrc; then
-  echo '
-# Load starship
-eval "$(starship init zsh)"
-' >> ~/.zshrc
-  echo "${GREEN}Added starship prompt to ~/.zshrc ${NC}"
-else
-  echo "${YELLOW}Starship prompt already in ~/.zshrc ${NC}"
-fi
-
-if ! grep -q 'eval "$(zoxide init zsh)"' ~/.zshrc; then
-  echo '
-# Load zoxide
-eval "$(zoxide init zsh)"
-' >> ~/.zshrc
-  echo "${GREEN}Added zoxide to ~/.zshrc ${NC}"
-else
-  echo "${YELLOW}zoxide already in ~/.zshrc ${NC}"
-fi
-
-if ! grep -q 'eval "$(mise activate zsh)"' ~/.zshrc; then
-  echo '
-# Load mise
-eval "$(mise activate zsh)"
-' >> ~/.zshrc
-  echo "${GREEN}Added mise to ~/.zshrc ${NC}"
-else
-  echo "${YELLOW}mise already in ~/.zshrc ${NC}"
-fi
-
-#################################
-# update dotfiles via symlinks
-#################################
-
-_stow stow
-_stow aerospace
-_stow borders
-mkdir -p ~/.local/bin
-ARCH=$(uname -m)
-if [[ "$ARCH" == "arm64" ]]; then
-  BINARY_NAME="borders-arm64"
-else
-  BINARY_NAME="borders-x86_64"
-fi
-cp "${DOTS_DIR}/borders/bin/${BINARY_NAME}" ~/.local/bin/borders
-chmod +x ~/.local/bin/borders
-echo "${GREEN}Installed vendored borders binary to ~/.local/bin/borders (${ARCH})${NC}"
-_stow cliamp
-_stow ghostty
-_stow git
-_stow nvim
-stow -v --no-folding herdr && echo "${GREEN}Symlink updated for herdr${NC}"
-_stow tmux
-rm -f ~/.local/bin/zed-tmux
-_stow zed
-_stow starship
-_stow television
-rm -f ~/.config/mise/config.toml
-_stow mise
-
-echo "${YELLOW}Installing codegraph CLI + wiring opencode...${NC}"
-if ! command -v codegraph >/dev/null 2>&1; then
-  curl -fsSL https://raw.githubusercontent.com/colbymchenry/codegraph/main/install.sh | sh
-fi
-codegraph install --target=opencode --location=global --yes
-
-echo "${YELLOW}Linking global agent rules...${NC}"
-mkdir -p ~/.claude
-mkdir -p ~/.config/opencode
-mkdir -p ~/.gemini
-ln -sf "$(pwd)/global-agent-rules.md" ~/.claude/CLAUDE.md
-ln -sf "$(pwd)/global-agent-rules.md" ~/.config/opencode/AGENTS.md
-ln -sf "$(pwd)/global-agent-rules.md" ~/.gemini/AGENTS.md
-ln -sf "$(pwd)/global-agent-rules.md" ~/.gemini/GEMINI.md
-
-echo "${YELLOW}Installing skills via npx skills...${NC}"
-_skills_src="$HOME/.agents/skills"
-SKILLS_FILE="$(pwd)/skills/skills.yml"
-SKILLS_VERSION="1.5.9"
-
-# nuke all installed skills for clean state
-echo "${YELLOW}  Removing all installed skills...${NC}"
-npx "skills@${SKILLS_VERSION}" remove -g --all -y 2>/dev/null
-rm -rf "$_skills_src"/*(N)
-
-# install from config
-repos=("${(@f)$(yq '.install | keys | .[]' "$SKILLS_FILE")}")
-for repo in "${repos[@]}"; do
-  skills_val=$(yq ".install[\"$repo\"].skills" "$SKILLS_FILE")
-  agents_raw=$(yq ".install[\"$repo\"].agents | join(\",\")" "$SKILLS_FILE")
-
-  agent_flags=()
-  for a in "${(@s:,:)agents_raw}"; do
-    agent_flags+=(-a "$a")
-  done
-
-  if [[ "$skills_val" == "*" ]]; then
-    skill_flags=(--skill '*')
-  else
-    skill_names=("${(@f)$(yq ".install[\"$repo\"].skills | .[]" "$SKILLS_FILE")}")
-    skill_flags=()
-    for s in "${skill_names[@]}"; do
-      skill_flags+=(--skill "$s")
-    done
-  fi
-
-  echo "  Installing $repo..."
-  npx "skills@${SKILLS_VERSION}" add -g -y "$repo" "${skill_flags[@]}" "${agent_flags[@]}"
-done
-
-echo "${YELLOW}Linking personal skills...${NC}"
-for dir in ~/.claude/skills ~/.gemini/antigravity/skills ~/.gemini/skills ~/.config/opencode/skills; do
-  ln -sf "$(pwd)/skills/personal/skills/"* "$dir"
-done
-
-rm -f ~/.config/opencode/opencode.json
-_stow opencode
-_stow gemini
-
-# ssh
-mkdir -p ~/.ssh
-
-# Only add Includes if not already present
-ssh_config_appends=$(cat $(pwd)/ssh/config.append)
-if ! grep -q "${ssh_config_appends}" ~/.ssh/config; then
-  ssh_backup_file="~/.ssh/config.bak_$(date '+%Y%m%d')"
-  cp ~/.ssh/config ${ssh_backup_file}
-  echo "created backup of ~/.ssh/config -> ${ssh_backup_file}"
-
-  tmpfile=$(mktemp)
-  echo "${ssh_config_appends}" > "${tmpfile}"
-  [ -f ~/.ssh/config ] && cat ~/.ssh/config >> "${tmpfile}"
-  mv $tmpfile ~/.ssh/config
-  echo "${GREEN}Added SSH Includes to ~/.ssh/config${NC}"
-else
-  echo "${YELLOW}SSH Includes already present in ~/.ssh/config ${NC}"
-fi
-
-_stow ssh
-
-if [ -d $PRIVATE_DOTS_DIR ]; then
-  echo "Symlinking private dotfiles ssh"
-  cd $PRIVATE_DOTS_DIR && _stow ssh
-  if [ -f "$PRIVATE_DOTS_DIR/main.zsh" ]; then
-    echo "${YELLOW}Running private dotfiles setup...${NC}"
-    source "$PRIVATE_DOTS_DIR/main.zsh"
-  fi
-  cd $DOTS_DIR
-fi
-
-#################################
-# Run OSX configuration if requested
-#################################
-
-desktoppr "$(pwd)/wallpaper/tokyo-night.jpg"
-
-if [[ "$CONFIGURE_OSX" == "true" ]]; then
-  _configure_osx
-fi
+_os_install_apps
+_stow_shared
+_os_stow_packages
+_os_configure
+_setup_agents
+_link_zshrc
+_setup_ssh
+_setup_private
+_os_finalize

@@ -1,0 +1,4 @@
+# Desktop-session env for Omarchy (sourced by uwsm at session start).
+# Ghostty is the default terminal.
+export TERMINAL=ghostty
+export SSH_AUTH_SOCK=~/.1password/agent.sock

@@ -1,0 +1,153 @@
+#!/usr/bin/env bash
+# Sampler for the jlai.stats bar plugin.
+# See docs/superpowers/plans/2026-09-13-bar-stats-plugin.md
+#
+# Modes:
+#   (default)        one JSON sample on stdout; appends to the cache
+#   --history [N]    last N cached samples as a JSON array, for priming
+#   --top            top CPU / memory processes as JSON, for the popup
+set -uo pipefail
+
+CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/jlai.menu-stats-bar"
+CACHE="$CACHE_DIR/history.ndjson"
+KEEP=300      # samples retained (~10 min at a 2s interval)
+G=1048576     # KiB per GiB
+SECTOR=512    # bytes per disk sector
+
+mode="sample"
+count="$KEEP"
+case "${1:-}" in
+  --history) mode="history"; count="${2:-$KEEP}" ;;
+  --top)     mode="top" ;;
+esac
+
+cpu_snapshot() {
+  awk '/^cpu/ {
+    sum = 0
+    for (i = 2; i <= NF; i++) sum += $i
+    idx = ($1 == "cpu") ? "all" : substr($1, 4)
+    printf "%s %d %d\n", idx, sum - ($5 + $6), sum
+  }' /proc/stat
+}
+
+root_dev() {
+  local dev base parent
+  dev=$(df -P / | awk 'NR==2 { print $1 }')
+  base=$(basename "$(readlink -f "$dev" 2>/dev/null || printf '%s' "$dev")")
+  if [ -f "/sys/block/$base/stat" ]; then printf '%s' "$base"; return; fi
+  parent=$(printf '%s' "$base" | sed -E 's/p?[0-9]+$//')
+  if [ -n "$parent" ] && [ -f "/sys/block/$parent/stat" ]; then printf '%s' "$parent"; return; fi
+  printf '%s' "$base"
+}
+
+sectors() {
+  awk '{ printf "%d %d", $3, $7 }' "/sys/block/$1/stat" 2>/dev/null || printf "0 0"
+}
+
+temp_now() {
+  local h name t
+  for h in /sys/class/hwmon/hwmon*/; do
+    name=$(cat "${h}name" 2>/dev/null) || continue
+    case "$name" in
+      coretemp|k10temp|cpu_thermal|zenpower)
+        t=$(awk '{ printf "%.0f", $1 / 1000 }' "${h}temp1_input" 2>/dev/null) || continue
+        [ -n "$t" ] && { printf '%s' "$t"; return; }
+        ;;
+    esac
+  done
+  printf '%s' "-1"
+}
+
+json_escape() {
+  printf '%s' "$1" | sed 's/\\/\\\\/g; s/"/\\"/g'
+}
+
+emit_history() {
+  printf '['
+  tail -n "$count" "$CACHE" 2>/dev/null | paste -sd, -
+  printf ']\n'
+}
+
+emit_top() {
+  local cpus mems
+  cpus=$(ps -eo pcpu=,pmem=,comm= --sort=-pcpu 2>/dev/null \
+    | awk 'NR<=5 { p=$1; m=$2; $1=""; $2=""; sub(/^ +/, ""); printf "%s{\"name\":\"%s\",\"cpu\":%s,\"mem\":%s}", (NR>1?",":""), $0, p, m }')
+  mems=$(ps -eo pcpu=,pmem=,comm= --sort=-pmem 2>/dev/null \
+    | awk 'NR<=5 { p=$1; m=$2; $1=""; $2=""; sub(/^ +/, ""); printf "%s{\"name\":\"%s\",\"cpu\":%s,\"mem\":%s}", (NR>1?",":""), $0, p, m }')
+  printf '{"cpu":[%s],"mem":[%s]}\n' "$cpus" "$mems"
+}
+
+emit_sample() {
+  local tmpd dev r1 w1 r2 w2 cpuout cpu cores
+  local mt ma cached st sf rp used pct total swap_used swap_total cached_g
+  local du dt dfree dpct mount rx tx temp l1 l5 l15 up
+
+  tmpd=$(mktemp -d)
+  dev=$(root_dev)
+
+  cpu_snapshot > "$tmpd/a"
+  read -r r1 w1 <<<"$(sectors "$dev")"
+  sleep 0.4
+  cpu_snapshot > "$tmpd/b"
+  read -r r2 w2 <<<"$(sectors "$dev")"
+
+  cpuout=$(awk 'NR==FNR { b[$1]=$2; t[$1]=$3; next }
+                { db=$2-b[$1]; dt=$3-t[$1]
+                  p=(dt>0)?int(100*db/dt):0
+                  if ($1=="all") print "CPU", p
+                  else print "C", $1, p }' "$tmpd/a" "$tmpd/b")
+  rm -rf "$tmpd"
+
+  cpu=$(awk '$1=="CPU" { print $2 }' <<<"$cpuout")
+  cores=$(awk '$1=="C" { printf "%s%s", (n++ ? "," : ""), $3 }' <<<"$cpuout")
+
+  read -r mt ma cached st sf rp <<<"$(awk '
+    /^MemTotal:/     { t=$2 }
+    /^MemAvailable:/ { a=$2 }
+    /^Cached:/       { c=$2 }
+    /^SwapTotal:/    { st=$2 }
+    /^SwapFree:/     { sf=$2 }
+    /^SReclaimable:/ { sr=$2 }
+    END { printf "%d %d %d %d %d %d", t, a, c+sr, st, sf, t }' /proc/meminfo)"
+
+  used=$((mt - ma))
+  pct=$(( mt > 0 ? used * 100 / mt : 0 ))
+  total=$(awk -v k="$mt" -v g="$G" 'BEGIN { printf "%d", k/g + 0.5 }')
+  used_g=$(awk -v k="$used" -v g="$G" 'BEGIN { printf "%.1f", k/g }')
+  swap_used=$(awk -v k="$((st - sf))" -v g="$G" 'BEGIN { printf "%.1f", k/g }')
+  swap_total=$(awk -v k="$st" -v g="$G" 'BEGIN { printf "%.1f", k/g }')
+  cached_g=$(awk -v k="$cached" -v g="$G" 'BEGIN { printf "%.1f", k/g }')
+
+  read -r du dt dfree dpct <<<"$(df -P / | awk 'NR==2 { printf "%d %d %d %d", $3, $2, $4, $5 }')"
+  mount=$(df -P / | awk 'NR==2 { print $6 }')
+  dpct=${dpct%\%}
+  du_g=$(awk -v k="$du" -v g="$G" 'BEGIN { printf "%d", k/g + 0.5 }')
+  dt_g=$(awk -v k="$dt" -v g="$G" 'BEGIN { printf "%d", k/g + 0.5 }')
+  dfree_g=$(awk -v k="$dfree" -v g="$G" 'BEGIN { printf "%d", k/g + 0.5 }')
+
+  rx=$(awk -v a="$r1" -v b="$r2" -v s="$SECTOR" 'BEGIN { d=b-a; if (d<0) d=0; printf "%d", d*s*2.5 }')
+  tx=$(awk -v a="$w1" -v b="$w2" -v s="$SECTOR" 'BEGIN { d=b-a; if (d<0) d=0; printf "%d", d*s*2.5 }')
+
+  temp=$(temp_now)
+
+  read -r l1 l5 l15 <<<"$(awk '{ print $1, $2, $3 }' /proc/loadavg)"
+  up=$(awk '{ printf "%d", $1 }' /proc/uptime)
+
+  printf '{"t":%d,"cpu":%s,"cores":[%s],"ram":{"pct":%s,"used":%s,"total":%s,"swapUsed":%s,"swapTotal":%s,"cached":%s},"disk":{"pct":%s,"used":%s,"total":%s,"free":%s,"mount":"%s","read":%s,"write":%s},"temp":%s,"load":[%s,%s,%s],"uptime":%s}\n' \
+    "$(date +%s)" "$cpu" "$cores" \
+    "$pct" "$used_g" "$total" "$swap_used" "$swap_total" "$cached_g" \
+    "$dpct" "$du_g" "$dt_g" "$dfree_g" "$(json_escape "$mount")" "$rx" "$tx" \
+    "$temp" "$l1" "$l5" "$l15" "$up"
+}
+
+case "$mode" in
+  history) emit_history ;;
+  top)     emit_top ;;
+  *)
+    mkdir -p "$CACHE_DIR"
+    sample=$(emit_sample) || exit 1
+    printf '%s\n' "$sample" >> "$CACHE"
+    tail -n "$KEEP" "$CACHE" > "$CACHE.tmp" && mv "$CACHE.tmp" "$CACHE"
+    printf '%s\n' "$sample"
+    ;;
+esac
