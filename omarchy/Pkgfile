@@ -1,4 +1,4 @@
-# Package list consumed by main.zsh --linux-apps (Brewfile equivalent).
+# Package list consumed by main.zsh --apps (Brewfile equivalent).
 # One package per line; blank lines and # comments are ignored.
 # Installed via yay: official repo and AUR packages can be mixed
 # (repo packages go through pacman's backend).

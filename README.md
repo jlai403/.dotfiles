@@ -20,8 +20,7 @@ cd ~/.dotfiles
 | Flag | Description |
 |------|-------------|
 | (none) | Stow all packages, update `.zshrc`, set wallpaper |
-| `--apps` | Install Homebrew packages from `Brewfile` + global bun packages |
-| `--linux-apps` | Install Linux packages from `omarchy/Pkgfile` via yay (bootstraps `yay` via pacman if missing) |
+| `--apps` | Install OS packages — `Brewfile` on macOS, `omarchy/Pkgfile` via yay on Omarchy (bootstraps `yay` if missing) — plus global bun packages |
 | `--osx` | Apply macOS defaults (Dock, trackpad, keyboard, login items) |
 
 On Omarchy, `./main.zsh` additionally runs `mise install` (tools declared in `omarchy/mise/.config/mise/config.toml`), sets the login shell to zsh (`sudo chsh -s /usr/bin/zsh`), and prepends the omarchy-zsh base to `~/.zshrc` (so completion, history, and omarchy's functions load).
@@ -56,7 +55,7 @@ Three layers, two mechanisms:
 
 `main.zsh` is a thin orchestrator. It picks `OS_DIR` (`macos` or `omarchy`) — the only platform branch — sources `lib/*.zsh` + `$OS_DIR/setup.zsh`, then runs a fixed pipeline. Platform behavior sits behind four hooks in `$OS_DIR/setup.zsh`:
 
-- `_os_install_apps` — Homebrew (`--apps`) / yay + Pkgfile (`--linux-apps`)
+- `_os_install_apps` — Homebrew (macOS) or yay + `Pkgfile` (Omarchy), both via `--apps`
 - `_os_stow_packages` — package stows unique to the OS
 - `_os_configure` — services, mise, Tailscale, privileged `/etc` stows
 - `_os_finalize` — wallpaper + macOS defaults (`--osx`)

@@ -2,7 +2,7 @@
 # main.zsh. SSH + shared-platform packages (ghostty, mise) are handled there.
 
 _os_install_apps() {
-  [[ "$DO_LINUX_APPS" == true ]] || return 0
+  [[ "$DO_APPS" == true ]] || return 0
 
   local pkgfile="$DOTS_DIR/omarchy/Pkgfile"
   if [[ ! -f "$pkgfile" ]]; then

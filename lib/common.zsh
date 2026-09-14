@@ -15,14 +15,13 @@ _have() {
   command -v "$1" >/dev/null 2>&1
 }
 
-# Sets DO_APPS / DO_LINUX_APPS / DO_OSX. Each OS setup file self-gates on the
-# flag it owns, so the pipeline calls every _os_* unconditionally.
+# Sets DO_APPS / DO_OSX. Each OS setup file self-gates on the flag it owns, so
+# the pipeline calls every _os_* unconditionally.
 _parse_flags() {
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --osx)        DO_OSX=true ;;
       --apps)       DO_APPS=true ;;
-      --linux-apps) DO_LINUX_APPS=true ;;
     esac
     shift
   done
