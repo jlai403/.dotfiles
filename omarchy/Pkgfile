@@ -19,6 +19,10 @@ omarchy-zsh
 # Hyper key daemon: hold CapsLock = Hyper (C-M-A), tap = Esc
 keyd
 
+# Apple T2 hardware: Touch Bar renderer (arch-mact2 repo; depends on linux-t2,
+# already the running kernel). Drives the niraj-envision/touch-bar plugin.
+tiny-dfr
+
 # 3D printing (AUR): UltiMaker Cura slicer, wraps the official AppImage
 cura-bin
 
