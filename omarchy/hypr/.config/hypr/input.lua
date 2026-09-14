@@ -27,7 +27,7 @@ hl.config({
       tap_to_click = false,
 
       -- macOS-style 3-finger drag: rest three fingers and move to drag.
-      -- libinput ≥1.28 native (fast flicks still register as swipes).
+      -- libinput ≥1.28 native.
       drag_3fg = 1,
 
       -- macOS-like scroll speed (Omarchy's default of 0.4 is sluggish).
@@ -35,10 +35,6 @@ hl.config({
     },
   },
 })
-
--- 3-finger horizontal swipe switches workspaces (macOS "switch between
--- spaces"); slow 3-finger drags still drag thanks to drag_3fg above.
-hl.gesture({ fingers = 3, direction = "horizontal", action = "workspace" })
 
 -- Per-device cursor snappiness for the built-in trackpad.
 hl.device({
