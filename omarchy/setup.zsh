@@ -193,6 +193,18 @@ _os_configure() {
     "$DOTS_DIR/omarchy/libinput/etc/libinput/local-overrides.quirks" \
     /etc/libinput/local-overrides.quirks
   echo "${GREEN}libinput trackpad quirks installed (palm rejection)${NC}"
+
+  # T2 MacBooks: force s2idle. The platform's deep (S3) resume is broken for long
+  # sleeps (keyboard/trackpad removed, watchdog storm, tiny-dfr crash). Gate on the
+  # T2 PCI IDs so non-T2 Linux and the Mac are unaffected.
+  if lspci -nn 2>/dev/null | grep -qE '106b:180[12]'; then
+    sudo mkdir -p /etc/systemd/sleep.conf.d          # prevent stow folding the dir
+    sudo stow -d "$DOTS_DIR/omarchy" -t / t2-suspend
+    sudo systemctl daemon-reload
+    echo "${GREEN}T2 suspend: s2idle (freeze) configured${NC}"
+  else
+    echo "${YELLOW}T2 suspend: not a T2 Mac, skipping${NC}"
+  fi
 }
 
 _os_finalize() { : }
