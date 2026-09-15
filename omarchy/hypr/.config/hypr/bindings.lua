@@ -187,6 +187,14 @@ o.bind("SUPER + CTRL + D", "Docker TUI", { tui = "omarchy-launch-docker-tui" })
 o.bind("SUPER + CTRL + M", "Music (workspace m + cliamp)", launch_music)
 o.bind("SUPER + CTRL + SHIFT + M", "Spotify", { omarchy = "spotify" })
 
+-- Hyper+RETURN opens a terminal, Hyper+SHIFT+RETURN a browser (macOS parity:
+-- hyper+enter / hyper+shift+enter). Omarchy's SUPER+RETURN / SUPER+SHIFT+RETURN
+-- defaults are released so the launchers live on hyper like the rest of the set.
+hl.unbind("SUPER + RETURN") -- was: terminal
+hl.unbind("SUPER + SHIFT + RETURN") -- was: browser
+o.bind("SUPER + CONTROL + ALT + RETURN", "Terminal", { omarchy = "terminal" })
+o.bind("SUPER + CONTROL + ALT + SHIFT + RETURN", "Browser", { omarchy = "browser" })
+
 -- macOS Cmd shim (catch-all): forward plain SUPER+key as CTRL+key to the
 -- focused app. Sheets-style web apps check e.ctrlKey on Linux and Zen's
 -- accelKey only covers browser chrome, so every Cmd chord forwards here

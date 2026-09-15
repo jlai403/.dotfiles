@@ -194,7 +194,9 @@ run = 'layout floating'
     alt-m = 'workspace m'
 
     # Open a plain Ghostty terminal
-    cmd-enter = 'exec-and-forget open -na Ghostty.app'
+    cmd-ctrl-alt-enter = 'exec-and-forget open -na Ghostty.app'
+    # Open a plain Zen browser window
+    cmd-ctrl-alt-shift-enter = 'exec-and-forget open -na Zen.app'
     # Open herdr in the agents workspace (focus if already running)
     cmd-ctrl-enter = 'exec-and-forget ~/.local/bin/aerospace-launch-or-focus herdr a'
 
