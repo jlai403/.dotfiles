@@ -230,9 +230,9 @@ prompt_new_tab_name = false
 # pane_borders = true
 
 # Draw borders along the outside edge of the pane area.
-# Disable for tmux-style internal splitters without an outside frame.
-# tmux had no outer frame
-pane_outer_borders = false
+# Required for pane titles to render on outer-edge panes (herdr draws the
+# title in the pane's top border, which is stripped when false).
+pane_outer_borders = true
 
 # Draw interactive scrollbars beside terminal panes.
 # Set false to reclaim the scrollbar column and keep it out of terminal-native selections.
