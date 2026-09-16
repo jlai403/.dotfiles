@@ -1,0 +1,19 @@
+[Unit]
+Description=Release the T2 modules before sleep
+# T2 MacBooks resume with dead xHCI, removed internal keyboard/trackpad and a
+# black lock screen. Releasing the T2 modules before sleep lets them re-probe
+# cleanly on resume (omarchy discussion #5862, validated on MacBookPro16,1,
+# adapted from apple-bce to the in-tree t2bce drivers).
+Before=sleep.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/bin/systemctl stop tiny-dfr.service
+ExecStart=-/usr/bin/rmmod hid_appletb_kbd
+ExecStart=-/usr/bin/rmmod hid_appletb_bl
+ExecStart=-/usr/bin/rmmod appletbdrm
+ExecStart=-/usr/bin/rmmod t2bce_vhci
+
+[Install]
+WantedBy=sleep.target

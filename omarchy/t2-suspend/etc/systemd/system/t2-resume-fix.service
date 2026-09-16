@@ -1,0 +1,12 @@
+[Unit]
+Description=Reload the T2 modules and restore the Touch Bar after resume
+# Runs once sleep.target completes, i.e. after the machine has resumed.
+After=sleep.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/lib/t2-resume-fix
+
+[Install]
+WantedBy=sleep.target

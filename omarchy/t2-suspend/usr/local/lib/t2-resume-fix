@@ -1,0 +1,34 @@
+#!/bin/bash
+# Restore the T2 virtual USB bus, its input devices, and the Touch Bar after
+# resume. The t2-suspend-fix unit unloads these before sleep; this puts them
+# back. Freshly loaded, they re-enumerate cleanly, which a broken resume
+# (xhci "Controller not ready at resume -19", removed input, black screen)
+# does not give.
+#
+# Supersedes the older hand-rolled touchbar-panel-reset.service workaround.
+set -u
+
+# Virtual USB host controller the internal keyboard/trackpad (05ac:0340) and the
+# Touch Bar (05ac:8302 display / 05ac:8102 backlight) enumerate on; it is the
+# only T2 module that can be unloaded (t2bce_core stays, held by t2bce_audio).
+modprobe t2bce_vhci || true
+sleep 3
+
+modprobe hid_appletb_bl || true
+modprobe hid_appletb_kbd || true
+modprobe appletbdrm || true
+
+# appletbdrm only binds when the Touch Bar display is in USB configuration 2,
+# and the device is not ready on a plain resume; force a re-enumeration 0 -> 2.
+tb=/sys/bus/usb/devices/7-6/bConfigurationValue
+if [[ -w $tb ]]; then
+  echo 0 >"$tb" 2>/dev/null || true
+  sleep 2
+  echo 2 >"$tb" 2>/dev/null || true
+fi
+
+# tiny-dfr holds the appletbdrm DRM device open (and is bound to it); restart it
+# so it rebinds to the freshly loaded driver.
+systemctl stop tiny-dfr.service 2>/dev/null || true
+sleep 1
+systemctl start tiny-dfr.service 2>/dev/null || true

@@ -194,14 +194,30 @@ _os_configure() {
     /etc/libinput/local-overrides.quirks
   echo "${GREEN}libinput trackpad quirks installed (palm rejection)${NC}"
 
-  # T2 MacBooks: force s2idle. The platform's deep (S3) resume is broken for long
-  # sleeps (keyboard/trackpad removed, watchdog storm, tiny-dfr crash). Gate on the
-  # T2 PCI IDs so non-T2 Linux and the Mac are unaffected.
+  # T2 MacBooks: s2idle for suspend (upstream forces deep, which never resumes on
+  # T2), plus a sleep/resume fix that releases the T2 modules before sleep and
+  # reloads them after. Without it, resume comes back with dead xHCI, removed
+  # input devices and a black screen (omarchy discussion #5862).
+  # Copied, not stowed: /etc/systemd units are read by PID1 early, before
+  # ~/.dotfiles is guaranteed to be readable.
   if lspci -nn 2>/dev/null | grep -qE '106b:180[12]'; then
-    sudo mkdir -p /etc/systemd/sleep.conf.d          # prevent stow folding the dir
-    sudo stow -d "$DOTS_DIR/omarchy" -t / t2-suspend
+    sudo mkdir -p /etc/systemd/sleep.conf.d
+    sudo rm -f /etc/systemd/sleep.conf.d/t2-suspend.conf
+    sudo install -Dm644 \
+      "$DOTS_DIR/omarchy/t2-suspend/etc/systemd/sleep.conf.d/t2-suspend.conf" \
+      /etc/systemd/sleep.conf.d/t2-suspend.conf
+    sudo install -Dm644 \
+      "$DOTS_DIR/omarchy/t2-suspend/etc/systemd/system/t2-suspend-fix.service" \
+      /etc/systemd/system/t2-suspend-fix.service
+    sudo install -Dm644 \
+      "$DOTS_DIR/omarchy/t2-suspend/etc/systemd/system/t2-resume-fix.service" \
+      /etc/systemd/system/t2-resume-fix.service
+    sudo install -Dm755 \
+      "$DOTS_DIR/omarchy/t2-suspend/usr/local/lib/t2-resume-fix" \
+      /usr/local/lib/t2-resume-fix
     sudo systemctl daemon-reload
-    echo "${GREEN}T2 suspend: s2idle (freeze) configured${NC}"
+    sudo systemctl enable t2-suspend-fix.service t2-resume-fix.service
+    echo "${GREEN}T2 suspend: s2idle + sleep/resume module fix configured${NC}"
   else
     echo "${YELLOW}T2 suspend: not a T2 Mac, skipping${NC}"
   fi
