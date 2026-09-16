@@ -205,6 +205,18 @@ _os_configure() {
   else
     echo "${YELLOW}T2 suspend: not a T2 Mac, skipping${NC}"
   fi
+
+  # T2 MacBooks: hibernate on lid close instead of suspend. Neither deep nor
+  # s2idle resumes on this hardware (no-state T2, dead xHCI, removed input), so
+  # hibernate the machine off and re-enumerate devices from a fresh boot.
+  if lspci -nn 2>/dev/null | grep -qE '106b:180[12]'; then
+    sudo mkdir -p /etc/systemd/logind.conf.d
+    sudo stow -d "$DOTS_DIR/omarchy" -t / t2-hibernate
+    sudo systemctl daemon-reload
+    echo "${GREEN}T2 lid: hibernate on close (logind)${NC}"
+  else
+    echo "${YELLOW}T2 lid: not a T2 Mac, skipping${NC}"
+  fi
 }
 
 _os_finalize() { : }
