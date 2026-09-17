@@ -2,18 +2,20 @@ tap "1password/tap"
 tap "4ier/tap"
 tap "anomalyco/tap", trusted: true
 tap "automic-vault/isotopes"
+tap "bjarneo/cliamp"
 tap "dmno-dev/tap"
 tap "felixkratz/formulae"
 tap "hashicorp/tap"
 tap "immanuwell/droast", "https://github.com/immanuwell/homebrew-droast.git"
 tap "manaflow-ai/cmux"
 tap "modem-dev/tap"
-tap "nikitabobko/tap"
+tap "nikitabobko/tap", trusted: true
 tap "oven-sh/bun"
-# Securely store and access AWS credentials in development environments
-brew "aws-vault"
+tap "steipete/tap"
 # Cryptography and SSL/TLS Toolkit
 brew "openssl@3"
+# Securely store and access AWS credentials in development environments
+brew "aws-vault"
 # Official Amazon AWS command-line interface
 brew "awscli"
 # Microsoft Azure CLI 2.0
@@ -24,8 +26,6 @@ brew "bat"
 brew "btop"
 # Cloudflare Tunnel client (formerly Argo Tunnel)
 brew "cloudflared"
-# Zero-config VPN for secure private networking
-brew "tailscale"
 # Secure runtime for JavaScript and TypeScript
 brew "deno"
 # Good-lookin' diffs with diff-highlight and more
@@ -56,6 +56,8 @@ brew "gh"
 brew "git"
 # Syntax-highlighting pager for git and diff output
 brew "git-delta"
+# Quickly rewrite git repository history
+brew "git-filter-repo"
 # Git extension for versioning large files
 brew "git-lfs"
 # GNU implementation of the famous stream editor
@@ -98,6 +100,8 @@ brew "pipx"
 brew "pnpm"
 # Python version management
 brew "pyenv"
+# Interpreted, interactive, object-oriented programming language
+brew "python@3.13"
 # Search tool like grep and The Silver Searcher
 brew "ripgrep"
 # Intuitive find & replace CLI
@@ -130,30 +134,36 @@ brew "zsh-autosuggestions"
 brew "zsh-syntax-highlighting"
 # The AI coding agent built for the terminal.
 brew "anomalyco/tap/opencode", trusted: true
+# A retro terminal music player inspired by Winamp 2.x
+brew "bjarneo/cliamp/cliamp", trusted: true
 # varlock is a tool to load and validate .env files
 brew "dmno-dev/tap/varlock", trusted: true
 # Dockerfile linter with personality
 brew "immanuwell/droast/droast", trusted: true
 # Desktop-inspired terminal diff viewer for agent-authored changesets
 brew "modem-dev/tap/hunk", trusted: true
+# Incredibly fast JavaScript runtime, bundler, transpiler and package manager - all in one.
+brew "oven-sh/bun/bun", trusted: true
+# Spotify power CLI using web cookies
+brew "steipete/tap/spogo", trusted: true
 # Password manager that keeps all passwords secure behind one password
 cask "1password"
 # Command-line interface for 1Password
 cask "1password-cli"
-cask "aerospace"
+# AeroSpace is an i3-like tiling window manager for macOS
+cask "nikitabobko/tap/aerospace"
 # Agent orchestration platform
 cask "antigravity"
 # Application uninstaller
 cask "appcleaner"
 # Command-line security layer for developer environments
+cask "automic-vault/isotopes/automic-vault", trusted: true
 # Open source IDE for exploring and testing APIs
 cask "bruno"
 # Utility that prevents the system from going to sleep
 cask "caffeine"
 # Terminal-based AI coding assistant
 cask "claude-code"
-# Ghostty-based terminal with vertical tabs and notifications for AI coding agents
-cask "cmux"
 # Server and cloud storage browser
 cask "cyberduck"
 # Command-line tool to set the desktop picture
@@ -184,6 +194,8 @@ cask "notion"
 cask "obsidian"
 # Control your tools with a few keystrokes
 cask "raycast"
+# Plugin for AWS CLI to start and end sessions that connect to managed instances
+cask "session-manager-plugin"
 # Team communication and collaboration software
 cask "slack"
 # Music streaming service
@@ -198,10 +210,6 @@ cask "whatsapp"
 cask "zed"
 # Gecko based web browser
 cask "zen"
+uv "headroom-ai[all]"
 npm "@ai-sdk/openai-compatible"
 npm "typescript"
-cask "automic-vault"
-tap "bjarneo/cliamp"
-brew "bjarneo/cliamp/cliamp", trusted: true
-brew "oven-sh/bun/bun", trusted: true
-cask "session-manager-plugin"
