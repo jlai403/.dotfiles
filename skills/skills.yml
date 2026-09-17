@@ -3,33 +3,21 @@
 
 install:
   obra/superpowers:
-    skills: "*"
-    agents: [claude-code, antigravity]
-
-  coleam00/excalidraw-diagram-skill:
-    skills: "*"
-    agents: [claude-code, opencode, gemini-cli, antigravity]
-
-  duckdb/duckdb-skills:
-    skills: "*"
-    agents: [opencode, gemini-cli, antigravity]
+    skills: [brainstorming, dispatching-parallel-agents, executing-plans, finishing-a-development-branch, receiving-code-review, requesting-code-review, subagent-driven-development, systematic-debugging, test-driven-development, using-git-worktrees, using-superpowers, verification-before-completion, writing-plans, writing-skills]
+    agents: [claude-code, opencode, gemini-cli]
 
   mattpocock/skills:
     skills: [grilling, grill-me, grill-with-docs, teach, domain-modeling]
-    agents: [claude-code, opencode, gemini-cli, antigravity]
-
-  4ier/notion-cli:
-    skills: [notion-cli]
-    agents: [opencode, antigravity]
+    agents: [claude-code, opencode, gemini-cli]
 
   tt-a1i/archify:
-    skills: "*"
-    agents: [claude-code, opencode, gemini-cli, antigravity]
+    skills: [archify]
+    agents: [claude-code, opencode, gemini-cli]
 
   humanlayer/skills:
     skills: [show-me]
-    agents: [claude-code, opencode, gemini-cli, antigravity]
+    agents: [claude-code, opencode, gemini-cli]
 
   cursor/plugins:
     skills: [unslop]
-    agents: [claude-code, opencode, gemini-cli, antigravity]
+    agents: [claude-code, opencode, gemini-cli]
