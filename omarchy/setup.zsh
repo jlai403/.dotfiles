@@ -204,6 +204,24 @@ _os_configure() {
     sudo stow -d "$DOTS_DIR/omarchy" -t / t2-suspend
     sudo systemctl daemon-reload
     echo "${GREEN}T2 suspend: s2idle (freeze) configured${NC}"
+
+    # Hybrid graphics: route the internal panel to the Intel iGPU via apple-gmux
+    # (kills the amdgpu/i915 boot race and the wake-up ghost eDP-2 output). The
+    # option is baked into the UKI, so rebuild only when the config changed; a
+    # gitignored md5 stamp tracks it (cmp can't: /etc is a symlink to this file).
+    local gmux_conf="$DOTS_DIR/omarchy/gmux/etc/modprobe.d/apple-gmux.conf"
+    local gmux_stamp="$DOTS_DIR/.stow-state/markers/gmux-uki"
+    local gmux_md5="$(md5sum "$gmux_conf" | cut -d' ' -f1)"
+    if [[ -f "$gmux_stamp" ]] && [[ "$(<"$gmux_stamp")" == "$gmux_md5" ]]; then
+      echo "${YELLOW}T2 hybrid GPU: apple-gmux already configured${NC}"
+    else
+      sudo mkdir -p /etc/modprobe.d
+      sudo stow -d "$DOTS_DIR/omarchy" -t / gmux
+      sudo mkinitcpio -P
+      mkdir -p "$DOTS_DIR/.stow-state"
+      print "$gmux_md5" > "$gmux_stamp"
+      echo "${GREEN}T2 hybrid GPU: internal panel on Intel iGPU (apple_gmux force_igd=y)${NC}"
+    fi
   else
     echo "${YELLOW}T2 suspend: not a T2 Mac, skipping${NC}"
   fi
