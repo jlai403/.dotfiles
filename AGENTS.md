@@ -113,6 +113,10 @@ Optional companion repo at `../.dotfiles_private` (sibling directory). If presen
 
 `zsh/sources.zsh` also conditionally sources `~/.dotfiles_private/zsh/private.zsh`.
 
+The private `main.zsh` also runs `_ensure_home_route` (macOS, home LAN only): a static
+`192.168.20.0/24 → 192.168.10.1` route so NordLayer's default route (utun5) can't swallow the
+`*.ts.jlai.ca` service subnet. Idempotent; self-gates via `en0`'s IP prefix.
+
 Never commit private dotfiles content to this repo.
 
 ## Build/Test Commands
