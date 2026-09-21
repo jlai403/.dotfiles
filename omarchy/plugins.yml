@@ -7,4 +7,5 @@
 
 plugins:
   - url: https://github.com/niraj-envision/touch-bar.git
+    id: io.github.niraj-envision.touch-bar
     enable: true

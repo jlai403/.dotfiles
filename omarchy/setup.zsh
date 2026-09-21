@@ -36,12 +36,14 @@ _install_omarchy_plugins() {
   fi
 
   local urls=("${(@f)"$(yq -r '.plugins[].url' "$yaml")"}")
+  local ids=("${(@f)"$(yq -r '.plugins[].id // ""' "$yaml")"}")
   local enables=("${(@f)"$(yq -r '.plugins[].enable // false' "$yaml")"}")
 
   local i url name args
   for i in {1..${#urls}}; do
     url="$urls[i]"
-    name="${url:t:r}"
+    # omarchy installs plugins under their manifest id, not the URL basename.
+    name="${ids[i]:-${url:t:r}}"
     if [[ -d "$HOME/.config/omarchy/plugins/$name" ]]; then
       echo "${YELLOW}omarchy plugin ${name} already installed, skipping${NC}"
       continue

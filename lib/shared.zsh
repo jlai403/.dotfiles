@@ -61,15 +61,16 @@ _setup_agents() {
 
   _install_skills
 
-  rm -f ~/.config/opencode/opencode.json ~/.config/opencode/opencode.jsonc
-  _stow opencode
-
   # herdr owns its opencode integration files (agent-state plugin + tui session);
   # stowing them would freeze herdr-managed versions in the repo. Provision them
-  # so fresh machines get the current integration without tracking herdr's glue.
+  # first so fresh machines get the current integration without tracking herdr's
+  # glue, then clear the config files it rewrote so the stowed versions win.
   if _have herdr; then
     herdr integration install opencode >/dev/null
   fi
+  rm -f ~/.config/opencode/opencode.json ~/.config/opencode/opencode.jsonc \
+    ~/.config/opencode/tui.jsonc
+  _stow opencode
 }
 
 _install_skills() {
