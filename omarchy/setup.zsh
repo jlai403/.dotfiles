@@ -206,17 +206,20 @@ _os_configure() {
     echo "${GREEN}T2 suspend: s2idle (freeze) configured${NC}"
 
     # Hybrid graphics: route the internal panel to the Intel iGPU via apple-gmux
-    # (kills the amdgpu/i915 boot race and the wake-up ghost eDP-2 output). The
-    # option is baked into the UKI, so rebuild only when the config changed; a
-    # gitignored md5 stamp tracks it (cmp can't: /etc is a symlink to this file).
+    # (kills the amdgpu/i915 boot race and the wake-up ghost eDP-2 output).
+    # Copied, not stowed: kmod parses /etc/modprobe.d during coldplug, before
+    # /home (@home subvol) mounts, so a symlink into ~/.dotfiles can't be stat'd
+    # and the option is silently dropped (same reason libinput is copied).
+    # The option is baked into the UKI, so rebuild only when the config changed;
+    # a gitignored md5 stamp tracks it (kernel updates rebuild via stock hooks).
     local gmux_conf="$DOTS_DIR/omarchy/gmux/etc/modprobe.d/apple-gmux.conf"
     local gmux_stamp="$DOTS_DIR/.stow-state/markers/gmux-uki"
     local gmux_md5="$(md5sum "$gmux_conf" | cut -d' ' -f1)"
     if [[ -f "$gmux_stamp" ]] && [[ "$(<"$gmux_stamp")" == "$gmux_md5" ]]; then
       echo "${YELLOW}T2 hybrid GPU: apple-gmux already configured${NC}"
     else
-      sudo mkdir -p /etc/modprobe.d
-      sudo stow -d "$DOTS_DIR/omarchy" -t / gmux
+      sudo rm -f /etc/modprobe.d/apple-gmux.conf   # drop any earlier stow symlink
+      sudo install -Dm644 "$gmux_conf" /etc/modprobe.d/apple-gmux.conf
       sudo mkinitcpio -P
       mkdir -p "$DOTS_DIR/.stow-state"
       print "$gmux_md5" > "$gmux_stamp"
