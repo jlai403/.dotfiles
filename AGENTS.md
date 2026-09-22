@@ -120,7 +120,7 @@ The private `main.zsh` also runs `_ensure_home_route` (macOS, home LAN only): a 
 Never commit private dotfiles content to this repo.
 
 ## Build/Test Commands
-- Run setup: `./main.zsh` (base), `./main.zsh --apps` (install OS packages), `./main.zsh --osx` (macOS defaults)
+- Run setup: `./main.zsh` (base), `./main.zsh --apps` (install OS packages), `./main.zsh --osx` (macOS defaults), `./main.zsh --skills` (reinstall skills from `skills.yml` only — nukes and reinstalls all installed skills, no other bootstrap steps)
 - Verify symlinks: `ls -la ~ | grep -E '\.dotfiles'`
 - Dry-run stow (no changes): `stow -nv -t /tmp/stowtest <pkg>` for root packages, or `stow -nv -d macos -t /tmp/stowtest <pkg>` / `stow -nv -d omarchy -t /tmp/stowtest <pkg>` for platform packages
 - Verify skills: `npx skills list -g`

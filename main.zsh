@@ -30,6 +30,11 @@ source "$DOTS_DIR/$OS_DIR/setup.zsh"
 
 _parse_flags "$@"
 
+if [[ "$DO_SKILLS" == true ]]; then
+  _install_skills
+  exit 0
+fi
+
 #################################
 # pipeline — each _os_* self-gates on its flag; order is significant
 #################################
