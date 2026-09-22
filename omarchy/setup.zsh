@@ -36,12 +36,14 @@ _install_omarchy_plugins() {
   fi
 
   local urls=("${(@f)"$(yq -r '.plugins[].url' "$yaml")"}")
+  local ids=("${(@f)"$(yq -r '.plugins[].id // ""' "$yaml")"}")
   local enables=("${(@f)"$(yq -r '.plugins[].enable // false' "$yaml")"}")
 
   local i url name args
   for i in {1..${#urls}}; do
     url="$urls[i]"
-    name="${url:t:r}"
+    # omarchy installs plugins under their manifest id, not the URL basename.
+    name="${ids[i]:-${url:t:r}}"
     if [[ -d "$HOME/.config/omarchy/plugins/$name" ]]; then
       echo "${YELLOW}omarchy plugin ${name} already installed, skipping${NC}"
       continue
@@ -202,6 +204,27 @@ _os_configure() {
     sudo stow -d "$DOTS_DIR/omarchy" -t / t2-suspend
     sudo systemctl daemon-reload
     echo "${GREEN}T2 suspend: s2idle (freeze) configured${NC}"
+
+    # Hybrid graphics: route the internal panel to the Intel iGPU via apple-gmux
+    # (kills the amdgpu/i915 boot race and the wake-up ghost eDP-2 output).
+    # Copied, not stowed: kmod parses /etc/modprobe.d during coldplug, before
+    # /home (@home subvol) mounts, so a symlink into ~/.dotfiles can't be stat'd
+    # and the option is silently dropped (same reason libinput is copied).
+    # The option is baked into the UKI, so rebuild only when the config changed;
+    # a gitignored md5 stamp tracks it (kernel updates rebuild via stock hooks).
+    local gmux_conf="$DOTS_DIR/omarchy/gmux/etc/modprobe.d/apple-gmux.conf"
+    local gmux_stamp="$DOTS_DIR/.stow-state/markers/gmux-uki"
+    local gmux_md5="$(md5sum "$gmux_conf" | cut -d' ' -f1)"
+    if [[ -f "$gmux_stamp" ]] && [[ "$(<"$gmux_stamp")" == "$gmux_md5" ]]; then
+      echo "${YELLOW}T2 hybrid GPU: apple-gmux already configured${NC}"
+    else
+      sudo rm -f /etc/modprobe.d/apple-gmux.conf   # drop any earlier stow symlink
+      sudo install -Dm644 "$gmux_conf" /etc/modprobe.d/apple-gmux.conf
+      sudo mkinitcpio -P
+      mkdir -p "$DOTS_DIR/.stow-state"
+      print "$gmux_md5" > "$gmux_stamp"
+      echo "${GREEN}T2 hybrid GPU: internal panel on Intel iGPU (apple_gmux force_igd=y)${NC}"
+    fi
   else
     echo "${YELLOW}T2 suspend: not a T2 Mac, skipping${NC}"
   fi
