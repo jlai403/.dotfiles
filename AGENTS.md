@@ -117,10 +117,14 @@ Optional companion repo at `../.dotfiles_private` (sibling directory). If presen
 
 `zsh/sources.zsh` also conditionally sources `~/.dotfiles_private/zsh/private.zsh`.
 
+The private `main.zsh` also runs `_ensure_home_route` (macOS, home LAN only): a static
+`192.168.20.0/24 → 192.168.10.1` route so NordLayer's default route (utun5) can't swallow the
+`*.ts.jlai.ca` service subnet. Idempotent; self-gates via `en0`'s IP prefix.
+
 Never commit private dotfiles content to this repo.
 
 ## Build/Test Commands
-- Run setup: `./main.zsh` (base), `./main.zsh --apps` (install OS packages), `./main.zsh --osx` (macOS defaults)
+- Run setup: `./main.zsh` (base), `./main.zsh --apps` (install OS packages), `./main.zsh --osx` (macOS defaults), `./main.zsh --skills` (reinstall skills from `skills.yml` only — nukes and reinstalls all installed skills, no other bootstrap steps)
 - Verify symlinks: `ls -la ~ | grep -E '\.dotfiles'`
 - Dry-run stow (no changes): `stow -nv -t /tmp/stowtest <pkg>` for root packages, or `stow -nv -d macos -t /tmp/stowtest <pkg>` / `stow -nv -d omarchy -t /tmp/stowtest <pkg>` for platform packages
 - Verify skills: `npx skills list -g`

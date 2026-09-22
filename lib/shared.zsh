@@ -77,7 +77,7 @@ _install_skills() {
   echo "${YELLOW}Installing skills via npx skills...${NC}"
   local skills_src="$HOME/.agents/skills"
   local skills_file="$DOTS_DIR/skills/skills.yml"
-  local skills_version="1.5.9"
+  local skills_version="1.7.0"
 
   # nuke all installed skills for clean state
   echo "${YELLOW}  Removing all installed skills...${NC}"
