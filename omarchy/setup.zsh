@@ -142,18 +142,6 @@ _os_configure() {
     echo "${YELLOW}Tailscale: could not apply (service inactive? run: sudo tailscale set --accept-routes=false)${NC}"
   fi
 
-  # Remove legacy ~/.config/starship.toml (starship prefers it over the stowed path)
-  if [ -f ~/.config/starship.toml ]; then
-    if cmp -s ~/.config/starship.toml ~/.config/starship/starship.toml \
-      || { [ -f /usr/share/omarchy/config/starship.toml ] \
-        && cmp -s ~/.config/starship.toml /usr/share/omarchy/config/starship.toml; }; then
-      rm -f ~/.config/starship.toml
-      echo "${GREEN}Removed legacy ~/.config/starship.toml${NC}"
-    else
-      echo "${YELLOW}~/.config/starship.toml differs from stowed config; remove manually${NC}"
-    fi
-  fi
-
   systemctl --user daemon-reload
   if rclone listremotes 2>/dev/null | grep -q '^gdrive:$'; then
     systemctl --user enable --now rclone-gdrive.service

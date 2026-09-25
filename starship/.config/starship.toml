@@ -1,0 +1,61 @@
+"$schema" = "https://starship.rs/config-schema.json"
+command_timeout = 200
+
+format = """
+$directory$git_branch$git_status$nodejs$bun$rust$deno$cmd_duration$time
+$character"""
+
+[directory]
+style = "bold #82aaff"
+format = "[$path]($style) "
+truncation_length = 3
+truncation_symbol = "…/"
+truncate_to_repo = false
+
+[git_branch]
+symbol = ""
+style = "#c099ff"
+format = "[$symbol$branch]($style) "
+
+[git_status]
+style = "#ff757f"
+format = "[$all_status$ahead_behind]($style) "
+
+[nodejs]
+symbol = "\ue718 "
+style = "#636da6"
+format = "[$symbol($version)]($style) "
+
+[bun]
+symbol = "\ue769 "
+style = "#636da6"
+format = "[$symbol($version)]($style) "
+
+[rust]
+symbol = "\ue7a8 "
+style = "#636da6"
+format = "[$symbol($version)]($style) "
+
+[deno]
+symbol = "🦕 "
+style = "#636da6"
+format = "[$symbol($version)]($style) "
+
+[cmd_duration]
+style = "#ffc777"
+format = "[$duration]($style) "
+
+[time]
+disabled = false
+style = "#636da6"
+format = "[$time]($style)"
+time_format = "%R"
+
+[character]
+success_symbol = "[❯](bold #c3e88d)"
+error_symbol = "[❯](bold #ff757f)"
+
+[python]
+python_binary = ["python3", "python"]
+detect_extensions = []
+detect_files = []

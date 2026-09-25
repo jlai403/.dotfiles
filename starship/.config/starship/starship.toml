@@ -1,8 +1,0 @@
-# Starship configuration
-
-command_timeout = 200
-
-[python]
-python_binary = ["python3", "python"]
-detect_extensions = []
-detect_files = []
