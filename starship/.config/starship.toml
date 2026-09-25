@@ -2,8 +2,10 @@
 command_timeout = 200
 
 format = """
-$directory$git_branch$git_status$nodejs$bun$rust$deno$cmd_duration$time
+$directory$git_branch$git_status$nodejs$bun$rust$deno$cmd_duration
 $character"""
+
+right_format = "$time"
 
 [directory]
 style = "bold #82aaff"
@@ -52,7 +54,7 @@ format = "[$time]($style)"
 time_format = "%R"
 
 [character]
-success_symbol = "[❯](bold #c3e88d)"
+success_symbol = "[❯](bold #86e1fc)"
 error_symbol = "[❯](bold #ff757f)"
 
 [python]
