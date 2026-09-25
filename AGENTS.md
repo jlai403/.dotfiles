@@ -92,7 +92,7 @@ On Omarchy (Arch Linux), zsh is the user shell (not bash). `omarchy/setup.zsh:_o
 - `macos/backups/antigravity/` — VS Code fork settings, keybindings, extensions
 - `macos/backups/zen/` + `omarchy/backups/zen/` — Zen browser themes, keyboard shortcuts, containers (per-OS copies; `zen:backup`/`zen:restore` pick the dir via `uname`)
 - `omarchy/backups/1password/` — 1Password allowed-browsers list (`custom_allowed_browsers`); restored to `/etc/1password/` via `task 1password:restore` (Zen desktop integration)
-- `macos/system/` — macOS system defaults (Dock, trackpad, keyboard, login items) + `wallpaper/tokyo-night.jpg`
+- `macos/system/` — macOS system defaults (Dock, trackpad, keyboard, login items) + `wallpaper/tokyo-night.jpg`. `defaults.zsh` frees `Ctrl+Space` for the tmux/herdr prefix by disabling symbolic hotkeys 60/61; `enabled` **must be written as a boolean** (`'<dict><key>enabled</key><false/></dict>'`, not the old-style string `"{ enabled = 0; }"`), or macOS ignores it and keeps consuming `Ctrl+Space` before the terminal sees it (takes effect on next login). Verify: `defaults export com.apple.symbolichotkeys - | plutil -p -`
 - `macos/backups/raycast/` — Raycast scripts
 - `macos/backups/stats-menu/` — Stats.app menu bar plist
 

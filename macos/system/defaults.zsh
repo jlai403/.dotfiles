@@ -10,9 +10,11 @@ configure_macos_defaults() {
 	defaults write -g "com.apple.keyboard.modifiermapping.0-0-0" \
 		-array "<dict><key>HIDKeyboardModifierMappingSrc</key><integer>${caps_lock}</integer><key>HIDKeyboardModifierMappingDst</key><integer>-1</integer></dict>"
 
-	# Free C-Space for tmux prefix by disabling input source switching
-	defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 60 "{ enabled = 0; }"
-	defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 61 "{ enabled = 0; }"
+	# Free C-Space for tmux/herdr prefix by disabling input source switching.
+	# 'enabled' must be a boolean; the old-style "{ enabled = 0; }" form stores a
+	# string, which macOS ignores (the hotkey stays active). Re-login after.
+	defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 60 '<dict><key>enabled</key><false/></dict>'
+	defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 61 '<dict><key>enabled</key><false/></dict>'
 
 	# --- Trackpad ---
 	# Tap to click
