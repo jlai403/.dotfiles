@@ -171,6 +171,30 @@ hl.unbind("SUPER + code:21")
 o.bind("SUPER + CONTROL + ALT + MINUS", "Resize window smaller", hl.dsp.window.resize({ x = -50, y = 0, relative = true }))
 o.bind("SUPER + CONTROL + ALT + EQUAL", "Resize window larger", hl.dsp.window.resize({ x = 50, y = 0, relative = true }))
 
+-- Free SUPER+ALT+arrows / SUPER+ALT+S,F and SUPER+CTRL+arrows / SUPER+O so Zed
+-- gets the mac chords Cmd+Alt+... and Ctrl+Cmd+... (the omarchy Zed keymap maps
+-- them). Group/scratchpad/pop re-home onto the hyper chord; full width moves to
+-- SUPER+CTRL+SHIFT+F.
+for _, key in ipairs({ "LEFT", "RIGHT", "UP", "DOWN" }) do
+  hl.unbind("SUPER + ALT + " .. key)
+end
+hl.unbind("SUPER + ALT + S")
+hl.unbind("SUPER + ALT + F")
+for _, key in ipairs({ "LEFT", "RIGHT" }) do
+  hl.unbind("SUPER + CTRL + " .. key)
+end
+hl.unbind("SUPER + O")
+
+o.bind("SUPER + CONTROL + ALT + LEFT", "Move window to group on left", hl.dsp.window.move({ into_group = "l" }))
+o.bind("SUPER + CONTROL + ALT + RIGHT", "Move window to group on right", hl.dsp.window.move({ into_group = "r" }))
+o.bind("SUPER + CONTROL + ALT + UP", "Move window to group on top", hl.dsp.window.move({ into_group = "u" }))
+o.bind("SUPER + CONTROL + ALT + DOWN", "Move window to group on bottom", hl.dsp.window.move({ into_group = "d" }))
+o.bind("SUPER + CONTROL + ALT + SHIFT + LEFT", "Move grouped window focus left", hl.dsp.group.prev())
+o.bind("SUPER + CONTROL + ALT + SHIFT + RIGHT", "Move grouped window focus right", hl.dsp.group.next())
+o.bind("SUPER + CONTROL + ALT + SHIFT + S", "Move window to scratchpad", hl.dsp.window.move({ workspace = "special:scratchpad", follow = false }))
+o.bind("SUPER + CONTROL + SHIFT + F", "Full width", hl.dsp.window.fullscreen({ mode = "maximized" }))
+o.bind("SUPER + CONTROL + ALT + O", "Pop window out (float & pin)", "omarchy-hyprland-window-pop")
+
 -- macOS Cmd+Q analog: quit the focused app (close all its windows).
 o.bind("SUPER + Q", "Quit focused app", "omarchy-hyprland-window-quit-app")
 
@@ -199,7 +223,7 @@ o.bind("SUPER + CONTROL + ALT + SHIFT + RETURN", "Browser", { omarchy = "browser
 -- focused app. Sheets-style web apps check e.ctrlKey on Linux and Zen's
 -- accelKey only covers browser chrome, so every Cmd chord forwards here
 -- instead of a per-key list. Silent in terminals. Keys with compositor jobs
--- are excluded: Q quit-app, O pop-out, RETURN terminal, SPACE menu, ESC
+-- are excluded: Q quit-app, RETURN terminal, SPACE menu, ESC
 -- system menu, BACKSPACE transparency, comma notifications. C/V/X are also
 -- excluded — the clipboard trio keeps omarchy's smart routing (clips.lua):
 -- Cmd+C -> Ctrl+Insert / Cmd+V -> Shift+Insert in terminals (ghostty's native
@@ -207,7 +231,7 @@ o.bind("SUPER + CONTROL + ALT + SHIFT + RETURN", "Browser", { omarchy = "browser
 -- apps. Never shimmed here. Cmd+W and Cmd+arrows are special-cased below
 -- (terminal window close, line/doc nav); Cmd+Shift is a curated list further down.
 local cmd_keys = {
-  "A", "B", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N",
+  "A", "B", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O",
   "P", "R", "S", "T", "U", "Y", "Z",
   "TAB", "MINUS", "EQUAL", "SEMICOLON", "APOSTROPHE", "PERIOD", "SLASH",
   "GRAVE", "BRACKETLEFT", "BRACKETRIGHT",

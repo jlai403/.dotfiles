@@ -84,7 +84,7 @@ Symlinked to home/config directories via GNU Stow. Root packages stow on both OS
 | `ssh` | SSH config (1Password agent socket; Omarchy also adds `ghjlai`/`ghstellar`/`forgejo` host aliases) | per-OS |
 | `television` | TUI fuzzy finder | both |
 | `tmux` | Tmux | both |
-| `zed` | Zed editor | both |
+| `zed` | Zed editor (Tokyo Night vendored; keymap per-OS) | both |
 | `ghostty` | Ghostty `local.conf` overrides (macOS keybinds/font, Omarchy include + font-size) | per-OS |
 | `hypr` | Hyprland user overrides (bindings, input, monitors) | Omarchy |
 | `omarchy-shell` | Omarchy shell config (shell.json, hooks, defaults) | Omarchy |

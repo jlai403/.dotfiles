@@ -6,4 +6,5 @@
 zen/prefs.js
 docs/superpowers/
 zed/.config/zed/prompts/
-zed/.config/zed/themes/
+zed/.config/zed/themes/*
+!zed/.config/zed/themes/tokyo-night.json

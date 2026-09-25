@@ -58,6 +58,8 @@ _install_omarchy_plugins() {
 _os_stow_packages() {
   # Per-OS packages, incl. overrides for the root ghostty/mise packages.
   _stow_platform ghostty mise ssh
+  # Linux keymap overlay (mac parity); shared zed keeps settings/themes/zed-tmux.
+  _stow_platform zed
   _stow_platform uwsm hypr omarchy-shell
   _install_omarchy_plugins
   # Cloned idle service (dismisses the screensaver on pointer motion); lives in

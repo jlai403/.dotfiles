@@ -68,11 +68,7 @@
   "base_keymap": "VSCode",
   "ui_font_size": 16,
   "buffer_font_size": 15,
-  "theme": {
-    "mode": "dark",
-    "light": "One Light",
-    "dark": "Tokyo Night Moon",
-  },
+  "theme": "Tokyo Night Moon",
   "terminal": {
     "font_size": 15.0,
     "shell": {
