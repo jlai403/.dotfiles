@@ -6,6 +6,8 @@
 # ~/.config/omarchy/plugins/ (untracked, safe from stow).
 
 plugins:
-  - url: https://github.com/niraj-envision/touch-bar.git
+  # jlai403 fork carries the football-page close-tile cycle fix
+  # (niraj-envision/touch-bar PR #1) until it lands upstream.
+  - url: https://github.com/jlai403/touch-bar.git
     id: io.github.niraj-envision.touch-bar
     enable: true
