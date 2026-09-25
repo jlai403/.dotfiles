@@ -19,46 +19,5 @@
   "maintainerAnnouncements": {
     "enabled": true,
     "home": true
-  },
-  // OpenCode console accounts authenticate via OAuth (stored in opencode.db,
-  // exposed as OPENCODE_CONSOLE_TOKEN), not auth.json, so the built-in
-  // opencode-go provider cannot see them. Its usage endpoint also needs an
-  // x-opencode-org-id header, which the plugin cannot send. Talk to a loopback
-  // proxy (see omarchy/quota-proxy) that adds both.
-  "quotaProviders": [
-    {
-      "id": "opencode-go-console",
-      "providerId": "opencode-go",
-      "label": "OpenCode Go",
-      "mode": "remote-api",
-      "url": "http://127.0.0.1:8788/usage",
-      "apiKeyEnv": "OPENCODE_CONSOLE_TOKEN",
-      "format": "json-v1",
-      "adapter": {
-        "mappings": [
-          {
-            "resultType": "quota",
-            "name": "5h",
-            "label": "5h:",
-            "resetTime": { "path": ["usage", "rolling", "resetsAt"], "encoding": "iso-8601" },
-            "metric": { "type": "percentage", "percentage": { "path": ["usage", "rolling", "percent"] }, "meaning": "used" }
-          },
-          {
-            "resultType": "quota",
-            "name": "Weekly",
-            "label": "Weekly:",
-            "resetTime": { "path": ["usage", "weekly", "resetsAt"], "encoding": "iso-8601" },
-            "metric": { "type": "percentage", "percentage": { "path": ["usage", "weekly", "percent"] }, "meaning": "used" }
-          },
-          {
-            "resultType": "quota",
-            "name": "Monthly",
-            "label": "Monthly:",
-            "resetTime": { "path": ["usage", "monthly", "resetsAt"], "encoding": "iso-8601" },
-            "metric": { "type": "percentage", "percentage": { "path": ["usage", "monthly", "percent"] }, "meaning": "used" }
-          }
-        ]
-      }
-    }
-  ]
+  }
 }
