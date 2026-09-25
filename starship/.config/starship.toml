@@ -5,7 +5,19 @@ format = """
 $directory$git_branch$git_status$nodejs$bun$rust$deno$cmd_duration
 $character"""
 
-right_format = "$time"
+right_format = "$battery$time"
+
+[battery]
+format = "[$symbol$percentage]($style) "
+charging_symbol = "[󰂄 ](#c3e88d)"
+
+[[battery.display]]
+threshold = 20
+style = "bold #ff757f"
+
+[[battery.display]]
+threshold = 100
+style = "#636da6"
 
 [directory]
 style = "bold #82aaff"
