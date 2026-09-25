@@ -82,6 +82,12 @@ _os_stow_packages() {
   # Pre-create the dir so stow never folds ~/.config/wayvnc into the repo.
   mkdir -p "$HOME/.config/wayvnc"
   _stow_platform wayvnc
+
+  # Loopback proxy that adds the x-opencode-org-id header opencode-quota's
+  # OpenCode Go provider needs (console OAuth creds live in opencode.db, not
+  # auth.json). Pre-create the dir so stow never folds it into the repo.
+  mkdir -p "$HOME/.config/systemd/user"
+  _stow_platform quota-proxy
 }
 
 # Make zsh the login shell, and give ~/.zshrc the omarchy-zsh base (zoptions +
@@ -158,6 +164,11 @@ _os_configure() {
     systemctl --user enable wayvnc.service
     echo "${YELLOW}wayvnc unit enabled but the package is missing; run 'omarchy pkg add wayvnc' then 'systemctl --user start wayvnc'${NC}"
   fi
+
+  # Loopback proxy for opencode-quota's OpenCode Go provider (adds the
+  # x-opencode-org-id header; reads the console OAuth token from opencode.db).
+  systemctl --user enable --now opencode-quota-proxy.service
+  echo "${GREEN}opencode-quota usage proxy enabled${NC}"
 
   sudo loginctl enable-linger "$USER"
 
