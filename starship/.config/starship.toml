@@ -2,7 +2,7 @@
 command_timeout = 200
 
 format = """
-$directory$git_branch$git_status$nodejs$bun$rust$deno$cmd_duration
+$directory$git_branch$git_status$aws${custom.venv}$nodejs$bun$rust$deno$cmd_duration
 $character"""
 
 right_format = "$battery$time"
@@ -34,6 +34,19 @@ format = "[$symbol$branch]($style) "
 [git_status]
 style = "#ff757f"
 format = "[$all_status$ahead_behind]($style) "
+
+[aws]
+format = "[$symbol($profile )($region)]($style) "
+style = "#ffc777"
+symbol = "\uf0c2 "
+
+[custom.venv]
+command = 'basename "$VIRTUAL_ENV"'
+when = 'test -n "$VIRTUAL_ENV"'
+format = "[$symbol$output]($style) "
+symbol = "\ue606 "
+style = "#c3e88d"
+shell = ["sh"]
 
 [nodejs]
 symbol = "\ue718 "
