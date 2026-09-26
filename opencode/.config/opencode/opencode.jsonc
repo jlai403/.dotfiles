@@ -9,7 +9,38 @@
   ],
   "provider": {
     // Detected opencode-go authentication; opencode-quota added this global provider declaration.
-    "opencode-go": {}
+    "opencode-go": {},
+    "ollama": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Ollama (ollama.ts.jlai.ca)",
+      "options": {
+        "baseURL": "https://ollama.ts.jlai.ca/v1",
+        "apiKey": "ollama"
+      },
+      "models": {
+        "qwen3.5:9b": {
+          "name": "Qwen3.5 9B",
+          "tool_call": true,
+          "reasoning": true,
+          "attachment": true,
+          "limit": { "context": 32768, "output": 8192 }
+        },
+        "qwen3.5:4b": {
+          "name": "Qwen3.5 4B",
+          "tool_call": true,
+          "reasoning": true,
+          "attachment": true,
+          "limit": { "context": 32768, "output": 8192 }
+        },
+        "gemma4:e2b": {
+          "name": "Gemma4 e2b",
+          "tool_call": true,
+          "reasoning": true,
+          "attachment": true,
+          "limit": { "context": 32768, "output": 8192 }
+        }
+      }
+    }
   },
   "mcp": {
     "codegraph": {
