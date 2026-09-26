@@ -218,8 +218,8 @@ Item {
     runWake()
   }
 
-  // Face scans are bounded: howdy/facelock drive the camera and CPU for the
-  // whole scan, so there is no tight retry loop like the fingerprint reader.
+  // Bounded retry (faceRetryTimer), unlike the fingerprint reader's 250ms loop:
+  // facelock holds the camera and CPU for the whole scan.
   function startFace(explicit) {
     if (!lockRequested || !sessionLock.secure || !faceConfigured) return
     if (facePam.active || faceAuthenticating || authenticatingPassword) return
@@ -515,9 +515,8 @@ Item {
         root.armBlankTimer()
         return
       }
-      // Only a password check or a face scan in flight should hold the display
-      // up. The fingerprint PAM stays armed for the whole lock, so gating on
-      // `authenticating` here would keep the panel lit until unlock.
+      // Gate on the in-flight checks only; `authenticating` includes fingerprint,
+      // whose PAM stays armed for the whole lock and would hold the panel lit.
       if (root.lockRequested && !root.authenticatingPassword && !root.faceAuthenticating) root.runBlank()
     }
   }

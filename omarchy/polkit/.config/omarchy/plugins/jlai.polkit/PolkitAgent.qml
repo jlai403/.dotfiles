@@ -36,10 +36,8 @@ Item {
   property bool fingerprintConfigured: false
   // pam_facelock appears in the polkit PAM stack (a face is enrolled).
   property bool faceConfigured: false
-  // An empty-submit face scan is in flight; the field reads "Scanning…" and
-  // facelock owns the camera until it returns. Face never takes over the
-  // dialog the way fingerprint mode does — pam_unix stays first, so a typed
-  // password must keep working without waiting on the camera.
+  // An empty-submit scan is in flight. Face never takes over the dialog like
+  // fingerprint mode does: pam_unix stays first, so typing always works.
   property bool faceScanning: false
   // Lid shut right now — the reader is physically unreachable, so we fall back
   // to the password even when a sensor is enrolled. Refreshed per request.
@@ -120,7 +118,6 @@ Item {
     if (!flow || !flow.isResponseRequired) return
     submitted = true
     errorFlash = false
-    // An empty submit falls through pam_unix to facelock and starts a scan.
     faceScanning = faceConfigured && passwordInput.text.length === 0
     flow.submit(passwordInput.text)
     passwordInput.text = ""
@@ -321,7 +318,6 @@ Item {
           TextInput {
             id: passwordInput
             anchors.fill: parent
-            // Keep text clear of the face glyph at the right edge.
             anchors.rightMargin: root.faceConfigured ? Style.space(26) : 0
             verticalAlignment: TextInput.AlignVCenter
             activeFocusOnPress: true
@@ -360,7 +356,6 @@ Item {
             visible: passwordInput.text.length === 0
           }
 
-          // Face hint at the field's right edge, lit while a scan is in flight.
           Text {
             id: faceIcon
             objectName: "polkitFaceIndicator"

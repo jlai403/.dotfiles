@@ -1,10 +1,7 @@
 #!/usr/bin/env zsh
-# Facelock face unlock for Omarchy on the built-in RGB camera.
-# Idempotent. Run as your user, never root: ./omarchy/face-unlock/setup.zsh
-#
-# RGB-only camera and no TPM on this T2 Mac: require_ir=false, keyfile
-# encryption. Face auth is a convenience, not a security boundary.
-# Backend contract: facelock 0.2.x (upstream Omarchy PR #11612).
+# Facelock face unlock: lock screen, sudo, polkit. Idempotent.
+# RGB camera + no TPM, so require_ir=false and keyfile encryption.
+# Face auth is a convenience, not a security boundary.
 set -euo pipefail
 
 readonly GREEN=$'\e[32m' RED=$'\e[31m' YELLOW=$'\e[33m' NC=$'\e[0m'
@@ -37,25 +34,23 @@ text = path.read_text()
 
 
 def set_key(text, section, key, value):
-    lines = text.splitlines()
-    out, in_section, done = [], False, False
-    for line in lines:
+    """Replace key under [section], or insert it (with the section if needed)."""
+    header = f"[{section}]"
+    line_re = re.compile(rf"^\s*#?\s*{re.escape(key)}\s*=")
+    out = text.splitlines()
+    in_section = False
+    for i, line in enumerate(out):
         stripped = line.strip()
         if stripped.startswith("[") and stripped.endswith("]"):
-            in_section = stripped == f"[{section}]"
-        if in_section and re.match(rf"^\s*#?\s*{re.escape(key)}\s*=", line) and not done:
-            out.append(f"{key} = {value}")
-            done = True
-            continue
-        out.append(line)
-    if not done:
-        for i, line in enumerate(out):
-            if line.strip() == f"[{section}]":
-                out.insert(i + 1, f"{key} = {value}")
-                done = True
-                break
-    if not done:
-        out += ["", f"[{section}]", f"{key} = {value}"]
+            in_section = stripped == header
+        elif in_section and line_re.match(line):
+            out[i] = f"{key} = {value}"
+            return "\n".join(out) + "\n"
+    try:
+        at = next(i for i, l in enumerate(out) if l.strip() == header)
+        out.insert(at + 1, f"{key} = {value}")
+    except StopIteration:
+        out += ["", header, f"{key} = {value}"]
     return "\n".join(out) + "\n"
 
 
@@ -73,9 +68,7 @@ ReadWritePaths=/etc/facelock
 EOF
 sudo systemctl daemon-reload
 
-# facelock setup downloads the ONNX models and enables the daemon; asking
-# systemd to start the daemon before this fails every time, since it refuses to
-# come up with no models to load.
+# Models must exist before the daemon starts; it refuses to come up without them.
 info "Running facelock setup (models)..."
 sudo facelock setup --no-pam --no-systemd --non-interactive --yes --no-enroll \
   --models standard --execution-provider cpu --encryption keyfile
@@ -107,9 +100,8 @@ fi
 
 sudo facelock pam add --service omarchy-lock-face --service sudo --service polkit-1 --no-confirm
 
-# Password-first for sudo/polkit: a typed password authenticates instantly and
-# only an empty Enter starts a scan, so an unattended sudo cannot be face-approved.
-info "Ordering sudo/polkit for password-first fallback..."
+# pam_unix above facelock: a typed password wins, empty Enter scans.
+info "Ordering sudo/polkit for password-first auth..."
 sudo python3 - <<'PY'
 import pathlib
 

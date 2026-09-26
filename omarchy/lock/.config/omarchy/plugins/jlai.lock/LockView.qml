@@ -26,8 +26,7 @@ Item {
   readonly property int fieldFontSize: Math.round(Style.font.heading * 1.125)
   readonly property int passwordDotFontSize: Math.round(Style.font.heading * 1.33)
   readonly property int passwordDotLetterSpacing: Math.round(Style.font.heading * 0.19)
-  // Space to keep clear on each side of the field for the biometric icons
-  // (icon width plus a gap) so the centered dots never run under them.
+  // Symmetric inset so centered dots never run under the biometric icons.
   readonly property real fingerprintReserve: (fingerprintConfigured ? Math.round(fingerprintIcon.implicitWidth + 12) : 0)
     + (faceConfigured ? Math.round(faceIcon.implicitWidth + 12) : 0)
   // Shrink the dots to fit once the password outgrows the field, so every
@@ -285,7 +284,6 @@ Item {
         verticalAlignment: Text.AlignVCenter
       }
 
-      // Face hint, left of the fingerprint icon when both are enrolled.
       Text {
         id: faceIcon
         objectName: "faceIndicator"

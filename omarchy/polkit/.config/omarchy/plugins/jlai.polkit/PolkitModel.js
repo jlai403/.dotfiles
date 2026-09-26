@@ -18,8 +18,6 @@ function fingerprintConfiguredFromPamConfig(raw) {
 }
 
 function faceConfiguredFromPamConfig(raw) {
-  // Facelock is available whenever pam_facelock appears in the auth stack.
-  // It sits below pam_unix, so a typed password wins and an empty submit scans.
   var lines = String(raw || "").split("\n")
   for (var i = 0; i < lines.length; i++) {
     var line = lines[i].replace(/^\s+|\s+$/g, "")
