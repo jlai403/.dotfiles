@@ -127,6 +127,24 @@ _ensure_omarchy_zshrc() {
   echo "${GREEN}Prepended omarchy-zsh base to ~/.zshrc${NC}"
 }
 
+# Hyprland loads user modules by name from ~/.config/hypr/hyprland.lua, an
+# Omarchy template this repo doesn't own; `omarchy-refresh-hyprland` resets it.
+# Ensure it requires the tracked hypr.windows (personal window rules).
+_ensure_hypr_windows() {
+  local hyprland="$HOME/.config/hypr/hyprland.lua"
+  local marker='require("hypr.windows")'
+  if [[ ! -f "$hyprland" ]]; then
+    echo "${YELLOW}~/.config/hypr/hyprland.lua missing; skipping hypr.windows require${NC}"
+    return 0
+  fi
+  if grep -qF "$marker" "$hyprland"; then
+    echo "${YELLOW}hypr.windows already required${NC}"
+    return 0
+  fi
+  print "\n$marker" >> "$hyprland"
+  echo "${GREEN}Added hypr.windows to hyprland.lua${NC}"
+}
+
 _os_configure() {
   if _have mise; then
     echo "${YELLOW}Installing mise-managed tools...${NC}"
@@ -163,6 +181,7 @@ _os_configure() {
 
   _ensure_login_shell
   _ensure_omarchy_zshrc
+  _ensure_hypr_windows
 
   # Touch Bar: the plugin reads the digitizer and holds the backlight, both
   # group `input`; tiny-dfr renders the panel. Its installer adds neither.
