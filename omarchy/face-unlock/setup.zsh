@@ -72,12 +72,16 @@ sudo tee "$DROPIN/omarchy-writable-keys.conf" >/dev/null <<'EOF'
 ReadWritePaths=/etc/facelock
 EOF
 sudo systemctl daemon-reload
-sudo systemctl enable --now facelock-daemon.service
-sudo systemctl restart facelock-daemon.service
 
-info "Running facelock setup (models, daemon)..."
-sudo facelock setup --no-pam --systemd --non-interactive --yes --no-enroll \
+# facelock setup downloads the ONNX models and enables the daemon; asking
+# systemd to start the daemon before this fails every time, since it refuses to
+# come up with no models to load.
+info "Running facelock setup (models)..."
+sudo facelock setup --no-pam --no-systemd --non-interactive --yes --no-enroll \
   --models standard --execution-provider cpu --encryption keyfile
+
+info "Enabling the facelock daemon..."
+sudo systemctl enable --now facelock-daemon.service
 
 info "Look at the camera to enroll your face."
 if ! sudo facelock enroll --user "$USER" --label primary; then
