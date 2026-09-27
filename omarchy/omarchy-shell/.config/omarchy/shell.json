@@ -69,13 +69,11 @@
   },
   "cloneSourceRestores": [
     "jlai.idle",
-    "jlai.lock",
-    "jlai.polkit"
+    "jlai.lock"
   ],
   "disabledPlugins": [
     "omarchy.idle",
-    "omarchy.lock",
-    "omarchy.polkit"
+    "omarchy.lock"
   ],
   "idle": {
     "lock": 900,
@@ -87,9 +85,6 @@
     },
     {
       "id": "jlai.lock"
-    },
-    {
-      "id": "jlai.polkit"
     }
   ],
   "version": 1

@@ -77,8 +77,6 @@ _os_stow_packages() {
   _stow_platform idle
   # Cloned lock service (Cmd+A select-all + auto-repeat guard on the lock screen).
   _stow_platform lock
-  # Cloned polkit agent (face-unlock hint in the 1Password/privileged dialog).
-  _stow_platform polkit
   # Cloned workspaces bar widget (only occupied numbered workspaces + the focused
   # one; lettered workspaces show their letter only while focused).
   _stow_platform workspaces
