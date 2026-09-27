@@ -60,6 +60,16 @@ _os_stow_packages() {
   _stow_platform ghostty mise ssh
   # Linux keymap overlay (mac parity); shared zed keeps settings/themes/zed-tmux.
   _stow_platform zed
+  # Tokyo Night background override: `omarchy theme set` copies the stock theme
+  # then overlays ~/.config/omarchy/themes/<name>/, so a same-named file here
+  # replaces the stock one. Install it as a REAL file, never a stow symlink: the
+  # copy step preserves symlinks, and a relative stow link would land dangling in
+  # ~/.local/state/omarchy/current/theme. `themes` is in omarchy-shell's
+  # .stow-local-ignore so stow leaves this tree alone; the repo asset is the
+  # source of truth reinstalled here each bootstrap.
+  install -Dm644 \
+    "$DOTS_DIR/omarchy/omarchy-shell/.config/omarchy/themes/tokyo-night/backgrounds/1-quattro.jpg" \
+    "$HOME/.config/omarchy/themes/tokyo-night/backgrounds/1-quattro.jpg"
   _stow_platform uwsm hypr omarchy-shell
   _install_omarchy_plugins
   # Cloned idle service (dismisses the screensaver on pointer motion); lives in
@@ -171,7 +181,7 @@ _os_configure() {
   fi
   if _have wayvnc; then
     systemctl --user enable --now wayvnc.service
-    echo "${GREEN}wayvnc enabled (Tailscale + PAM); allow it with: sudo ufw allow in on tailscale0 to any port 5900 proto tcp${NC}"
+    echo "${GREEN}wayvnc enabled (all interfaces + PAM; ufw is the boundary); allow it with: sudo ufw allow in on tailscale0 to any port 5900 proto tcp${NC}"
   else
     systemctl --user enable wayvnc.service
     echo "${YELLOW}wayvnc unit enabled but the package is missing; run 'omarchy pkg add wayvnc' then 'systemctl --user start wayvnc'${NC}"
@@ -182,6 +192,14 @@ _os_configure() {
   _ensure_login_shell
   _ensure_omarchy_zshrc
   _ensure_hypr_windows
+
+  # Stage the Tokyo Night theme so the overlay background installed above
+  # replaces the stock 1-quattro.jpg, then point the live background at it.
+  if _have omarchy; then
+    omarchy theme set tokyo-night
+    omarchy theme bg set "$HOME/.config/omarchy/themes/tokyo-night/backgrounds/1-quattro.jpg"
+    echo "${GREEN}Tokyo Night background override applied${NC}"
+  fi
 
   # Touch Bar: the plugin reads the digitizer and holds the backlight, both
   # group `input`; tiny-dfr renders the panel. Its installer adds neither.

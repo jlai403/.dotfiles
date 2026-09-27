@@ -113,6 +113,16 @@ tasks:
       - sudo systemctl enable --now keyd
       - echo "keyd installed — hold CapsLock = Hyper (C-M-A), tap = Esc"
 
+  face:setup:
+    desc: Install and configure facelock face unlock (sudo, polkit, lock screen)
+    cmds:
+      - "{{.DOTS_DIR}}/omarchy/face-unlock/setup.zsh"
+
+  face:remove:
+    desc: Remove facelock face unlock and its PAM wiring
+    cmds:
+      - "{{.DOTS_DIR}}/omarchy/face-unlock/remove.zsh"
+
   zen:restore:
     desc: Restore Zen browser config from dotfiles
     vars:

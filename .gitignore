@@ -8,3 +8,14 @@ docs/superpowers/
 zed/.config/zed/prompts/
 zed/.config/zed/themes/*
 !zed/.config/zed/themes/tokyo-night.json
+
+# Credentials — this repo is public. Nothing here currently matches; these
+# guard against a future drop of exported keys or provider auth configs.
+opencode-bedrock.json
+**/auth.json
+**/*.pem
+**/*.key
+**/*.pfx
+**/*.p12
+**/.netrc
+**/kubeconfig
