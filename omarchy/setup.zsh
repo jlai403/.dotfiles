@@ -183,7 +183,7 @@ _os_configure() {
   fi
   if _have wayvnc; then
     systemctl --user enable --now wayvnc.service
-    echo "${GREEN}wayvnc enabled (Tailscale + PAM); allow it with: sudo ufw allow in on tailscale0 to any port 5900 proto tcp${NC}"
+    echo "${GREEN}wayvnc enabled (all interfaces + PAM; ufw is the boundary); allow it with: sudo ufw allow in on tailscale0 to any port 5900 proto tcp${NC}"
   else
     systemctl --user enable wayvnc.service
     echo "${YELLOW}wayvnc unit enabled but the package is missing; run 'omarchy pkg add wayvnc' then 'systemctl --user start wayvnc'${NC}"
