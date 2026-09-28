@@ -21,7 +21,9 @@ Item {
   property bool authenticatingPassword: false
   property bool fingerprintAuthenticating: false
   property bool faceAuthenticating: false
-  property bool faceExplicit: false
+  // Gates facePam.config: Quickshell starts a PAM conversation as soon as the
+  // context has a config, so it stays empty until startFace arms a scan.
+  property bool facePamActive: false
   property bool passwordPamConfigured: false
   property bool fingerprintConfigured: false
   property bool faceConfigured: false
@@ -128,12 +130,11 @@ Item {
     authenticatingPassword = false
     fingerprintAuthenticating = false
     faceAuthenticating = false
-    faceExplicit = false
+    facePamActive = false
     fingerprintRetryTimer.stop()
-    faceRetryTimer.stop()
     if (passwordPam.active) passwordPam.abort()
     if (fingerprintPam.active) fingerprintPam.abort()
-    if (facePam.active) facePam.abort()
+    abortFace()
   }
 
   function beginLock() {
@@ -218,36 +219,41 @@ Item {
     runWake()
   }
 
-  // Bounded retry (faceRetryTimer), unlike the fingerprint reader's 250ms loop:
-  // facelock holds the camera and CPU for the whole scan.
-  function startFace(explicit) {
+  // Scans are explicit only: one per empty Enter, no retry loop and nothing on
+  // lock. An idle locked laptop must not keep waking the camera and burning CPU.
+  // The Loader's onLoaded starts the conversation; see facePamLoader.
+  function startFace() {
     if (!lockRequested || !sessionLock.secure || !faceConfigured) return
-    if (facePam.active || faceAuthenticating || authenticatingPassword) return
+    if (facePamActive || faceAuthenticating || authenticatingPassword) return
 
-    faceExplicit = !!explicit
     faceAuthenticating = true
-    if (explicit) failureMessage = ""
-    if (!facePam.start()) {
-      faceAuthenticating = false
-      faceExplicit = false
-    }
+    failureMessage = ""
+    facePamActive = true
+  }
+
+  function abortFace() {
+    // Clear the guard before aborting: abort may fire onCompleted, and
+    // handleFaceFinished treats "not authenticating" as a teardown, not a miss.
+    faceAuthenticating = false
+    var pam = facePamLoader.item
+    if (pam && pam.active) pam.abort()
+    facePamActive = false
+  }
+
+  function reportFaceFailure() {
+    if (!lockRequested) return
+    failureMessage = "Face not recognized"
+    runWake()
   }
 
   function handleFaceFinished(result) {
-    var wasExplicit = faceExplicit
+    if (!faceAuthenticating) return
     faceAuthenticating = false
-    faceExplicit = false
+    facePamActive = false
 
     if (!lockRequested) return
-    if (result === PamResult.Success) {
-      finishUnlock()
-    } else {
-      if (wasExplicit) {
-        failureMessage = "Face not recognized"
-        runWake()
-      }
-      if (faceConfigured) faceRetryTimer.restart()
-    }
+    if (result === PamResult.Success) finishUnlock()
+    else reportFaceFailure()
   }
 
   function startFingerprint() {
@@ -283,7 +289,6 @@ Item {
         sessionLockStabilizeTimer.stop()
         pendingSessionLockTimer.stop()
         root.startFingerprint()
-        root.startFace(false)
       }
     }
 
@@ -326,7 +331,7 @@ Item {
         passwordText: root.enteredPassword
         onPasswordTextEdited: function(password) { root.enteredPassword = password }
         onSubmitPassword: function(password) { root.submitPassword(password) }
-        onSubmitFace: root.startFace(true)
+        onSubmitFace: root.startFace()
         onClearFailureRequested: root.failureMessage = ""
         onWakeRequested: root.runWake()
       }
@@ -403,25 +408,37 @@ Item {
     }
   }
 
-  PamContext {
-    id: facePam
-    config: "omarchy-lock-face"
-    user: root.userName
+  // Loaded only while a scan runs. Quickshell starts the PAM conversation the
+  // moment a PamContext has a config, so a permanently mounted context would
+  // scan on every lock with no user input. The Loader tears the context down
+  // again after each scan.
+  Loader {
+    id: facePamLoader
+    active: root.facePamActive
 
-    onCompleted: function(result) {
-      root.handleFaceFinished(result)
+    sourceComponent: PamContext {
+      id: facePam
+      config: "omarchy-lock-face"
+      user: root.userName
+
+      onCompleted: function(result) {
+        root.handleFaceFinished(result)
+      }
+
+      onError: function(error) {
+        root.faceAuthenticating = false
+        root.facePamActive = false
+        root.reportFaceFailure()
+      }
     }
 
-    onError: function(error) {
-      var wasExplicit = root.faceExplicit
-      root.faceAuthenticating = false
-      root.faceExplicit = false
-      if (!root.lockRequested) return
-      if (wasExplicit) {
-        root.failureMessage = "Face not recognized"
-        root.runWake()
+    onLoaded: {
+      if (!root.faceAuthenticating) return
+      if (!item.start()) {
+        root.faceAuthenticating = false
+        root.facePamActive = false
+        root.reportFaceFailure()
       }
-      if (root.faceConfigured) faceRetryTimer.restart()
     }
   }
 
@@ -430,13 +447,6 @@ Item {
     interval: 250
     repeat: false
     onTriggered: root.startFingerprint()
-  }
-
-  Timer {
-    id: faceRetryTimer
-    interval: 1200
-    repeat: false
-    onTriggered: root.startFace(false)
   }
 
   Process {
@@ -472,8 +482,7 @@ Item {
     onExited: {
       root.faceConfigured = String(faceCheckStdout.text || "").trim() === "yes"
       root.logEvent("face-configured=" + root.faceConfigured)
-      if (root.lockRequested && sessionLock.secure && root.faceConfigured) root.startFace(false)
-      else if (!root.faceConfigured && facePam.active) facePam.abort()
+      if (!root.faceConfigured) root.abortFace()
     }
   }
 

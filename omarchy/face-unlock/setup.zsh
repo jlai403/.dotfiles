@@ -57,6 +57,9 @@ def set_key(text, section, key, value):
 text = set_key(text, "device", "path", f'"{device}"')
 text = set_key(text, "security", "require_ir", "false")
 text = set_key(text, "security", "abort_if_ssh", "false")
+# Scans are explicit-only (one per empty Enter), so release the camera at once
+# instead of holding it streaming between attempts.
+text = set_key(text, "device", "camera_release_secs", "0")
 path.write_text(text)
 PY
 
