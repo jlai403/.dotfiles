@@ -26,7 +26,7 @@ format = "[$output]($style) "
 style = "bold #82aaff"
 command = '''
 if root=$(git rev-parse --show-toplevel 2>/dev/null); then
-  printf '%s %s%s\n' " " "$(basename "$root")" "${PWD#"$root"}"
+  printf '\357\204\246 %s%s\n' "$(basename "$root")" "${PWD#"$root"}"
 else
   case "$PWD" in
     "$HOME") d="~" ;;
