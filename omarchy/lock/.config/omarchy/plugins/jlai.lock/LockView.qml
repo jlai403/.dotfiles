@@ -219,6 +219,10 @@ Item {
         }
 
         onAccepted: {
+          // A held or wedged Return auto-repeats onAccepted the same way it
+          // repeats character keys (omarchy#7805), which would queue a face scan
+          // per repeat. Let the Service debounce; just don't re-trigger here.
+          if (root.faceAuthenticating) return
           var submitted = root.passwordText
           root.passwordTextEdited("")
           if (submitted.length > 0) root.submitPassword(submitted)

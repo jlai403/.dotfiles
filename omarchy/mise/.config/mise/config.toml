@@ -1,9 +1,13 @@
 [tools]
 claude = "latest"
 codex = "latest"
+gemini = { version = "latest", allow_builds = ["@github/keytar", "node-pty"] }
 gh = "latest"
+"http:muse" = { version = "latest", url = "https://api.meta.ai/muse-launcher.sh", bin = "muse", version_list_url = "https://api.meta.ai/muse-code/channels/muse-stable", version_json_path = ".version" }
 node = "26.8.1"
+"npm:@xai-official/grok" = "latest"
 opencode = "latest"
+pi = "latest"
 
 [settings.upgrade]
 auto_prune = false
