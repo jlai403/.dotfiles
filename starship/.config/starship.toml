@@ -2,7 +2,7 @@
 command_timeout = 200
 
 format = """
-$directory$git_branch$git_status${custom.venv}$nodejs$bun$rust$deno$aws$cmd_duration
+${custom.cwd}$git_branch$git_status${custom.venv}$nodejs$bun$rust$deno$aws$cmd_duration
 $character"""
 
 right_format = "$battery$time"
@@ -19,12 +19,23 @@ style = "bold #ff757f"
 threshold = 100
 style = "#636da6"
 
-[directory]
+[custom.cwd]
+when = true
+shell = ["sh"]
+format = "[$output]($style) "
 style = "bold #82aaff"
-format = "[$path]($style) "
-truncation_length = 3
-truncation_symbol = "…/"
-truncate_to_repo = false
+command = '''
+if root=$(git rev-parse --show-toplevel 2>/dev/null); then
+  printf '%s %s%s\n' " " "$(basename "$root")" "${PWD#"$root"}"
+else
+  case "$PWD" in
+    "$HOME") d="~" ;;
+    "$HOME"/*) d="~${PWD#"$HOME"}" ;;
+    *) d="$PWD" ;;
+  esac
+  printf '%s\n' "$d" | awk -F/ '{ if (NF > 3) printf "…/%s/%s/%s\n", $(NF-2), $(NF-1), $NF; else print }'
+fi
+'''
 
 [git_branch]
 symbol = ""
