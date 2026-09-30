@@ -64,7 +64,7 @@ style = "#636da6"
 format = "[$symbol($version)]($style) "
 
 [bun]
-symbol = "\ue769 "
+symbol = "🥟 "
 style = "#636da6"
 format = "[$symbol($version)]($style) "
 
