@@ -113,6 +113,23 @@ tasks:
       - sudo systemctl enable --now keyd
       - echo "keyd installed — hold CapsLock = Hyper (C-M-A), tap = Esc"
 
+  dgpu:status:
+    desc: Show the AMD dGPU power state (vga_switcheroo)
+    cmds:
+      - sudo cat /sys/kernel/debug/vgaswitcheroo/switch
+
+  dgpu:off:
+    desc: Disable the AMD dGPU on next boot (vga_switcheroo) and reboot
+    cmds:
+      - sudo systemctl enable amdgpu-off.service
+      - sudo reboot
+
+  dgpu:on:
+    desc: Re-enable the AMD dGPU on next boot and reboot
+    cmds:
+      - sudo systemctl disable amdgpu-off.service
+      - sudo reboot
+
   face:setup:
     desc: Install and configure facelock face unlock (sudo, polkit, lock screen)
     cmds:
