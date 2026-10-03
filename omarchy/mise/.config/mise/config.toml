@@ -8,6 +8,7 @@ node = "26.8.1"
 "npm:@xai-official/grok" = "latest"
 opencode = "latest"
 pi = "latest"
+"github:steipete/spogo" = "latest"
 
 [settings.upgrade]
 auto_prune = false
