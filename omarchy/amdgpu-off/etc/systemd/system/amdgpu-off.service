@@ -1,0 +1,17 @@
+[Unit]
+Description=Disable the AMD dGPU via vga_switcheroo (T2 Mac hybrid graphics)
+Documentation=https://wiki.t2linux.org/guides/hybrid-graphics/
+# Both i915 and amdgpu must have registered with vga_switcheroo before the
+# switch node exists.
+After=systemd-modules-load.service
+Before=display-manager.service
+
+[Service]
+Type=oneshot
+# Retry for up to 30s: the debugfs node appears only once both GPU drivers have
+# probed. Off, the dGPU never enters the suspend path (its SMU fails to resume
+# from s2idle and wedges the kernel).
+ExecStart=/bin/sh -c 'for i in $(seq 1 30); do [ -e /sys/kernel/debug/vgaswitcheroo/switch ] && exec sh -c "echo OFF > /sys/kernel/debug/vgaswitcheroo/switch"; sleep 1; done; exit 1'
+
+[Install]
+WantedBy=multi-user.target

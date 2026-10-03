@@ -239,6 +239,19 @@ _os_configure() {
       print "$gmux_md5" > "$gmux_stamp"
       echo "${GREEN}T2 hybrid GPU: internal panel on Intel iGPU (apple_gmux force_igd=y)${NC}"
     fi
+
+    # Hybrid-GPU T2 Macs (Navi 14 dGPU): power the AMD GPU off at boot via
+    # vga_switcheroo. Its SMU firmware fails to resume from s2idle, which wedges
+    # the kernel (sdma ring timeout storm) and forces a power cycle; off, the
+    # suspend path never touches it. Trade-off: external displays are wired to
+    # the dGPU, so they stop working. Enable-only — starting it now would race
+    # Hyprland's open card3 fd; on next boot the GPU is off before the compositor.
+    if lspci -nn 2>/dev/null | grep -qE '1002:7340'; then
+      sudo stow -d "$DOTS_DIR/omarchy" -t / amdgpu-off
+      sudo systemctl daemon-reload
+      sudo systemctl enable amdgpu-off.service
+      echo "${GREEN}T2 hybrid GPU: AMD dGPU disabled on next boot (amdgpu-off.service)${NC}"
+    fi
   else
     echo "${YELLOW}T2 suspend: not a T2 Mac, skipping${NC}"
   fi
