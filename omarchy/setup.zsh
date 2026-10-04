@@ -244,10 +244,17 @@ _os_configure() {
     # vga_switcheroo. Its SMU firmware fails to resume from s2idle, which wedges
     # the kernel (sdma ring timeout storm) and forces a power cycle; off, the
     # suspend path never touches it. Trade-off: external displays are wired to
-    # the dGPU, so they stop working. Enable-only — starting it now would race
-    # Hyprland's open card3 fd; on next boot the GPU is off before the compositor.
+    # the dGPU, so they stop working.
+    # Copied, not stowed: systemd loads unit files before the @home subvol is
+    # mounted, so a symlink into ~/.dotfiles reads as missing (LoadState=not-found)
+    # and the enabled unit is skipped — same class as gmux/libinput. Enable-only;
+    # starting it now would race Hyprland's open card3 fd.
     if lspci -nn 2>/dev/null | grep -qE '1002:7340'; then
-      sudo stow -d "$DOTS_DIR/omarchy" -t / amdgpu-off
+      sudo rm -f /etc/systemd/system/amdgpu-off.service
+      sudo rm -f /etc/systemd/system/multi-user.target.wants/amdgpu-off.service
+      sudo install -Dm644 \
+        "$DOTS_DIR/omarchy/amdgpu-off/etc/systemd/system/amdgpu-off.service" \
+        /etc/systemd/system/amdgpu-off.service
       sudo systemctl daemon-reload
       sudo systemctl enable amdgpu-off.service
       echo "${GREEN}T2 hybrid GPU: AMD dGPU disabled on next boot (amdgpu-off.service)${NC}"
