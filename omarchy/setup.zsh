@@ -259,6 +259,14 @@ _os_configure() {
       sudo systemctl enable amdgpu-off.service
       echo "${GREEN}T2 hybrid GPU: AMD dGPU disabled on next boot (amdgpu-off.service)${NC}"
     fi
+
+    # The T2 iBridge Ethernet (05ac:8233, cdc_ncm on the BCE VHCI) never gets a
+    # DHCP lease, and NetworkManager retrying it after s2idle resume correlates
+    # with hard hangs. Leave the device to the kernel. Matched by interface name
+    # so it can't catch USB-C Ethernet dongles on the Thunderbolt buses.
+    sudo stow -d "$DOTS_DIR/omarchy" -t / networkmanager
+    sudo systemctl reload NetworkManager 2>/dev/null || true
+    echo "${GREEN}T2 iBridge Ethernet: left unmanaged (NetworkManager)${NC}"
   else
     echo "${YELLOW}T2 suspend: not a T2 Mac, skipping${NC}"
   fi
