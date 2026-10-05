@@ -1,5 +1,6 @@
 .DS_Store
 .stow-state/
+__pycache__/
 .opencode/plans/
 .superpowers/
 .worktrees/
