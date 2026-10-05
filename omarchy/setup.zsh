@@ -73,6 +73,8 @@ _os_stow_packages() {
   # iStat-style stats bar widget (CPU/RAM/disk/temp sparklines + detail popup).
   _stow_platform stats
   _stow_platform fcitx5
+  # On-demand SMB mounts for the NAS (nas ls|mount|umount|status -> ~/.local/bin/nas).
+  _stow_platform nas
 
   # Google Drive mount: rclone remote gdrive: -> ~/Google Drive
   mkdir -p "$HOME/Google Drive"

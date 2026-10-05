@@ -1,0 +1,296 @@
+#!/usr/bin/env zsh
+# nas — mount SMB shares from your NAS on demand (Linux, cifs).
+#
+# Usage:
+#   nas ls [user@]host                     list shares on a host
+#   nas mount [user@]host[/share] ...      mount (no share -> picker, --all -> every share)
+#   nas umount <spec|mountpoint> ... | --all
+#   nas status                             show mounted /mnt/nas/* mounts
+#
+# Flags for mount: --all  --ro  --vers=DIALECT
+#
+# Prompts once per host for a password (never stored, never in argv). No
+# automount, no boot mount. Mounts live under /mnt/nas/<host>/<share>.
+
+set -uo pipefail
+
+PROG=${0:t}
+MOUNT_ROOT=${NAS_MOUNT_ROOT:-/mnt/nas}
+USER_DEFAULT=${NAS_USER:-$USER}
+NAS_HOSTS=${NAS_HOSTS:-"joey@dns323.lan joey@cockpit.lan"}
+
+typeset -A AUTH
+AUTH_DIR=""
+AUTH_FILE=""
+RO=0
+VERS=""
+
+log() { print -u2 -- "$@" }
+die() { log "error: $1"; exit 1; }
+need() { (( $+commands[$1] )) || die "missing dependency: $1"; }
+
+cleanup() {
+    [[ -n "$AUTH_DIR" && -d "$AUTH_DIR" ]] || return 0
+    local f
+    for f in "$AUTH_DIR"/*(N); do
+        shred -u "$f" 2>/dev/null || rm -f "$f"
+    done
+    rmdir "$AUTH_DIR" 2>/dev/null || rm -rf "$AUTH_DIR"
+}
+trap cleanup EXIT INT TERM
+
+usage() {
+    print -- "Usage: $PROG <ls|mount|umount|status> [user@]host[/share] ..."
+    print --
+    print -- "  ls   HOST...                          list shares on a host"
+    print -- "  mount [user@]host[/share] ...         mount; omit share to pick"
+    print -- "        --all                           all shares of the host(s);"
+    print -- "                                        with no host, all of NAS_HOSTS"
+    print -- "        --ro                            read-only"
+    print -- "        --vers=DIALECT                  force an SMB dialect (e.g. 2.0, 3.1.1)"
+    print -- "  umount <spec|/mnt/...> | --all"
+    print -- "  status"
+    print --
+    print -- "Mounts live under $MOUNT_ROOT/<host>/<share>."
+}
+
+parse_spec() {
+    local s=$1 hostpart=$1
+    P_USER=""; P_HOST=""; P_SHARE=""
+    if [[ $s == */* ]]; then
+        P_SHARE=${s##*/}
+        hostpart=${s%%/*}
+    fi
+    if [[ $hostpart == *@* ]]; then
+        P_USER=${hostpart%%@*}
+        P_HOST=${hostpart#*@}
+    else
+        P_HOST=$hostpart
+    fi
+    P_HOST=${P_HOST%%/*}
+    [[ -n $P_USER ]] || P_USER=$USER_DEFAULT
+}
+
+ensure_auth_dir() {
+    [[ -n "$AUTH_DIR" ]] && return 0
+    AUTH_DIR=$(mktemp -d "${TMPDIR:-/tmp}/nas.XXXXXX") || die "mktemp failed"
+    chmod 700 "$AUTH_DIR"
+}
+
+# Prompt once per user@host, cache the temp auth file, set AUTH_FILE.
+auth_for() {
+    local user=$1 host=$2 key="$1@$2" pw f
+    if [[ -n "${AUTH[$key]:-}" ]]; then
+        AUTH_FILE=${AUTH[$key]}
+        return 0
+    fi
+    ensure_auth_dir
+    IFS= read -rs "pw?Password for $user@$host: "
+    print -u2 -- ""
+    [[ -n $pw ]] || die "empty password for $user@$host"
+    f="$AUTH_DIR/$key"
+    { print -r -- "username=$user"; print -r -- "password=$pw"; } >! "$f"
+    chmod 600 "$f"
+    AUTH[$key]=$f
+    AUTH_FILE=$f
+}
+
+require_smbclient() { need smbclient; }
+
+list_shares() {
+    # stdin-free; pass an auth file. Prints share names one per line.
+    smbclient -A "$2" -L "//$1" 2>/dev/null \
+        | awk '$2 == "Disk" && $1 != "print$" && $1 != "IPC$" {print $1}'
+}
+
+pick_share() {
+    local host=$1 auth=$2
+    local -a shares
+    shares=("${(@f)$(list_shares "$host" "$auth")}")
+    shares=(${shares:#})
+    (( ${#shares} )) || die "no shares found on $host"
+    if (( ${#shares} == 1 )); then
+        print -r -- "${shares[1]}"
+        return 0
+    fi
+    if (( $+commands[fzf] )); then
+        print -rl -- "${shares[@]}" | fzf --prompt="$host> " --height=40% --reverse
+        return $?
+    fi
+    local i=1 s choice
+    print -u2 -- "Shares on $host:"
+    for s in "${shares[@]}"; do
+        print -u2 -- "  $i) $s"
+        (( i++ ))
+    done
+    read "choice?Select [1-${#shares}]: "
+    [[ -n ${shares[$choice]:-} ]] || die "invalid selection"
+    print -r -- "${shares[$choice]}"
+}
+
+mount_one() {
+    local host=$1 share=$2 auth=$3 mp="$MOUNT_ROOT/$1/$2"
+    if mountpoint -q "$mp" 2>/dev/null; then
+        log "already mounted: $mp"
+        return 0
+    fi
+    sudo mkdir -p "$mp" || { log "mkdir failed: $mp"; return 1; }
+    # Make the tree traversable by the user (sudo's umask can leave it 700).
+    sudo chmod 0755 "$MOUNT_ROOT" "$MOUNT_ROOT/$host" "$mp"
+    local opts="credentials=$auth,uid=$(id -u),gid=$(id -g),iocharset=utf8"
+    (( RO )) && opts+=",ro"
+    [[ -n $VERS ]] && opts+=",vers=$VERS"
+    if sudo mount -t cifs "//$host/$share" "$mp" -o "$opts"; then
+        log "mounted  //$host/$share -> $mp"
+        return 0
+    fi
+    if [[ -z $VERS ]]; then
+        log "retry    //$host/$share (vers=2.0)"
+        if sudo mount -t cifs "//$host/$share" "$mp" -o "$opts,vers=2.0"; then
+            log "mounted  //$host/$share -> $mp (vers=2.0)"
+            return 0
+        fi
+    fi
+    log "failed   //$host/$share"
+    return 1
+}
+
+find_mounts() {
+    findmnt -rn -t cifs -o TARGET 2>/dev/null | awk -v r="$MOUNT_ROOT" '$0 ~ "^"r"/"'
+}
+
+cmd_ls() {
+    (( $# )) || die "usage: $PROG ls [user@]host"
+    require_smbclient
+    parse_spec "$1"
+    [[ -z $P_SHARE ]] || die "ls takes a host, not a share: $1"
+    auth_for "$P_USER" "$P_HOST" || exit 1
+    local -a shares
+    shares=("${(@f)$(list_shares "$P_HOST" "$AUTH_FILE")}")
+    shares=(${shares:#})
+    (( ${#shares} )) || die "no shares found on $P_HOST"
+    print -rl -- "${shares[@]}"
+}
+
+cmd_mount() {
+    need mountpoint
+    need sudo
+    local all=0
+    local -a specs
+    while (( $# )); do
+        case "$1" in
+            --all) all=1 ;;
+            --ro) RO=1 ;;
+            --vers) VERS=$2; shift ;;
+            --vers=*) VERS=${1#*=} ;;
+            -h|--help) usage; exit 0 ;;
+            -*) die "unknown flag: $1" ;;
+            *) specs+=("$1") ;;
+        esac
+        shift
+    done
+    if (( ${#specs} == 0 )); then
+        if (( all )) && [[ -n $NAS_HOSTS ]]; then
+            specs=(${=NAS_HOSTS})
+        else
+            usage
+            exit 1
+        fi
+    fi
+
+    local rc=0 s share
+    for s in "${specs[@]}"; do
+        parse_spec "$s"
+        auth_for "$P_USER" "$P_HOST" || { rc=1; continue; }
+
+        local -a shares
+        if [[ -n $P_SHARE ]]; then
+            shares=("$P_SHARE")
+        elif (( all )); then
+            require_smbclient
+            shares=("${(@f)$(list_shares "$P_HOST" "$AUTH_FILE")}")
+            shares=(${shares:#})
+        else
+            require_smbclient
+            share=$(pick_share "$P_HOST" "$AUTH_FILE") || { rc=1; continue; }
+            shares=("$share")
+        fi
+
+        (( ${#shares} )) || { log "no shares for $P_HOST"; rc=1; continue; }
+        for share in "${shares[@]}"; do
+            mount_one "$P_HOST" "$share" "$AUTH_FILE" || rc=1
+        done
+    done
+    return $rc
+}
+
+cmd_umount() {
+    need mountpoint
+    need sudo
+    local all=0
+    local -a targets mps
+    while (( $# )); do
+        case "$1" in
+            --all) all=1 ;;
+            -h|--help) usage; exit 0 ;;
+            -*) die "unknown flag: $1" ;;
+            *) targets+=("$1") ;;
+        esac
+        shift
+    done
+
+    if (( all )); then
+        mps=("${(@f)$(find_mounts)}")
+    else
+        (( ${#targets} )) || die "usage: $PROG umount <spec|mountpoint> ... | --all"
+        local t
+        for t in "${targets[@]}"; do
+            if [[ $t == /* ]]; then
+                mps+=("$t")
+            else
+                parse_spec "$t"
+                [[ -n $P_SHARE ]] || die "spec needs a share or a mountpoint: $t"
+                mps+=("$MOUNT_ROOT/$P_HOST/$P_SHARE")
+            fi
+        done
+    fi
+
+    mps=(${mps:#})
+    (( ${#mps} )) || { log "nothing mounted"; return 0; }
+    local rc=0 mp
+    for mp in "${mps[@]}"; do
+        mountpoint -q "$mp" 2>/dev/null || { log "not mounted: $mp"; continue; }
+        if sudo umount "$mp"; then
+            log "unmounted $mp"
+        else
+            log "failed to unmount $mp (busy?)"
+            rc=1
+        fi
+    done
+    return $rc
+}
+
+cmd_status() {
+    need findmnt
+    local out
+    out=$(findmnt -rn -t cifs -o TARGET,SOURCE 2>/dev/null | awk -v r="$MOUNT_ROOT" '$1 ~ "^"r"/"')
+    if [[ -z $out ]]; then
+        log "no mounts under $MOUNT_ROOT"
+        return 0
+    fi
+    print -r -- "$out"
+}
+
+main() {
+    local sub=${1:-}
+    case "$sub" in
+        ls) shift; cmd_ls "$@" ;;
+        mount) shift; cmd_mount "$@" ;;
+        umount|unmount) shift; cmd_umount "$@" ;;
+        status) shift; cmd_status "$@" ;;
+        ""|-h|--help) usage ;;
+        *) die "unknown command: $sub (try: $PROG --help)" ;;
+    esac
+}
+
+main "$@"
