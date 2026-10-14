@@ -74,53 +74,8 @@ _setup_agents() {
 }
 
 _install_skills() {
-  echo "${YELLOW}Installing skills via npx skills...${NC}"
-  local skills_src="$HOME/.agents/skills"
-  local skills_file="$DOTS_DIR/skills/skills.yml"
-  local skills_version="1.7.0"
-
-  # nuke all installed skills for clean state
-  echo "${YELLOW}  Removing all installed skills...${NC}"
-  npx "skills@${skills_version}" remove -g --all -y 2>/dev/null
-  rm -rf "$skills_src"/*(N)
-
-  # install from config
-  local repos=("${(@f)$(yq -r '.install | keys | .[]' "$skills_file")}")
-  local repo skills_val agents_raw a s
-  for repo in "${repos[@]}"; do
-    skills_val=$(yq -r ".install[\"$repo\"].skills" "$skills_file")
-    agents_raw=$(yq -r ".install[\"$repo\"].agents | join(\",\")" "$skills_file")
-
-    local agent_flags=()
-    for a in "${(@s:,:)agents_raw}"; do
-      agent_flags+=(-a "$a")
-    done
-
-    local skill_flags=()
-    if [[ "$skills_val" == "*" ]]; then
-      skill_flags=(--skill '*')
-    else
-      local skill_names=("${(@f)$(yq -r ".install[\"$repo\"].skills | .[]" "$skills_file")}")
-      for s in "${skill_names[@]}"; do
-        skill_flags+=(--skill "$s")
-      done
-    fi
-
-    echo "  Installing $repo..."
-    npx "skills@${skills_version}" add -g -y "$repo" "${skill_flags[@]}" "${agent_flags[@]}"
-  done
-
-  echo "${YELLOW}Linking personal skills...${NC}"
-  local personal_real="$(readlink -f "$DOTS_DIR/skills/personal/skills/code-like-joey")"
-  local dir dir_real
-  for dir in ~/.claude/skills ~/.gemini/antigravity/skills ~/.gemini/skills ~/.config/opencode/skills; do
-    mkdir -p "$dir"
-    # Skip agent dirs that resolve into the personal skill itself — linking
-    # through them would drop links inside the repo's own skill dir.
-    dir_real="$(readlink -f "$dir")"
-    [[ "$dir_real" == "$personal_real" || "$dir_real" == "$personal_real"/* ]] && continue
-    ln -sf "$DOTS_DIR/skills/personal/skills/"* "$dir"
-  done
+  echo "${YELLOW}Installing skills from jlai403/skills...${NC}"
+  curl -fsSL https://raw.githubusercontent.com/jlai403/skills/main/install.sh | bash
 }
 
 _setup_ssh() {

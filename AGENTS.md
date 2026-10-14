@@ -105,9 +105,8 @@ On Omarchy (Arch Linux), zsh is the user shell (not bash). `omarchy/setup.zsh:_o
 - `macos/backups/stats-menu/` — Stats.app menu bar plist
 
 ### Skills
-Defined in `skills/skills.yml` — single source of truth for install + linking.
-`lib/shared.zsh` (`_install_skills`) nukes all installed skills and reinstalls from config (idempotent).
-Only `skills/personal/` (code-like-joey) lives in-repo — symlinked to agent dirs.
+Defined in the separate `jlai403/skills` repo — `skills.yml` is the single source of truth, `install.sh` parses it and runs `npx skills add` for each entry (including the repo itself for personal skills like `coding-preferences`).
+`lib/shared.zsh` (`_install_skills`) curls `install.sh` from that repo — no skill logic lives in dotfiles.
 
 **Zsh array note**: The `npx skills add` call in `main.zsh` uses zsh arrays (`agent_flags=()`, `skill_flags=()`) with `"${arr[@]}"` expansion — never string concatenation. Zsh does not word-split unquoted variables, so `$skill_flags $agent_flags` would pass everything as a single arg. Related pitfall: an **unquoted** `$(...)` nested inside `${(...)}` (e.g. `${(f)$(grep ...)}`) has its lines joined with the first IFS char *before* the flag applies, collapsing everything into one element — always quote the substitution: `${(f)"$(...)"}`. (This silently broke `omarchy/Pkgfile` package parsing; `omarchy/setup.zsh:_os_install_apps` now uses the quoted form.) **Never name a local `path`**: zsh's `path` array is tied to `PATH`, so `local path` shadows it and subprocesses inside that function get an empty PATH (`command not found` for everything). (`lib/stow.zsh`'s `_snapshot_adopted` hit this; it uses `relpath`.)
 
