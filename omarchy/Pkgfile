@@ -23,7 +23,10 @@ keyd
 # already the running kernel). Drives the niraj-envision/touch-bar plugin.
 tiny-dfr
 
-# 3D printing (AUR): UltiMaker Cura slicer, wraps the official AppImage
+# 3D printing
+# Programmer's solid 3D modeller (repo: extra, Qt5/XWayland)
+openscad
+# UltiMaker Cura slicer, wraps the official AppImage (AUR)
 cura-bin
 
 # Google Drive FUSE mount (rclone)
