@@ -16,7 +16,7 @@ GNU Stow-based dotfiles repo for macOS (silicon Mac) and [Omarchy](https://omarc
 - `Brewfile` — Homebrew brews and casks
 - `omarchy/Pkgfile` — package list (Linux Brewfile equivalent) consumed by `main.zsh --apps`; official-repo and AUR packages can be mixed (yay resolves each name, repo packages go through pacman's backend); dev toolchains stay in mise. `tiny-dfr` (Touch Bar renderer) comes from the `arch-mact2` repo (configured in `/etc/pacman.conf`; depends on `linux-t2`, the running T2 kernel); the 3D-printing group holds `openscad` (repo `extra`, Qt5 → XWayland) and the AUR `cura-bin`
 - `omarchy/plugins.yml` — Omarchy shell plugin manifest consumed by `omarchy/setup.zsh`'s `_install_omarchy_plugins`; each entry is a git clone into `~/.config/omarchy/plugins/<id>/` (real checkout, not stowed), with `enable: true` passing `--enable`; skipped when the plugin dir already exists. The `id` field is the install dir (its manifest id, e.g. `io.github.niraj-envision.touch-bar`, which differs from the URL basename `touch-bar`) — `_install_omarchy_plugins` uses it for the skip check and falls back to `${url:t:r}`. Cloning doesn't run a plugin's own `install.sh` — e.g. the `touch-bar` plugin needs `tiny-dfr` installed (`--apps`) and then its installer run once from the bar widget (installs `~/.local/bin` helpers + a user service, and needs sudo for `/etc/tiny-dfr` + the backlight udev rule). `_os_configure` covers the two things that installer omits: it adds `$USER` to the `input` group (the digitizer and backlight are group `input`; takes effect next login) and enables `tiny-dfr.service`
-- `Taskfile.yml` — backup/restore tasks for Antigravity (VS Code fork), Zen browser, the 1Password allowed-browsers list (`omarchy/backups/1password/custom_allowed_browsers`), the keyd hyper-key config (`keyd:restore`), the T2 AMD dGPU toggle (`dgpu:status` / `dgpu:off` / `dgpu:on`), face unlock (`face:setup` / `face:remove`), and skill updates (`task skills:update` runs `npx skills update -g`)
+- `Taskfile.yml` — backup/restore tasks for Antigravity (VS Code fork), Zen browser, the 1Password allowed-browsers list (`omarchy/backups/1password/custom_allowed_browsers`), the keyd hyper-key config (`keyd:restore`), the T2 AMD dGPU toggle (`dgpu:status` / `dgpu:off` / `dgpu:on`), face unlock (`face:setup` / `face:remove`), and skill reinstall (`task skills:update` runs the `jlai.ca/skills` installer)
 - `global-agent-rules.md` — shared AI agent rules, symlinked to `~/.claude/CLAUDE.md`, `~/.config/opencode/AGENTS.md`, `~/.gemini/AGENTS.md`; contains the marker-fenced `CODEGRAPH_START`/`CODEGRAPH_END` block written by `codegraph install`
 
 ### Stow Packages (managed by `main.zsh`)
@@ -105,10 +105,11 @@ On Omarchy (Arch Linux), zsh is the user shell (not bash). `omarchy/setup.zsh:_o
 - `macos/backups/stats-menu/` — Stats.app menu bar plist
 
 ### Skills
-Defined in the separate `jlai403/skills` repo — `skills.yml` is the single source of truth, `install.sh` parses it and runs `npx skills add` for each entry (including the repo itself for personal skills like `coding-preferences`).
-`lib/shared.zsh` (`_install_skills`) curls `install.sh` from that repo — no skill logic lives in dotfiles.
+Defined in the separate `jlai403/skills` repo. Its `skills.yml` is the only config for them and no copy lives here. `install.sh` parses it and runs `npx skills add` for each entry, including that repo itself for personal skills like `coding-preferences`.
+`lib/shared.zsh` (`_install_skills`) runs that installer from `https://jlai.ca/skills`, which redirects to raw `install.sh` on `main`, so no skill logic lives in dotfiles. It needs `yq` (in Brewfile and Pkgfile) and `npx` (macOS: nvm, which the function loads when `npx` is missing; Linux: mise's node).
+Invoke it as `bash <(curl -fsSL https://jlai.ca/skills)`, never `curl … | bash`. Piped, a cold `npx` cache prompt reads script bytes off stdin and the install dies halfway. `install.sh` downloads `skills.yml` itself whenever it has no script path, so process substitution is still a curl install.
 
-**Zsh array note**: The `npx skills add` call in `main.zsh` uses zsh arrays (`agent_flags=()`, `skill_flags=()`) with `"${arr[@]}"` expansion — never string concatenation. Zsh does not word-split unquoted variables, so `$skill_flags $agent_flags` would pass everything as a single arg. Related pitfall: an **unquoted** `$(...)` nested inside `${(...)}` (e.g. `${(f)$(grep ...)}`) has its lines joined with the first IFS char *before* the flag applies, collapsing everything into one element — always quote the substitution: `${(f)"$(...)"}`. (This silently broke `omarchy/Pkgfile` package parsing; `omarchy/setup.zsh:_os_install_apps` now uses the quoted form.) **Never name a local `path`**: zsh's `path` array is tied to `PATH`, so `local path` shadows it and subprocesses inside that function get an empty PATH (`command not found` for everything). (`lib/stow.zsh`'s `_snapshot_adopted` hit this; it uses `relpath`.)
+**Zsh pitfalls**: an **unquoted** `$(...)` nested inside `${(...)}` (e.g. `${(f)$(grep ...)}`) has its lines joined with the first IFS char *before* the flag applies, collapsing everything into one element — always quote the substitution: `${(f)"$(...)"}`. (This silently broke `omarchy/Pkgfile` package parsing; `omarchy/setup.zsh:_os_install_apps` now uses the quoted form.) **Never name a local `path`**: zsh's `path` array is tied to `PATH`, so `local path` shadows it and subprocesses inside that function get an empty PATH (`command not found` for everything). (`lib/stow.zsh`'s `_snapshot_adopted` hit this; it uses `relpath`.)
 
 ### CodeGraph
 - CLI installed via standalone bundle (`~/.codegraph/` + `~/.local/bin/codegraph`); `lib/shared.zsh` (`_setup_agents`) installs it if missing and runs `codegraph install --target=opencode --location=global --yes` to wire the MCP server
@@ -131,11 +132,11 @@ The private `main.zsh` also runs `_ensure_home_route` (macOS, home LAN only): a 
 Never commit private dotfiles content to this repo.
 
 ## Build/Test Commands
-- Run setup: `./main.zsh` (base), `./main.zsh --apps` (install OS packages), `./main.zsh --osx` (macOS defaults), `./main.zsh --skills` (reinstall skills from `skills.yml` only — nukes and reinstalls all installed skills, no other bootstrap steps)
+- Run setup: `./main.zsh` (base), `./main.zsh --apps` (install OS packages), `./main.zsh --osx` (macOS defaults), `./main.zsh --skills` (reinstall skills from the `jlai403/skills` repo only, via its curlable installer; no wipe, no other bootstrap steps)
 - Verify symlinks: `ls -la ~ | grep -E '\.dotfiles'`
 - Dry-run stow (no changes): `stow -nv -t /tmp/stowtest <pkg>` for root packages, or `stow -nv -d macos -t /tmp/stowtest <pkg>` / `stow -nv -d omarchy -t /tmp/stowtest <pkg>` for platform packages
 - Verify skills: `npx skills list -g`
-- Update skills: `npx skills update -g` or `task skills:update`
+- Update skills: `task skills:update` (re-runs the installer, so `skills.yml` additions and removals land); `npx skills update -g` only refreshes installed versions
 - Set up / remove face unlock: `task face:setup` / `task face:remove` (facelock on the built-in RGB camera; see "Face unlock" above)
 - Toggle the T2 AMD dGPU: `task dgpu:status` (read power state), `task dgpu:off` / `task dgpu:on` (disable/enable on next boot, then reboot; see `amdgpu-off` above)
 - Verify codegraph: `codegraph --version` and `codegraph install --print-config opencode`

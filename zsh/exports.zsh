@@ -20,7 +20,7 @@ pyenv() { load-pyenv; pyenv "$@"; }
 
 load-nvm() {
   # prevent re-sourcing
-  unset -f nvm node npm yarn pnpm
+  unset -f nvm node npm npx yarn pnpm
   [ -s "$NVM_SH" ] && \. "$NVM_SH"
   [ -n "$NVM_COMPLETION" ] && [ -s "$NVM_COMPLETION" ] && \. "$NVM_COMPLETION"
 }
@@ -29,5 +29,6 @@ load-nvm() {
 nvm()  { load-nvm; nvm "$@"; }
 node() { load-nvm; node "$@"; }
 npm()  { load-nvm; npm "$@"; }
+npx()  { load-nvm; npx "$@"; }
 yarn() { load-nvm; yarn "$@"; }
 pnpm() { load-nvm; pnpm "$@"; }

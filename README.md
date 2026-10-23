@@ -118,7 +118,7 @@ Backed up manually or via `Taskfile.yml`:
 - `Brewfile` — Homebrew brews and casks
 - `omarchy/Pkgfile` — Linux package list (yay)
 - `global-agent-rules.md` — shared AI agent rules (symlinked to Claude, OpenCode, Gemini configs)
-- `skills/` — AI agent workflow skills (`skills.yml` is the install source of truth)
+- AI agent skills, defined in the separate [jlai403/skills](https://github.com/jlai403/skills) repo; `lib/shared.zsh` runs its installer, nothing is tracked here
 
 ## Private Dotfiles
 
