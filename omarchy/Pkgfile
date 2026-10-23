@@ -35,5 +35,10 @@ rclone
 # Remote desktop: VNC server for the wlroots/Hyprland session (Tailscale + PAM)
 wayvnc
 
+# AWS: aws-vault keeps long-lived keys in 1Password (op-desktop backend);
+# aws-cli-v2 is the CLI aws-vault exec wraps (conflicts with aws-cli 1.x)
+aws-vault
+aws-cli-v2
+
 # Chat
 discord
