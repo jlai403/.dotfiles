@@ -88,9 +88,9 @@ tasks:
       - echo "Restored com.xiaogd.Doll.plist"
 
   skills:update:
-    desc: Update all skills via npx skills
+    desc: Reinstall all skills via the jlai.ca/skills installer
     cmds:
-      - npx "skills@1.5.9" update -g
+      - bash -c 'bash <(curl -fsSL https://jlai.ca/skills)'
       - echo "Skills updated"
 
   1password:backup:

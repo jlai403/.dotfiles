@@ -75,7 +75,11 @@ _setup_agents() {
 
 _install_skills() {
   echo "${YELLOW}Installing skills from jlai403/skills...${NC}"
-  curl -fsSL https://raw.githubusercontent.com/jlai403/skills/main/install.sh | bash
+  # The installer needs npx; our lazy nvm wrapper only fires interactively.
+  [ -n "$NVM_SH" ] && [ -s "$NVM_SH" ] && ! _have npx && \. "$NVM_SH"
+  # Process substitution, not a pipe: under `| bash` a cold npx cache prompt
+  # reads script bytes off stdin and the install dies halfway.
+  bash <(curl -fsSL https://jlai.ca/skills)
 }
 
 _setup_ssh() {
