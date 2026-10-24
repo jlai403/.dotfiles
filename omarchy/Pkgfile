@@ -40,5 +40,9 @@ wayvnc
 aws-vault
 aws-cli-v2
 
+# IaC: OpenTofu + terragrunt (macOS gets the same from Brewfile)
+opentofu
+terragrunt
+
 # Chat
 discord

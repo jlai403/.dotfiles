@@ -105,10 +105,11 @@ function awsv_add_role() {
 	echo "Added profile '${profile_name}' to ${config_file}"
 }
 
-# terragrunt
-alias tgf='terragrunt hcl format && terraform fmt --recursive'
+# terragrunt (Linux installs OpenTofu only; macOS also has terraform)
+alias tgf='terragrunt hcl format && tofu fmt --recursive'
+alias tg='TG_TF_PATH=$(which tofu) terragrunt'
+alias tgo='tg'
 alias tgt='TG_TF_PATH=$(which terraform) terragrunt'
-alias tgo='TG_TF_PATH=$(which tofu) terragrunt'
 cleartf() {
   local dirpath="${1:-.}"
   find "$dirpath" \
