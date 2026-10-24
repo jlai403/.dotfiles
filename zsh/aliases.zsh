@@ -49,7 +49,7 @@ function orphaned_symlinks() {
 
 # aws
 function awsv() {
-	aws-vault exec "$1" -- zsh -i
+	aws-vault exec "$@" -- zsh -i
 }
 
 function awsv_add_role() {
