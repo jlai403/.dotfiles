@@ -114,21 +114,20 @@ tasks:
       - echo "keyd installed — hold CapsLock = Hyper (C-M-A), tap = Esc"
 
   dgpu:status:
-    desc: Show the AMD dGPU power state (vga_switcheroo)
+    desc: Show the AMD dGPU PCI state (amdgpu should be unloaded and the device driverless)
     cmds:
-      - sudo cat /sys/kernel/debug/vgaswitcheroo/switch
+      - lspci -nnk -d 1002:7340 2>/dev/null || echo "dGPU not on the PCIe bus"
+      - lsmod | grep amdgpu || echo "amdgpu not loaded"
 
   dgpu:off:
-    desc: Disable the AMD dGPU on next boot (vga_switcheroo) and reboot
+    desc: Unbind the AMD dGPU now (driverless until reboot); fixes a wedged GPU without power-cycling
     cmds:
-      - sudo systemctl enable amdgpu-off.service
-      - sudo reboot
+      - sudo sh -c 'for d in /sys/bus/pci/drivers/amdgpu/*:*:*.*; do echo -n $d > /sys/bus/pci/drivers/amdgpu/unbind; done; echo "dGPU unbound"'
 
   dgpu:on:
-    desc: Re-enable the AMD dGPU on next boot and reboot
+    desc: Bind the AMD dGPU now (modprobe bypasses the boot blacklist; external displays live again — suspend-wedge risk until reboot)
     cmds:
-      - sudo systemctl disable amdgpu-off.service
-      - sudo reboot
+      - sudo modprobe amdgpu
 
   face:setup:
     desc: Install and configure facelock face unlock (sudo, polkit, lock screen)

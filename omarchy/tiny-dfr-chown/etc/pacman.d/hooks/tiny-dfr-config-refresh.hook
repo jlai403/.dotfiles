@@ -1,0 +1,9 @@
+[Trigger]
+Operation = Install
+Operation = Upgrade
+Target = tiny-dfr
+
+[Action]
+Description = Re-chown /etc/tiny-dfr/config.toml to the /etc/tiny-dfr owner (tiny-dfr pkg updates re-stamp it root:root, freezing omarchy-touchbar's live rendering)
+When = PostTransaction
+Exec = /bin/sh -c 'test -f /etc/tiny-dfr/config.toml && chown --reference=/etc/tiny-dfr /etc/tiny-dfr/config.toml || true'

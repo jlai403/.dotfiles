@@ -198,6 +198,18 @@ _os_configure() {
   fi
   _have tiny-dfr && sudo systemctl enable tiny-dfr
 
+  # tiny-dfr package updates ship their own /etc/tiny-dfr/config.toml and
+  # re-stamp it root:root, freezing omarchy-touchbar (which renders the Touch
+  # Bar by writing that file live). Watch it with a pacman hook; the hook
+  # re-chowns to the owner of /etc/tiny-dfr, which the touch-bar plugin's
+  # installer keeps user-owned.
+  if _have tiny-dfr; then
+    sudo mkdir -p /etc/pacman.d/hooks    # prevent stow folding the dir
+    sudo stow -d "$DOTS_DIR/omarchy" -t / tiny-dfr-chown
+    sudo chown "$USER:$USER" /etc/tiny-dfr/config.toml
+    echo "${GREEN}tiny-dfr Touch Bar: config stays user-renderable (pacman hook)${NC}"
+  fi
+
   # Hyper key (keyd): hold CapsLock = Hyper (C-M-A), tap = Esc.
   # Lives in /etc/keyd, so this stow needs root.
   sudo stow -d "$DOTS_DIR/omarchy" -t / keyd
@@ -242,24 +254,45 @@ _os_configure() {
       echo "${GREEN}T2 hybrid GPU: internal panel on Intel iGPU (apple_gmux force_igd=y)${NC}"
     fi
 
-    # Hybrid-GPU T2 Macs (Navi 14 dGPU): power the AMD GPU off at boot via
-    # vga_switcheroo. Its SMU firmware fails to resume from s2idle, which wedges
-    # the kernel (sdma ring timeout storm) and forces a power cycle; off, the
-    # suspend path never touches it. Trade-off: external displays are wired to
-    # the dGPU, so they stop working.
-    # Copied, not stowed: systemd loads unit files before the @home subvol is
-    # mounted, so a symlink into ~/.dotfiles reads as missing (LoadState=not-found)
-    # and the enabled unit is skipped — same class as gmux/libinput. Enable-only;
-    # starting it now would race Hyprland's open card3 fd.
+    # Hybrid-GPU T2 Macs (Navi 14 dGPU): take the AMD GPU fully out of the
+    # kernel instead of leashing it with vgaswitcheroo. With no driver bound
+    # it can never wedge suspend (SMU resume failure → sdma ring timeout
+    # storm) nor expose the phantom eDP connector whose HPD assertion makes
+    # DRM connector names depend on GPU probe order — on one boot the probe
+    # order flipped and the internal panel came up named eDP-2, the connector
+    # the Hyprland config disables, leaving a black desktop after login.
+    # Trade-off: external displays are wired to the dGPU, so they stop working
+    # (task dgpu:on brings it back manually).
+    # Copied, not stowed: kmod parses /etc/modprobe.d during coldplug, before
+    # /home (@home subvol) mounts, so a symlink into ~/.dotfiles can't be
+    # stat'd (same reason gmux/libinput are copied). The blacklist must be
+    # baked into the initramfs too (the kms hook autoloads amdgpu there), so
+    # mkinitcpio -P runs only when the config changed; a gitignored md5 stamp
+    # tracks it (kernel updates rebuild via stock hooks).
     if lspci -nn 2>/dev/null | grep -qE '1002:7340'; then
+      # Migration: drop the previous vgaswitcheroo method (its 30s debugfs
+      # wait would stall a boot where amdgpu never loads).
+      sudo systemctl disable --now amdgpu-off.service 2>/dev/null
       sudo rm -f /etc/systemd/system/amdgpu-off.service
       sudo rm -f /etc/systemd/system/multi-user.target.wants/amdgpu-off.service
-      sudo install -Dm644 \
-        "$DOTS_DIR/omarchy/amdgpu-off/etc/systemd/system/amdgpu-off.service" \
-        /etc/systemd/system/amdgpu-off.service
-      sudo systemctl daemon-reload
-      sudo systemctl enable amdgpu-off.service
-      echo "${GREEN}T2 hybrid GPU: AMD dGPU disabled on next boot (amdgpu-off.service)${NC}"
+
+      local amdgpu_stamp="$DOTS_DIR/.stow-state/markers/amdgpu-blacklist-initcpio"
+      local amdgpu_conf="$DOTS_DIR/omarchy/amdgpu-off/etc/modprobe.d/blacklist-amdgpu.conf"
+      local amdgpu_md5="$(md5sum "$amdgpu_conf" | cut -d' ' -f1)"
+      if [[ -f "$amdgpu_stamp" ]] && [[ "$(<"$amdgpu_stamp")" == "$amdgpu_md5" ]]; then
+        echo "${YELLOW}T2 hybrid GPU: amdgpu blacklist already installed (initramfs stamped)${NC}"
+      else
+        rm -f "$amdgpu_stamp"   # stamp only re-written if install + rebuild succeed
+        if ! sudo install -Dm644 "$amdgpu_conf" /etc/modprobe.d/blacklist-amdgpu.conf; then
+          echo "${RED}T2 hybrid GPU: blacklist not installed (sudo failed) — rerun in an interactive shell${NC}"
+          return 1
+        fi
+        sudo mkinitcpio -P && {
+          mkdir -p "$DOTS_DIR/.stow-state/markers"
+          print "$amdgpu_md5" > "$amdgpu_stamp"
+        }
+      fi
+      echo "${GREEN}T2 hybrid GPU: AMD dGPU out of the kernel (modprobe blacklist; task dgpu:on rebinds)${NC}"
     fi
 
     # The T2 iBridge Ethernet (05ac:8233, cdc_ncm on the BCE VHCI) never gets a
