@@ -233,6 +233,42 @@ _os_configure() {
     sudo systemctl daemon-reload
     echo "${GREEN}T2 suspend: s2idle (freeze) configured${NC}"
 
+    # Titan Ridge xHCI pair (Thunderbolt 3, 8086:15ea/ec) dies on resume — enters
+    # d3cold during sleep, comes back "Controller not ready -19" → "HC died",
+    # leaving the iBridge USB bus dead and the machine freezing within minutes.
+    # Kernel-side attempts (pcie_ports=compat) don't fix it; these controllers
+    # expose no d3cold_allowed sysfs knob either. So: remove them pre-suspend and
+    # rescan post-resume (same remove/rescan pattern as t2linux's wifi
+    # workaround).
+    if lspci -nn 2>/dev/null | grep -qE '8086:15e[ac]'; then
+      sudo mkdir -p /etc/systemd/system-sleep        # prevent stow folding the dir
+      sudo stow -d "$DOTS_DIR/omarchy" -t / t2-titanridge
+      echo "${GREEN}T2 Titan Ridge xHCI suspend/resume workaround installed${NC}"
+    fi
+
+    # pcie_ports=compat (UKI cmdline): keeps PCIe port services on ACPI so the
+    # Broadcom wifi card (per t2linux wiki; rides the same Titan Ridge bridge)
+    # survives s2idle. Doesn't fix the xHCI d3cold hang above — that's the
+    # t2-titanridge hook — but is needed alongside it.
+    local pci_pm_conf="$DOTS_DIR/omarchy/t2-pcie-pm/etc/limine-entry-tool.d/90-t2-pcie-pm.conf"
+    local pci_pm_stamp="$DOTS_DIR/.stow-state/markers/t2-pcie-pm-uki"
+    local pci_pm_md5="$(md5sum "$pci_pm_conf" | cut -d' ' -f1)"
+    if [[ -f "$pci_pm_stamp" ]] && [[ "$(<"$pci_pm_stamp")" == "$pci_pm_md5" ]]; then
+      echo "${YELLOW}T2 pcie_ports=compat already configured${NC}"
+    else
+      # This conf was first installed by hand (Oct 26 testing) — drop any real
+      # file so stow can place its symlink (like the gmux pattern below).
+      [[ ! -L /etc/limine-entry-tool.d/90-t2-pcie-pm.conf ]] \
+        && sudo rm -f /etc/limine-entry-tool.d/90-t2-pcie-pm.conf
+      sudo stow -d "$DOTS_DIR/omarchy" -t / t2-pcie-pm
+      # UKIs embed the cmdline; the libalpm script's rebuild-all path is what
+      # regenerates them with entry-tool's merged cmdline.
+      echo /etc/limine-entry-tool.d | sudo /usr/share/libalpm/scripts/limine-mkinitcpio-install
+      mkdir -p "$(dirname "$pci_pm_stamp")"
+      print "$pci_pm_md5" > "$pci_pm_stamp"
+      echo "${GREEN}T2 pcie_ports=compat configured (UKI rebuilt)${NC}"
+    fi
+
     # Hybrid graphics: route the internal panel to the Intel iGPU via apple-gmux
     # (kills the amdgpu/i915 boot race and the wake-up ghost eDP-2 output).
     # Copied, not stowed: kmod parses /etc/modprobe.d during coldplug, before

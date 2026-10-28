@@ -1,0 +1,32 @@
+#!/bin/bash
+# Suspend fix for the Titan Ridge (Thunderbolt 3) xHCI pair on MacBookPro16,1.
+#
+# Failure (seen in journal, reproducible):
+#   xhci_hcd 0000:09:00.0: Controller not ready at resume -19
+#   xhci_hcd 0000:09:00.0: HC died; cleaning up
+#   xhci_hcd 0000:7f:00.0: Controller not ready at resume -19
+#   xhci_hcd 0000:7f:00.0: HC died; cleaning up
+# Both controllers enter d3cold during s2idle suspends and fail to
+# re-initialize on resume. They carry the T2/iBridge USB path, so the desktop
+# degrades (dead Touch Bar, flapping 7-7 device events) and the machine then
+# hard-freezes within minutes. Removing them pre-suspend keeps them out of
+# d3cold entirely; the post hook rescans the PCIe bus so they re-enumerate
+# fresh (same remove/rescan pattern the t2linux wiki uses for the wifi card
+# on sibling T2 models).
+#
+# Installed by `omarchy/setup.zsh` via `sudo stow` in the T2 gate.
+
+devices=(/sys/bus/pci/devices/0000:09:00.0 /sys/bus/pci/devices/0000:7f:00.0)
+
+case "$1" in
+  pre)
+    for dev in "${devices[@]}"; do
+      if [[ -d "$dev" ]]; then
+        echo 1 > "$dev/remove" && echo "t2-titanridge: removed ${dev##*/}"
+      fi
+    done
+    ;;
+  post)
+    echo 1 > /sys/bus/pci/rescan && echo "t2-titanridge: rescanned PCIe bus"
+    ;;
+esac
