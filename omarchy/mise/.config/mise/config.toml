@@ -1,4 +1,5 @@
 [tools]
+bun = "latest"
 claude = "latest"
 codex = "latest"
 gemini = { version = "latest", allow_builds = ["@github/keytar", "node-pty"] }
