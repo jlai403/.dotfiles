@@ -26,7 +26,7 @@ Packages at repo **root** are stowed on both OSes; platform packages live under 
 | Package | Target pattern | Notes |
 |---------|---------------|-------|
 | `ghostty` | `~/.config/ghostty/config` | Shared Ghostty **base** (cursor, shell-integration, CSI-u Enter binds); ends with `config-file = ~/.config/ghostty/local.conf` — platform pkgs supply `local.conf`. Includes must be `~`-absolute: ghostty resolves relative paths against the including file, and keys in a file always lose to keys from files it includes |
-| `git` | `~/.config/git/config`, `~/.config/git/scripts/tidy` | Git global config; `tidy` alias runs `scripts/tidy` |
+| `git` | `~/.config/git/config`, `~/.config/git/scripts/tidy`, `~/.config/git/allowed_signers` | Git global config; `tidy` alias runs `scripts/tidy`; commits signed with SSH (`gpg.format ssh`, key `~/.ssh/id_ed25519`), `allowed_signers` enables local `git verify-commit`. NOTE: git still reads a legacy `~/.gitconfig` AFTER the XDG config — never recreate one (old stale `~/.gitconfig` shadowed this file's identity and was removed Oct 28) |
 | `nvim` | `~/.config/nvim/lua/plugins/theme.lua` | Only the colorscheme is tracked; everything else is omarchy's nvim baseline (`omarchy-nvim` skel on Linux, a materialized copy on macOS) |
 | `herdr` | `~/.config/herdr/config.toml` | Terminal multiplexer (kept unfolded by pre-creating `~/.config/herdr` — herdr writes logs/sockets/`session.json` beside the config); shared keymap — mac `ctrl+hjkl` pane focus + alt-chord fast path (Hyprland passes ALT through to terminals) |
 | `tmux` | `~/.tmux.conf` | Tmux config |
