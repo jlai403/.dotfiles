@@ -52,3 +52,5 @@ discord
 rawmakase-bin
 # ImageMagick: decodes RAW families (ARW/CR2/NEF/...) for the Nautilus thumbnailer
 imagemagick
+# exiv2: extracts embedded JPEG previews for fast RAW thumbnails
+exiv2

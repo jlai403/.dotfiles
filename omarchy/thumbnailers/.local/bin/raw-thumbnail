@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+# raw-thumbnail: fast thumbnail generator for RAW images.
+#
+# Uses the embedded JPEG preview (exiv2) instead of a full raw decode,
+# which is ~5-10x faster and uses far less memory. Falls back to a full
+# imagemagick decode when no usable preview is available.
+set -u
+
+input="$1"
+output="$2"
+size="$3"
+
+tmpdir="$(mktemp -d)"
+trap 'rm -rf "$tmpdir"' EXIT
+
+# Pick the largest embedded preview.
+largest_idx=""
+largest_px=0
+while IFS= read -r line; do
+  idx="$(printf '%s' "$line" | sed -n 's/^Preview \([0-9]\+\):.*/\1/p')"
+  dims="$(printf '%s' "$line" | sed -n 's/.* \([0-9]\+x[0-9]\+\) pixels.*/\1/p')"
+  [ -z "$idx" ] && continue
+  w="${dims%x*}"
+  h="${dims#*x}"
+  px=$(( w * h ))
+  if [ "$px" -gt "$largest_px" ]; then
+    largest_px=$px
+    largest_idx=$idx
+  fi
+done < <(exiv2 -pp "$input" 2>/dev/null)
+
+preview=""
+# Only use the embedded preview if it's large enough to be worth it
+# (avoid upscaling a tiny 160x120 preview into a blurry thumbnail).
+if [ -n "$largest_idx" ] && [ "$largest_px" -ge 65536 ]; then
+  if exiv2 -ep"$largest_idx" -l "$tmpdir" "$input" >/dev/null 2>&1; then
+    preview="$(find "$tmpdir" -type f -name '*-preview*.*' | head -1)"
+  fi
+fi
+
+if [ -n "$preview" ] && [ -f "$preview" ]; then
+  if magick "$preview" -thumbnail "$size" "$output" 2>/dev/null; then
+    exit 0
+  fi
+fi
+
+# Fallback: full raw decode.
+magick "$input" -thumbnail "$size" "$output"
