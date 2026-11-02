@@ -11,6 +11,7 @@ tap "manaflow-ai/cmux"
 tap "modem-dev/tap"
 tap "nikitabobko/tap", trusted: true
 tap "oven-sh/bun"
+tap "pch/tap"
 tap "steipete/tap"
 # Cryptography and SSL/TLS Toolkit
 brew "openssl@3"
@@ -193,6 +194,7 @@ cask "notion"
 # Knowledge base that works on top of a local folder of plain text Markdown files
 cask "obsidian"
 # Control your tools with a few keystrokes
+cask "rawmakase"
 cask "raycast"
 # Plugin for AWS CLI to start and end sessions that connect to managed instances
 cask "session-manager-plugin"

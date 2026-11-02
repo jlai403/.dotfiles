@@ -76,6 +76,10 @@ _os_stow_packages() {
   # On-demand SMB mounts for the NAS (nas ls|mount|umount|status -> ~/.local/bin/nas).
   _stow_platform nas
 
+  # RAW image thumbnails in Nautilus (imagemagick decodes the family; the default
+  # glycin-image-rs thumbnailer doesn't). User-level thumbnailer definition.
+  mkdir -p "$HOME/.local/share/thumbnailers"
+  _stow_platform thumbnailers
   # Google Drive mount: rclone remote gdrive: -> ~/Google Drive
   mkdir -p "$HOME/Google Drive"
   _stow_platform rclone
