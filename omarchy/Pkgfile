@@ -46,3 +46,9 @@ terragrunt
 
 # Chat
 discord
+
+# Photo editing
+# Fast, Lightroom-compatible RAW editor (Omarchy repo package)
+rawmakase-bin
+# ImageMagick: decodes RAW families (ARW/CR2/NEF/...) for the Nautilus thumbnailer
+imagemagick

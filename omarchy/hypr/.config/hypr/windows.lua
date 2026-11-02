@@ -13,3 +13,7 @@ o.window({ class = "^(UltiMaker-Cura)$", modal = true }, { float = true, center 
 -- middle of that dialog (CWindow::activate -> warpCursor), so the pointer snaps
 -- back every time it leaves the dialog. Keep hover-focus off the main window.
 o.window({ class = "^(UltiMaker-Cura)$", modal = false }, { no_follow_mouse = true })
+
+-- RAWmakase must stay fully opaque: Omarchy's default window transparency
+-- distorts how photos look.
+o.window("^RAWmakase$", { tag = "-default-opacity", opacity = "1 1" })
