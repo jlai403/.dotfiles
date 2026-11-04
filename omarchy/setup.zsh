@@ -189,9 +189,14 @@ _os_configure() {
   _ensure_omarchy_zshrc
   _ensure_hypr_windows
 
+  # Theme set owns COLORS only (palette, terminal/browser/tmux retints, staged
+  # theme refresh). Without OMARCHY_THEME_SKIP_BACKGROUND it re-picks a
+  # background from the theme dir — resetting to quattro whenever
+  # current/background points outside it, i.e. any user-chosen image — so the
+  # wallpaper is left to the live system.
   if _have omarchy; then
-    omarchy theme set tokyo-night
-    echo "${GREEN}Tokyo Night theme applied${NC}"
+    OMARCHY_THEME_SKIP_BACKGROUND=1 omarchy theme set tokyo-night
+    echo "${GREEN}Tokyo Night theme applied (background untouched)${NC}"
   fi
 
   # Touch Bar: the plugin reads the digitizer and holds the backlight, both
