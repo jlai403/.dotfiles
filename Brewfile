@@ -183,6 +183,8 @@ cask "font-jetbrains-mono-nerd-font"
 cask "ghostty"
 # Desktop client for GitHub repositories
 cask "github"
+# Voice dictation: Anomaly hex, local on-device transcription (hold key, speak, paste)
+cask "anomalyco/tap/hex"
 # Web browser
 cask "google-chrome"
 # Convert your caps lock key or any of your modifier keys to the hyper key
