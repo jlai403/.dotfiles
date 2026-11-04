@@ -11,7 +11,6 @@
     "alt-9": "space.select:9",
     "alt-[": "tab.prev",
     "alt-]": "tab.next",
-    "alt-down": "agent.next",
     "alt-enter": "pane.split:down",
     "alt-escape": "pane.close",
     "alt-h": "pane.go:left",
@@ -25,7 +24,6 @@
     "alt-shift-j": "pane.swap:down",
     "alt-shift-k": "pane.swap:up",
     "alt-shift-l": "pane.swap:right",
-    "alt-up": "agent.prev",
     "ctrl-+": "app.zoom_in",
     "ctrl-,": "app.settings",
     "ctrl--": "app.zoom_out",
@@ -61,7 +59,9 @@
     "ctrl-tab": "tab.next",
     "f2": "tab.rename",
     "shift-f2": "space.rename",
-    "ctrl-space": "mod.open:tmux-prefix"
+    "ctrl-space": "mod.open:tmux-prefix",
+    "alt-up": "space.prev",
+    "alt-down": "space.next"
   },
   "terminal": {
     "ctrl-backspace": "send:\u0017",
