@@ -145,6 +145,25 @@ The private `main.zsh` also runs `_ensure_home_route` (macOS, home LAN only): a 
 
 Never commit private dotfiles content to this repo.
 
+### Hex dictation (`hex-dictation` shim, replaces voxtype)
+Voice dictation is **Hex** (Anomaly, `hex-bin`, `hex.service` — enabled) — voxtype was removed
+(`sudo pacman -R voxtype-bin`), so omarchy's default `voxtype.lua` binds (F9 push-to-talk,
+SUPER+CTRL+X toggle) never load. Hex's own shortcut picker is macOS-only on Linux and Hyprland's
+GlobalShortcuts portal has no assignment dialog (portal triggers stay `null`), so keys are bound
+manually in `omarchy/hypr`'s `bindings.lua`, mirroring the scheme upstream omarchy adopted on
+Oct 31 2026 (merged after 4.0.6): **Alt+Space = toggle**, **Right Alt (`Alt_R`) = push-to-talk**
+(press starts, `{ release = true }` stop; 4.0.6 helpers have no `bind_hold`/`ignore_mods`, so
+it's two binds). The binds call `~/.local/bin/hex-dictation` (`omarchy/hypr/.local/bin/`,
+stowed) — a port of upstream's `omarchy-dictation-hex` adapter: `start` handles hex's exit-3
+(not running → `hex start` + retry); `stop` grabs the transcript with
+`hex dictation stop --print` (exit 4 = no speech, silent) because hex's own paste is a bare
+Ctrl+V that terminals ignore, and types it via `omarchy-clipboard-paste-text` (which **clobbers
+the clipboard** with each dictation — upstream's accepted tradeoff). The bindings.lua block is
+comment-voted **delete-when-upstream-lands**: once an omarchy update ships the official option
+(Setup > Defaults > Dictation → Hex, same keys), remove the block + the script so the two
+don't double-fire. Verify: `hyprctl binds | rg 'Alt_R|SPACE'` shows the hex set and no F9/X
+voxtype leftover.
+
 ## Build/Test Commands
 - Run setup: `./main.zsh` (base), `./main.zsh --apps` (install OS packages), `./main.zsh --osx` (macOS defaults), `./main.zsh --skills` (reinstall skills from the `jlai403/skills` repo only, via its curlable installer; no wipe, no other bootstrap steps)
 - Verify symlinks: `ls -la ~ | grep -E '\.dotfiles'`

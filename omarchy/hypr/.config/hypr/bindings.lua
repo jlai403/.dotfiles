@@ -346,3 +346,15 @@ hl.unbind("switch:off:Lid Switch") -- was: omarchy-hyprland-monitor-clamshell
 o.bind("switch:off:Lid Switch", "Lid open: reconcile displays (deferred while locked)", function()
   hl.exec_cmd([[ [ "$(omarchy-shell lock isLocked 2>/dev/null)" = "true" ] || omarchy-hyprland-monitor-clamshell ]])
 end, { locked = true })
+
+-- Hex voice dictation (local shim): the official option lands after omarchy
+-- 4.0.6 (Setup > Defaults > Dictation -> Hex) and binds these same keys, so
+-- delete this whole block after switching — keeping both would double-fire.
+-- hex-dictation (~/.local/bin) is the adapter: its stop leg grabs the
+-- transcript with --print (hex's bare-Ctrl+V paste is ignored by terminals)
+-- and types it via omarchy-clipboard-paste-text.
+if o.cmd_present("hex") then
+  o.bind("ALT + SPACE", "Toggle dictation", "hex-dictation toggle")
+  o.bind("Alt_R", "Start dictation (push-to-talk)", "hex-dictation start")
+  o.bind("Alt_R", "Stop dictation (push-to-talk)", "hex-dictation stop", { release = true })
+end
