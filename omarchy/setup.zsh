@@ -243,9 +243,13 @@ _os_configure() {
     # Kernel-side attempts (pcie_ports=compat) don't fix it; these controllers
     # expose no d3cold_allowed sysfs knob either. So: remove them pre-suspend and
     # rescan post-resume (same remove/rescan pattern as t2linux's wifi
-    # workaround).
+    # workaround). Hook lives under /usr/lib/systemd/system-sleep/ — systemd
+    # ≥256 reads sleep hooks from there only; /etc/systemd/system-sleep is
+    # silently ignored (learned the hard way: the Oct 27 hook in /etc never
+    # ran and the Nov 4 freeze still happened).
     if lspci -nn 2>/dev/null | grep -qE '8086:15e[ac]'; then
-      sudo mkdir -p /etc/systemd/system-sleep        # prevent stow folding the dir
+      # Migration: remove the dead /etc/systemd/system-sleep stow symlink.
+      sudo rm -f /etc/systemd/system-sleep/t2-titanridge-suspend-fix
       sudo stow -d "$DOTS_DIR/omarchy" -t / t2-titanridge
       echo "${GREEN}T2 Titan Ridge xHCI suspend/resume workaround installed${NC}"
     fi
