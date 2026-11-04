@@ -47,6 +47,9 @@ terragrunt
 # Chat
 discord
 
+# Voice dictation: Anomaly hex, local on-device transcription (hold key, speak, paste)
+hex-bin
+
 # Photo editing
 # Fast, Lightroom-compatible RAW editor (Omarchy repo package)
 rawmakase-bin

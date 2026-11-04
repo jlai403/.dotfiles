@@ -3,10 +3,11 @@
 
 _stow_shared() {
   # Real dirs keep stow from folding them into the repo (a folded dir would
-  # capture app-written state: herdr logs/sockets, ~/.ssh known_hosts, ...).
-  mkdir -p ~/.config/ghostty ~/.config/cliamp ~/.config/herdr ~/.config/zed ~/.local/bin ~/.ssh
+  # capture app-written state: herdr logs/sockets, herdr-app window state,
+  # ~/.ssh known_hosts, ...).
+  mkdir -p ~/.config/ghostty ~/.config/cliamp ~/.config/herdr ~/.config/herdr-app ~/.config/zed ~/.local/bin ~/.ssh
 
-  _stow cliamp ghostty git herdr nvim inputrc tmux zed television starship
+  _stow cliamp ghostty git herdr herdr-app nvim inputrc tmux zed television starship
 }
 
 _link_zshrc() {
