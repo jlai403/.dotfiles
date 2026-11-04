@@ -63,7 +63,7 @@ tasks:
         fi
 
   zen:backup:
-    desc: Back up Zen browser config to dotfiles
+    desc: Back up Zen browser config to dotfiles (session store → private repo)
     vars:
       ZEN_PROFILE:
         sh: awk -F= '/^\[Install/{f=1} f && /^Default=/{print $2; exit}' "{{.ZEN_BASE}}/profiles.ini"
@@ -73,6 +73,19 @@ tasks:
         for f in zen-keyboard-shortcuts.json zen-themes.json containers.json; do
           cp "{{.ZEN_BASE}}/{{.ZEN_PROFILE}}/$f" "{{.DOTS_DIR}}/{{.ZEN_BACKUPS_DIR}}/backups/zen/$f" && echo "Backed up $f" || echo "Failed to back up $f"
         done
+      - |
+        # zen-sessions.jsonlz4 holds spaces AND tab URLs — this repo is public,
+        # so it goes to the private companion repo instead.
+        if [ ! -f "{{.ZEN_BASE}}/{{.ZEN_PROFILE}}/zen-sessions.jsonlz4" ]; then
+          echo "Skipping zen-sessions.jsonlz4 — not found in profile"
+        elif [ ! -d "{{.HOME}}/.dotfiles_private/.git" ]; then
+          echo "Skipping zen-sessions.jsonlz4 — ~/.dotfiles_private not found"
+        else
+          dest="{{.HOME}}/.dotfiles_private/backups/zen/{{.ZEN_BACKUPS_DIR}}"
+          mkdir -p "$dest"
+          cp "{{.ZEN_BASE}}/{{.ZEN_PROFILE}}/zen-sessions.jsonlz4" "$dest/zen-sessions.jsonlz4" \
+            && echo "Backed up zen-sessions.jsonlz4 (spaces + tabs) → $dest"
+        fi
 
   doll:backup:
     desc: Back up Doll app preferences to dotfiles
@@ -140,12 +153,26 @@ tasks:
       - "{{.DOTS_DIR}}/omarchy/face-unlock/remove.zsh"
 
   zen:restore:
-    desc: Restore Zen browser config from dotfiles
+    desc: Restore Zen browser config from dotfiles (requires Zen quit; snapshots live state first)
     vars:
       ZEN_PROFILE:
         sh: awk -F= '/^\[Install/{f=1} f && /^Default=/{print $2; exit}' "{{.ZEN_BASE}}/profiles.ini"
     cmds:
+      - |
+        if pgrep -x zen-bin >/dev/null || pgrep -x zen >/dev/null; then
+          echo "Zen is running — quit it first (it rewrites these files on exit and will stomp the restore)"
+          exit 1
+        fi
       - mkdir -p "{{.ZEN_BASE}}/{{.ZEN_PROFILE}}"
+      - |
+        # Safety snapshot of the live state — a restore must always be reversible.
+        ts=$(date +%Y%m%d-%H%M%S)
+        snap="{{.DOTS_DIR}}/.stow-state/backups/$ts/zen"
+        mkdir -p "$snap"
+        for f in zen-keyboard-shortcuts.json zen-themes.json containers.json zen-sessions.jsonlz4; do
+          [ -f "{{.ZEN_BASE}}/{{.ZEN_PROFILE}}/$f" ] && cp "{{.ZEN_BASE}}/{{.ZEN_PROFILE}}/$f" "$snap/$f"
+        done
+        echo "Live state snapshotted → $snap (copy those back to revert)"
       - |
         for f in zen-keyboard-shortcuts.json zen-themes.json containers.json; do
           if [ ! -f "{{.DOTS_DIR}}/{{.ZEN_BACKUPS_DIR}}/backups/zen/$f" ]; then
@@ -155,3 +182,10 @@ tasks:
           cp "{{.DOTS_DIR}}/{{.ZEN_BACKUPS_DIR}}/backups/zen/$f" "{{.ZEN_BASE}}/{{.ZEN_PROFILE}}/$f"
           echo "Restored $f"
         done
+        sess="{{.HOME}}/.dotfiles_private/backups/zen/{{.ZEN_BACKUPS_DIR}}/zen-sessions.jsonlz4"
+        if [ -f "$sess" ]; then
+          cp "$sess" "{{.ZEN_BASE}}/{{.ZEN_PROFILE}}/zen-sessions.jsonlz4"
+          echo "Restored zen-sessions.jsonlz4 (spaces + tabs) from ~/.dotfiles_private"
+        else
+          echo "Left zen-sessions.jsonlz4 untouched — no snapshot in ~/.dotfiles_private"
+        fi
