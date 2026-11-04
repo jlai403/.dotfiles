@@ -281,8 +281,9 @@ hl.unbind("SUPER + SHIFT + TAB") -- was: previous workspace
 
 o.bind("ALT + LEFT", "Move word left (Option shim)", option_shortcut("CTRL", "ALT", "LEFT"), { repeating = true })
 o.bind("ALT + RIGHT", "Move word right (Option shim)", option_shortcut("CTRL", "ALT", "RIGHT"), { repeating = true })
-o.bind("ALT + UP", "Move word up (Option shim)", option_shortcut("CTRL", "ALT", "UP"), { repeating = true })
-o.bind("ALT + DOWN", "Move word down (Option shim)", option_shortcut("CTRL", "ALT", "DOWN"), { repeating = true })
+-- ALT+UP/DOWN deliberately not shimmed: freed for the herdr GUI's space nav
+-- (TUI parity — these chords fed the TUI's ctrl+alt pane-focus legs, which the
+-- GUI now owns directly; zsh binds nothing on them).
 o.bind("ALT + SHIFT + LEFT", "Select word left (Option shim)", option_shortcut("CTRL + SHIFT", "ALT + SHIFT", "LEFT"), { repeating = true })
 o.bind("ALT + SHIFT + RIGHT", "Select word right (Option shim)", option_shortcut("CTRL + SHIFT", "ALT + SHIFT", "RIGHT"), { repeating = true })
 o.bind("ALT + SHIFT + UP", "Select word up (Option shim)", option_shortcut("CTRL + SHIFT", "ALT + SHIFT", "UP"), { repeating = true })

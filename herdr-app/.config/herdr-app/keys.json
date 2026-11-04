@@ -72,7 +72,12 @@
     "ctrl-shift-v": "terminal.paste",
     "ctrl-v": "terminal.paste_image",
     "shift-insert": "terminal.paste",
-    "ctrl-space": "mod.open:tmux-prefix"
+    "ctrl-space": "mod.open:tmux-prefix",
+    "alt-up": "space.prev",
+    "alt-down": "space.next",
+    "alt-enter": "pane.split:down",
+    "alt-shift-enter": "pane.split:right",
+    "alt-escape": "pane.close"
   },
   "mod:tmux-prefix": {
     "ctrl-space": "tmux-prefix.send-prefix"
