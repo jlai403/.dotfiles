@@ -353,8 +353,24 @@ end, { locked = true })
 -- hex-dictation (~/.local/bin) is the adapter: its stop leg grabs the
 -- transcript with --print (hex's bare-Ctrl+V paste is ignored by terminals)
 -- and types it via omarchy-clipboard-paste-text.
+--
+-- Toggle on LEFT Option + Space only: push-to-talk needs press+release
+-- binds on one key, and this Hyprland build only fires the press leg (the
+-- release-flagged bind tested dead; see session log) — plus a bare-Cmd bind
+-- chirped on every Cmd+letter chord. Hold-to-talk returns when omarchy
+-- ships the official hex option and its bind_hold helper.
 if o.cmd_present("hex") then
   o.bind("ALT + SPACE", "Toggle dictation", "hex-dictation toggle")
-  o.bind("Alt_R", "Start dictation (push-to-talk)", "hex-dictation start")
-  o.bind("Alt_R", "Stop dictation (push-to-talk)", "hex-dictation stop", { release = true })
+  -- Push-to-talk on Fn/globe: keyd rewrites KEY_FN (evdev 464, beyond xkb's
+  -- 255-keycode universe — unbindable by Hyprland directly) to F13, which is
+  -- otherwise unused. Matches the macOS muscle memory (hold fn + speak).
+  -- Why other "free single keys" failed: right Cmd shares left Cmd's scancode
+  -- (keyd monitor), the F-row is the Touch Bar (screen taps → virtual keys,
+  -- which Hyprland binds ignore), and bare-press PTT legs only fire with
+  -- non_consuming = true (any consuming press bind swallows the release).
+  -- Bound by raw keycode: the default evdev xkb map gives the F13 keycode no
+  -- keysym (it's FK16), so the "F13" keysym never matched — the third
+  -- keysym-trap of this key hunt.
+  o.bind("code:191", "Start dictation (push-to-talk)", "hex-dictation start", { non_consuming = true })
+  o.bind("code:191", "Stop dictation (push-to-talk)", "hex-dictation stop", { non_consuming = true, release = true })
 end
