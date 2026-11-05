@@ -20,7 +20,8 @@ const BINDINGS = [
   ["h", "Split down", "pane.split", { direction: "down" }],
   ["x", "Close pane", "pane.close"],
   ["n", "Next tab", "tab.next"],
-  ["p", "Previous tab", "tab.prev"],
+  ["p", "Command palette", "app.palette"],
+  ["P", "Previous tab", "tab.prev"],
   ["h", "Focus left", "pane.go", { direction: "left" }, true],
   ["j", "Focus down", "pane.go", { direction: "down" }, true],
   ["k", "Focus up", "pane.go", { direction: "up" }, true],
@@ -32,7 +33,10 @@ const BINDINGS = [
   ["J", "Next space", "space.next", {}, true],
   ["K", "Previous space", "space.prev", {}, true],
   ["z", "Zoom pane", "pane.zoom"],
-  ["w", "Go to space or tab", "mod.open", { name: "picker" }],
+  // TUI parity: workspace_picker is prefix+w, then a digit jumps to space N.
+  // w starts a short goto mode here: 1–9 select spaces, any other key falls
+  // back to the built-in picker mod for by-name lookup. g stays a picker.
+  ["w", "Goto space · digits 1–9 (other keys → picker)", null],
   ["g", "Go to space or tab", "mod.open", { name: "picker" }],
   ["q", "Detach (close window)", "window.close"],
   ["N", "New space", "space.new"],
@@ -56,6 +60,7 @@ export default class TmuxPrefix extends View {
     this.handle.focus();
     this.repeat = false;
     this.generation = 0;
+    this.goto = false;
     this.all = false;
     // The mod-specific key binding beats the global opener while we're open.
     cx.spawn(async (cx) => {
@@ -94,6 +99,24 @@ export default class TmuxPrefix extends View {
     if (m.control && e.key === "space") return this.sendPrefix(cx);
     const plain = !m.control && !m.alt && !m.platform;
     const key = plain ? (e.key_char ?? (m.shift && e.key.length === 1 ? e.key.toUpperCase() : e.key)) : e.key;
+    // Goto mode (prefix+w): digit jumps to that space; anything else hands the
+    // rest of the chord to the picker mod.
+    if (this.goto) {
+      this.generation++;
+      this.dismiss();
+      if (plain && /^[1-9]$/.test(key)) return run("space.select", { index: Number(key) });
+      return run("mod.open", { name: "picker" });
+    }
+    if (plain && key === "w") {
+      this.repeat = false;
+      this.goto = true;
+      const generation = ++this.generation;
+      cx.timer.after(REPEAT_MS, () => {
+        if (this.generation === generation) this.dismiss();
+      });
+      cx.notify();
+      return;
+    }
     if (plain && key === "?") {
       this.all = !this.all;
       this.repeat = false;
@@ -126,11 +149,12 @@ export default class TmuxPrefix extends View {
     return v_flex().id("tmux-prefix").track_focus(this.handle)
       .on_key_down((e, cx) => this.key(e, cx))
       .p(14).gap(8).bg(t.popover).text_color(t.foreground).text_size(12)
-      .child(h_flex().justify_between().child(div().font_semibold().child(this.repeat ? `Repeat · ${REPEAT_MS} ms` : `${PREFIX_LABEL} · waiting for a key`))
+      .child(h_flex().justify_between().child(div().font_semibold().child(
+        this.goto ? "Goto space · 1–9 (else picker)" : this.repeat ? `Repeat · ${REPEAT_MS} ms` : `${PREFIX_LABEL} · waiting for a key`))
         .child(div().text_color(t.muted).child("Esc cancel · ^Space send prefix")))
       .child(v_flex().h(280).min_h(0).overflow_y_scrollbar().children(rows.map(([key, label, , , repeatable]) =>
         h_flex().h(20).flex_none().items_center().gap(12).child(div().w(40).text_color(t.accent).child(key))
           .child(div().flex_1().child(label)).child(div().text_color(t.dim).child(repeatable ? "repeat" : "")))))
-      .child(div().text_color(t.muted).child("0–9 tabs (0 = 10) · arrows focus · w/g go to · ? all bindings"));
+      .child(div().text_color(t.muted).child("0–9 tabs (0 = 10) · arrows focus · w goto space · g picker · ? all bindings"));
   }
 }
