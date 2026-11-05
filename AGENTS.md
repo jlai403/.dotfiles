@@ -64,7 +64,7 @@ Packages at repo **root** are stowed on both OSes; platform packages live under 
 
 **Omarchy plugins** are not stowed — declared in `omarchy/plugins.yml`, `_install_omarchy_plugins` in `omarchy/setup.zsh` clones each URL into `~/.config/omarchy/plugins/<id>/` on every Linux bootstrap (skipping present dirs; `<id>` from the yaml `id` field, falling back to URL basename).
 | `mise` | `~/.config/mise/config.toml` | mise tool manifest (bun/claude/codex/gemini/gh/grok/muse/node/opencode/pi/spogo — `muse`, `grok`, and `spogo` are third-party, so they carry an explicit `url`, `npm:`, or `github:` backend and `gemini` opts into `allow_builds` for its native keytar/node-pty builds); `omarchy/setup.zsh` runs `mise install` on Linux |
-| `keyd` | `/etc/keyd/default.conf` | Hyper key: hold CapsLock = Hyper (C-M-A chord, AeroSpace-style — no Shift), tap = Esc. Stowed with `sudo stow -d omarchy -t / keyd` (targets `/`); `omarchy/setup.zsh` enables the unit, or run `task keyd:restore`. Hyprland bindings address the chord as `SUPER + CONTROL + ALT + <key>` |
+| `keyd` | `/etc/keyd/default.conf` | Hyper key: hold CapsLock = Hyper (C-M-A chord, AeroSpace-style — no Shift), tap = Esc; **Fn → F13** (KEY_FN is evdev 464 — beyond xkb's 255-keycode range, unbindable by Hyprland — so keyd rewrites it to the otherwise-unused F13, bound by hex's push-to-talk on `code:191`; see "Hex dictation"). Stowed with `sudo stow -d omarchy -t / keyd` (targets `/`); `omarchy/setup.zsh` enables the unit, or run `task keyd:restore`. Hyprland bindings address the chord as `SUPER + CONTROL + ALT + <key>` |
 | `fcitx5` | `~/.config/fcitx5/config` | XCompose IME (compose sequences via fcitx5); trigger keys cleared so `ctrl+space` reaches herdr's prefix instead of toggling the IME |
 | `libinput` | `/etc/libinput/local-overrides.quirks` | Palm-rejection override for the built-in Apple trackpad (T2): lowers the shipped `AttrPalmSizeThreshold` (1600→1200) and sets `ModelTouchpadPhantomClicks`. **Copied** (`sudo install -Dm644`) rather than stowed — sandboxed services (`tiny-dfr.service` sets `ProtectHome=true`) can't follow a symlink into `~/.dotfiles`. CAUTION: libinput quirks are internal API — a parse error disables ALL quirks system-wide; validate with `libinput quirks list /dev/input/event6` after edits. Takes effect on next session start (libinput reads quirks at device open) |
 | `t2-suspend` | `/etc/systemd/sleep.conf.d/t2-suspend.conf` | Forces **s2idle** (`[Sleep] SuspendState=freeze`) on T2 Macs, because the platform's deep (S3) resume is broken for long sleeps: the T2 rejects the stateful payload (`t2bce_core: remote rejected stateful suspend payload` / `no_state_resume`), xHCI fails to reinit (`xHC error in resume`), the Apple internal keyboard/trackpad (`05ac:0340`) are removed, and every watchdogged systemd service is killed (`Watchdog timeout (limit 3min)`) — leaving the lock screen input-dead and often forcing a reboot. `SuspendState=freeze` overrides the kernel's `mem_sleep_default=deep` (upstream Omarchy's deliberate choice, from `/etc/limine-entry-tool.d/t2-mac.conf`) at suspend time, so **no Limine/UKI edit** is needed and the setting survives Omarchy reinstalls. Root package targeting `/` via `sudo stow` (same pattern as `keyd`), gated to the T2 PCI IDs (`106b:1801/1802`) so non-T2 Linux and the Mac are unaffected; `omarchy/setup.zsh` pre-creates `/etc/systemd/sleep.conf.d` (stow folding) and runs `daemon-reload`. Verify with `systemd-analyze cat-config systemd/sleep.conf`. Trade-off: s2idle draws more battery while asleep than `deep`. Revert: `sudo rm /etc/systemd/sleep.conf.d/t2-suspend.conf && sudo systemctl daemon-reload`. Stage 2 (disable d3cold on `106b:2005`/`106b:1801` + unload/reload `brcmfmac` and `t2bce_vhci`, not `apple-bce`) only if freeze alone still fails |
@@ -147,22 +147,52 @@ Never commit private dotfiles content to this repo.
 
 ### Hex dictation (`hex-dictation` shim, replaces voxtype)
 Voice dictation is **Hex** (Anomaly, `hex-bin`, `hex.service` — enabled) — voxtype was removed
-(`sudo pacman -R voxtype-bin`), so omarchy's default `voxtype.lua` binds (F9 push-to-talk,
-SUPER+CTRL+X toggle) never load. Hex's own shortcut picker is macOS-only on Linux and Hyprland's
-GlobalShortcuts portal has no assignment dialog (portal triggers stay `null`), so keys are bound
-manually in `omarchy/hypr`'s `bindings.lua`, mirroring the scheme upstream omarchy adopted on
-Oct 31 2026 (merged after 4.0.6): **Alt+Space = toggle**, **Right Alt (`Alt_R`) = push-to-talk**
-(press starts, `{ release = true }` stop; 4.0.6 helpers have no `bind_hold`/`ignore_mods`, so
-it's two binds). The binds call `~/.local/bin/hex-dictation` (`omarchy/hypr/.local/bin/`,
-stowed) — a port of upstream's `omarchy-dictation-hex` adapter: `start` handles hex's exit-3
-(not running → `hex start` + retry); `stop` grabs the transcript with
-`hex dictation stop --print` (exit 4 = no speech, silent) because hex's own paste is a bare
-Ctrl+V that terminals ignore, and types it via `omarchy-clipboard-paste-text` (which **clobbers
-the clipboard** with each dictation — upstream's accepted tradeoff). The bindings.lua block is
-comment-voted **delete-when-upstream-lands**: once an omarchy update ships the official option
-(Setup > Defaults > Dictation → Hex, same keys), remove the block + the script so the two
-don't double-fire. Verify: `hyprctl binds | rg 'Alt_R|SPACE'` shows the hex set and no F9/X
-voxtype leftover.
+(`sudo pacman -R voxtype-bin`), so omarchy's default `voxtype.lua` binds never load. Hex's
+in-app shortcut picker is macOS-only on Linux and Hyprland's GlobalShortcuts portal has no
+assignment dialog (portal triggers stay `null`), so keys are bound in `omarchy/hypr`'s
+`bindings.lua`, mirroring the scheme upstream omarchy adopted Oct 31 2026 (merged after 4.0.6):
+**left Option + Space = toggle** (one press records, second types). Hold-to-talk is on
+**Fn/globe**, hold to speak, release to transcribe — which needs three enabling pieces:
+- **keyd** `[main] fn = f13`: the Apple Fn key emits KEY_FN (evdev 464), beyond xkb's
+  255-keycode universe and thus unbindable by Hyprland (names `fn`/`Fn`/`XF86Fn`/`code:472` all
+  fail); keyd rewrites it to F13.
+- **Binds use `code:191`** (evdev 183 + 8), NOT the `F13` keysym — the default evdev xkb map
+  gives that keycode no keysym (it's `FK16`), so keysym matching never fires (third keysym trap:
+  right Cmd already bit once, Right Alt/compose twice).
+- **Both PTT legs need `{ non_consuming = true }`** — a consuming press bind makes this Hyprland
+  build swallow the release leg (12 starts, 0 stops logged before the flag; `o.bind` passes
+  options straight to `hl.bind`, whose keys are the hyprctl bind-field names in snake_case).
+What's left unbound and why: right Cmd is electrically identical to left Cmd (T2 keyboard emits
+`leftmeta` for both — verified with `keyd monitor`; macOS tells them apart in its own driver),
+and the F-row is the Touch Bar (screen clicks → tiny-dfr virtual keys, which Hyprland binds
+ignore). `hex-dictation` (`omarchy/hypr/.local/bin/`, stowed) is a port of upstream's
+`omarchy-dictation-hex` adapter: `start` handles hex's exit-3 (not running → `hex start` +
+retry); `stop` grabs the transcript with `hex dictation stop --print` (exit 4 = no speech,
+silent) because hex's own paste is a bare Ctrl+V that terminals ignore, and types it via
+`omarchy-clipboard-paste-text` (which **clobbers the clipboard** with each dictation —
+upstream's accepted tradeoff). The bindings.lua block is commented
+**delete-when-upstream-lands**: once an omarchy update ships the official option (Setup >
+Defaults > Dictation → Hex, and upstream's bind_hold-based Right Alt keys), remove the block +
+the script so the two don't double-fire. Hex holds its mic stream from service start —
+**after any audio-source change (or before first use), `hex restart`** makes it reopen the
+current default. Verify: `hyprctl binds | rg 'code:191|SPACE'` plus a spoken dictation into
+ghostty.
+
+### T2 mic DSP (`t2-audio` stow package)
+The T2 internal mic is ~40 dB under normal level without DSP — a hardware characteristic the
+upstream kernel can't compensate (t2linux wiki "Device support and state of features"), which
+is why hex discarded every dictation as near-silence (`level_dbfs=-77`) and even a spoken test
+through PipeWire read peak -41 dBFS. `omarchy/t2-audio/.config/pipewire/pipewire.conf.d/10-t2-mic-dsp.conf`
+(user-level, no sudo) loads a PipeWire filter-chain — LADSPA `swh-plugins` (+35 dB amp → sc4
+compressor → fast-lookahead limiter) — creating the **"MacBook Pro T2 DSP Mic"** source, set as
+the default capture. This machine's mic signal lives on CHANNEL/`AUX0` only (aux1 = noise
+floor, aux2 dead — measured against a spoken test), so capture pins `audio.position = [AUX0]`
+and `node.target = alsa_input.pci-0000_04_00.3.HiFi__Mic__source` (the mapped-source name as
+installed here; upstream lemmyg/t2-apple-audio-dsp assumed t2-better-audio's `BuiltinMic`
+alias and a 3-mic mix, neither applies). PipeWire reads the user conf.d at service start —
+`systemctl --user restart pipewire` after edits; the default-source choice persists via
+WirePlumber state. Verify: `pactl get-default-source` shows the DSP node and a spoken
+`pw-record --target effect_output.t2-mic` lands in the -2 to -10 dBFS range.
 
 ## Build/Test Commands
 - Run setup: `./main.zsh` (base), `./main.zsh --apps` (install OS packages), `./main.zsh --osx` (macOS defaults), `./main.zsh --skills` (reinstall skills from the `jlai403/skills` repo only, via its curlable installer; no wipe, no other bootstrap steps)
