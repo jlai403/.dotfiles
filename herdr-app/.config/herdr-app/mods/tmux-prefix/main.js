@@ -5,6 +5,9 @@ import { closeOverlay, focused, hc, nextCommand, props, run, theme } from "herdr
 // Vendored from herdrdev/herdr-layout-examples tmux-prefix (Apache-2.0),
 // customized for TUI parity: prefix is Ctrl+Space (as in the herdr TUI
 // config), bindings mirror the TUI keymap. Upstream default was Ctrl+B.
+// w/g are the TUI's workspace_picker/goto defaults — the GUI analog is the
+// built-in picker mod (go-to space/tab/agent). Upstream mapped w to a
+// command palette; herdr's TUI has no palette key.
 // Only repeatable actions start a timer: the first key after the prefix
 // can take as long as you like.
 const REPEAT_MS = 500;
@@ -29,7 +32,8 @@ const BINDINGS = [
   ["J", "Next space", "space.next", {}, true],
   ["K", "Previous space", "space.prev", {}, true],
   ["z", "Zoom pane", "pane.zoom"],
-  ["w", "Command palette", "app.palette"],
+  ["w", "Go to space or tab", "mod.open", { name: "picker" }],
+  ["g", "Go to space or tab", "mod.open", { name: "picker" }],
   ["q", "Detach (close window)", "window.close"],
   ["N", "New space", "space.new"],
   ["W", "Rename space", "space.rename"],
@@ -127,6 +131,6 @@ export default class TmuxPrefix extends View {
       .child(v_flex().h(280).min_h(0).overflow_y_scrollbar().children(rows.map(([key, label, , , repeatable]) =>
         h_flex().h(20).flex_none().items_center().gap(12).child(div().w(40).text_color(t.accent).child(key))
           .child(div().flex_1().child(label)).child(div().text_color(t.dim).child(repeatable ? "repeat" : "")))))
-      .child(div().text_color(t.muted).child("0–9 tabs (0 = 10) · arrows focus · ? all bindings"));
+      .child(div().text_color(t.muted).child("0–9 tabs (0 = 10) · arrows focus · w/g go to · ? all bindings"));
   }
 }
