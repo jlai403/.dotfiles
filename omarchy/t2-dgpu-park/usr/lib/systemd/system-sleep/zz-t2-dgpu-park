@@ -1,0 +1,22 @@
+#!/bin/bash
+# Re-park the AMD dGPU after resume.
+#
+# The boot-time t2-dgpu-park.service removes the Navi 14 from the PCIe bus: with
+# amdgpu blacklisted no driver can runtime-suspend it, so a bus-attached device
+# sits in D0 drawing ~7 W all day and heats the chassis (the SMC then runs the
+# fans even with the lid closed). Removed from the bus, it costs nothing.
+#
+# t2-titanridge-suspend-fix rescans the whole PCIe bus post-resume, which
+# re-enumerates this device; this hook (sorted after it) removes it again. The
+# [[ ! -e .../driver ]] guard leaves the device alone when it was deliberately
+# rebound with `task dgpu:on` (amdgpu loaded => external displays in use).
+
+dev=/sys/bus/pci/devices/0000:03:00.0
+
+case "$1" in
+  post)
+    if [[ -d "$dev" && ! -e "$dev/driver" ]]; then
+      echo 1 > "$dev/remove" && echo "t2-dgpu-park: removed 0000:03:00.0"
+    fi
+    ;;
+esac

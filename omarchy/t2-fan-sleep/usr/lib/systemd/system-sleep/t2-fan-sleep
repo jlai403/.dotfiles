@@ -1,0 +1,25 @@
+#!/bin/bash
+# Release t2fanrd's fan override for the sleep window.
+#
+# t2fanrd drives both fans in manual mode (fan*_manual=1) with a target RPM
+# derived from CPU temperature. The daemon freezes with the system, so its last
+# commanded speed — and the manual override that bypasses the SMC firmware's own
+# curve — carries into s2idle, and the fans keep spinning with the lid shut.
+# Stopping the daemon hands control back to the SMC firmware for the duration of
+# the sleep; resume restarts it so loaded CPUs keep their temperature-driven
+# curve. Fans are not turned off blindly: the firmware still runs them when the
+# hardware is hot, it just stops holding a stale manual target.
+
+case "$1" in
+  pre)
+    systemctl stop t2fanrd 2>/dev/null || true
+    smc=$(dirname "$(find /sys/devices -maxdepth 8 -name fan1_manual -print -quit 2>/dev/null)")
+    if [[ -d "$smc" ]]; then
+      for f in "$smc"/fan?_manual; do echo 0 > "$f"; done
+    fi
+    ;;
+  post)
+    systemctl start t2fanrd 2>/dev/null || true
+    ;;
+esac
+exit 0

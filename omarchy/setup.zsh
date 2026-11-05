@@ -352,6 +352,26 @@ _os_configure() {
         }
       fi
       echo "${GREEN}T2 hybrid GPU: AMD dGPU out of the kernel (modprobe blacklist; task dgpu:on rebinds)${NC}"
+
+      # With amdgpu blacklisted nothing power-manages the dGPU: attached to the
+      # bus it sits in D0 drawing ~7 W (measured via BAT0 current) all day and
+      # heats the chassis, so the SMC runs the fans even with the lid closed.
+      # Removing it from the PCIe bus at boot takes the device off the bus
+      # entirely; zz-t2-dgpu-park re-parks it after every resume because
+      # t2-titanridge rescans the bus and re-enumerates it.
+      sudo stow -d "$DOTS_DIR/omarchy" -t / t2-dgpu-park
+      sudo systemctl daemon-reload
+      sudo systemctl enable --now t2-dgpu-park.service
+      echo "${GREEN}T2 hybrid GPU: dGPU parked off the PCIe bus (boot + post-resume)${NC}"
+    fi
+
+    # t2fanrd keeps both fans in manual mode with a CPU-temp curve; frozen
+    # during s2idle, its last target and the manual override carry into sleep
+    # and the fans keep spinning with the lid shut. The sleep hook stops it
+    # pre-suspend (SMC firmware owns the fans) and restarts it on resume.
+    if command -v t2fanrd >/dev/null 2>&1; then
+      sudo stow -d "$DOTS_DIR/omarchy" -t / t2-fan-sleep
+      echo "${GREEN}T2 fans: t2fanrd released during sleep${NC}"
     fi
 
     # The T2 iBridge Ethernet (05ac:8233, cdc_ncm on the BCE VHCI) never gets a

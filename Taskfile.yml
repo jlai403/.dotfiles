@@ -127,19 +127,23 @@ tasks:
       - echo "keyd installed — hold CapsLock = Hyper (C-M-A), tap = Esc"
 
   dgpu:status:
-    desc: Show the AMD dGPU PCI state (amdgpu should be unloaded and the device driverless)
+    desc: Show the AMD dGPU state (parked off the bus, or on the bus driverless)
     cmds:
-      - lspci -nnk -d 1002:7340 2>/dev/null || echo "dGPU not on the PCIe bus"
+      - lspci -nnk -d 1002:7340 2>/dev/null || echo "dGPU parked (removed from the PCIe bus)"
+      - systemctl is-active t2-dgpu-park.service || true
       - lsmod | grep amdgpu || echo "amdgpu not loaded"
 
   dgpu:off:
-    desc: Unbind the AMD dGPU now (driverless until reboot); fixes a wedged GPU without power-cycling
+    desc: Unbind the AMD dGPU and park it off the PCIe bus now; fixes a wedged GPU without power-cycling
     cmds:
-      - sudo sh -c 'for d in /sys/bus/pci/drivers/amdgpu/*:*:*.*; do echo -n $d > /sys/bus/pci/drivers/amdgpu/unbind; done; echo "dGPU unbound"'
+      - sudo sh -c 'for d in /sys/bus/pci/drivers/amdgpu/*:*:*.*; do [ -e "$d" ] || continue; echo -n "$d" > /sys/bus/pci/drivers/amdgpu/unbind; done; echo "dGPU unbound"'
+      - sudo systemctl start t2-dgpu-park.service 2>/dev/null || true
 
   dgpu:on:
-    desc: Bind the AMD dGPU now (modprobe bypasses the boot blacklist; external displays live again — suspend-wedge risk until reboot)
+    desc: Park the dGPU service aside, rescan the bus and bind amdgpu (external displays live again — suspend-wedge risk until reboot; re-park with task dgpu:off)
     cmds:
+      - sudo systemctl stop t2-dgpu-park.service 2>/dev/null || true
+      - sudo sh -c '[ -d /sys/bus/pci/devices/0000:03:00.0 ] || echo 1 > /sys/bus/pci/rescan'
       - sudo modprobe amdgpu
 
   face:setup:

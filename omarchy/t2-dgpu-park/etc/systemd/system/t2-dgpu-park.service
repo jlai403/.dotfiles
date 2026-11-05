@@ -1,0 +1,11 @@
+[Unit]
+Description=Park the AMD dGPU off the PCIe bus (driverless device cannot power-manage itself)
+ConditionPathExists=/sys/bus/pci/devices/0000:03:00.0
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/bin/sh -c 'echo 1 > /sys/bus/pci/devices/0000:03:00.0/remove'
+
+[Install]
+WantedBy=multi-user.target
