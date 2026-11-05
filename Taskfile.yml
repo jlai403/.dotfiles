@@ -70,7 +70,7 @@ tasks:
     cmds:
       - mkdir -p "{{.DOTS_DIR}}/{{.ZEN_BACKUPS_DIR}}/backups/zen"
       - |
-        for f in zen-keyboard-shortcuts.json zen-themes.json containers.json; do
+        for f in zen-keyboard-shortcuts.json customKeys.json zen-themes.json containers.json; do
           cp "{{.ZEN_BASE}}/{{.ZEN_PROFILE}}/$f" "{{.DOTS_DIR}}/{{.ZEN_BACKUPS_DIR}}/backups/zen/$f" && echo "Backed up $f" || echo "Failed to back up $f"
         done
       - |
@@ -169,12 +169,12 @@ tasks:
         ts=$(date +%Y%m%d-%H%M%S)
         snap="{{.DOTS_DIR}}/.stow-state/backups/$ts/zen"
         mkdir -p "$snap"
-        for f in zen-keyboard-shortcuts.json zen-themes.json containers.json zen-sessions.jsonlz4; do
+        for f in zen-keyboard-shortcuts.json customKeys.json zen-themes.json containers.json zen-sessions.jsonlz4; do
           [ -f "{{.ZEN_BASE}}/{{.ZEN_PROFILE}}/$f" ] && cp "{{.ZEN_BASE}}/{{.ZEN_PROFILE}}/$f" "$snap/$f"
         done
         echo "Live state snapshotted → $snap (copy those back to revert)"
       - |
-        for f in zen-keyboard-shortcuts.json zen-themes.json containers.json; do
+        for f in zen-keyboard-shortcuts.json customKeys.json zen-themes.json containers.json; do
           if [ ! -f "{{.DOTS_DIR}}/{{.ZEN_BACKUPS_DIR}}/backups/zen/$f" ]; then
             echo "Skipping $f — not found in dotfiles"
             continue
