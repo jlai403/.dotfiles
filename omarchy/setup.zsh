@@ -88,6 +88,16 @@ _os_stow_packages() {
   # Pre-create the dir so stow never folds ~/.config/wayvnc into the repo.
   mkdir -p "$HOME/.config/wayvnc"
   _stow_platform wayvnc
+
+  # T2 built-in mic DSP: PipeWire filter-chain (gain + compressor + limiter)
+  # → "MacBook Pro T2 DSP Mic" source. The T2 mic sits ~40 dB under normal
+  # level (t2linux wiki; upstream can't compensate), so the chain is gated on
+  # the T2 PCI IDs like the root-side t2 packages.
+  if lspci -nn 2>/dev/null | grep -qE '106b:180[12]'; then
+    _stow_platform t2-audio
+    systemctl --user restart pipewire.service
+    echo "${GREEN}T2 mic DSP filter-chain installed${NC}"
+  fi
 }
 
 # Make zsh the login shell, and give ~/.zshrc the omarchy-zsh base (zoptions +
