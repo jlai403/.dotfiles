@@ -129,7 +129,7 @@ tasks:
   dgpu:status:
     desc: Show the AMD dGPU state (parked off the bus, or on the bus driverless)
     cmds:
-      - lspci -nnk -d 1002:7340 2>/dev/null || echo "dGPU parked (removed from the PCIe bus)"
+      - sh -c 'if [ -d /sys/bus/pci/devices/0000:03:00.0 ] || [ -d /sys/bus/pci/devices/0000:03:00.1 ]; then lspci -nnk | grep -iA2 -E "1002:7340|1002:ab38" || true; else echo "dGPU parked (removed from the PCIe bus)"; fi'
       - systemctl is-active t2-dgpu-park.service || true
       - lsmod | grep amdgpu || echo "amdgpu not loaded"
 

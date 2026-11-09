@@ -357,11 +357,23 @@ _os_configure() {
       # bus it sits in D0 drawing ~7 W (measured via BAT0 current) all day and
       # heats the chassis, so the SMC runs the fans even with the lid closed.
       # Removing it from the PCIe bus at boot takes the device off the bus
-      # entirely; zz-t2-dgpu-park re-parks it after every resume because
-      # t2-titanridge rescans the bus and re-enumerates it.
-      sudo stow -d "$DOTS_DIR/omarchy" -t / t2-dgpu-park
+      # entirely (both functions: VGA + HDMI audio).
+      # Copied, not stowed: systemd loads /etc/systemd/system units at manager
+      # start, before the /home subvol mounts, so a symlink into ~/.dotfiles
+      # cannot be opened ("Failed to open ... No such file or directory") and
+      # the unit is silently dropped — same trap as gmux/libinput. The sleep
+      # hook is copied alongside for one mechanism; nothing here needs stow.
+      sudo rm -f /etc/systemd/system/t2-dgpu-park.service \
+        /usr/lib/systemd/system-sleep/zz-t2-dgpu-park
+      sudo install -Dm644 \
+        "$DOTS_DIR/omarchy/t2-dgpu-park/etc/systemd/system/t2-dgpu-park.service" \
+        /etc/systemd/system/t2-dgpu-park.service
+      sudo install -Dm755 \
+        "$DOTS_DIR/omarchy/t2-dgpu-park/usr/lib/systemd/system-sleep/zz-t2-dgpu-park" \
+        /usr/lib/systemd/system-sleep/zz-t2-dgpu-park
       sudo systemctl daemon-reload
-      sudo systemctl enable --now t2-dgpu-park.service
+      sudo systemctl enable t2-dgpu-park.service
+      sudo systemctl restart t2-dgpu-park.service
       echo "${GREEN}T2 hybrid GPU: dGPU parked off the PCIe bus (boot + post-resume)${NC}"
     fi
 
