@@ -328,7 +328,12 @@ _os_configure() {
     # baked into the initramfs too (the kms hook autoloads amdgpu there), so
     # mkinitcpio -P runs only when the config changed; a gitignored md5 stamp
     # tracks it (kernel updates rebuild via stock hooks).
-    if lspci -nn 2>/dev/null | grep -qE '1002:7340'; then
+    # Gate on the installed blacklist as well: once t2-dgpu-park removes the
+    # device from the bus, lspci no longer lists 1002:7340 and an
+    # enumeration-only gate would skip this block on every later run (the park
+    # blinds its own detector). The file is the durable "hybrid GPU" marker.
+    if [[ -f /etc/modprobe.d/blacklist-amdgpu.conf ]] \
+      || lspci -nn 2>/dev/null | grep -qE '1002:7340|1002:ab38'; then
       # Migration: drop the previous vgaswitcheroo method (its 30s debugfs
       # wait would stall a boot where amdgpu never loads).
       sudo systemctl disable --now amdgpu-off.service 2>/dev/null
@@ -352,6 +357,38 @@ _os_configure() {
         }
       fi
       echo "${GREEN}T2 hybrid GPU: AMD dGPU out of the kernel (modprobe blacklist; task dgpu:on rebinds)${NC}"
+
+      # With amdgpu blacklisted nothing power-manages the dGPU: attached to the
+      # bus it sits in D0 drawing ~7 W (measured via BAT0 current) all day and
+      # heats the chassis, so the SMC runs the fans even with the lid closed.
+      # Removing it from the PCIe bus at boot takes the device off the bus
+      # entirely (both functions: VGA + HDMI audio).
+      # Copied, not stowed: systemd loads /etc/systemd/system units at manager
+      # start, before the /home subvol mounts, so a symlink into ~/.dotfiles
+      # cannot be opened ("Failed to open ... No such file or directory") and
+      # the unit is silently dropped — same trap as gmux/libinput. The sleep
+      # hook is copied alongside for one mechanism; nothing here needs stow.
+      sudo rm -f /etc/systemd/system/t2-dgpu-park.service \
+        /usr/lib/systemd/system-sleep/zz-t2-dgpu-park
+      sudo install -Dm644 \
+        "$DOTS_DIR/omarchy/t2-dgpu-park/etc/systemd/system/t2-dgpu-park.service" \
+        /etc/systemd/system/t2-dgpu-park.service
+      sudo install -Dm755 \
+        "$DOTS_DIR/omarchy/t2-dgpu-park/usr/lib/systemd/system-sleep/zz-t2-dgpu-park" \
+        /usr/lib/systemd/system-sleep/zz-t2-dgpu-park
+      sudo systemctl daemon-reload
+      sudo systemctl enable t2-dgpu-park.service
+      sudo systemctl restart t2-dgpu-park.service
+      echo "${GREEN}T2 hybrid GPU: dGPU parked off the PCIe bus (boot + post-resume)${NC}"
+    fi
+
+    # t2fanrd keeps both fans in manual mode with a CPU-temp curve; frozen
+    # during s2idle, its last target and the manual override carry into sleep
+    # and the fans keep spinning with the lid shut. The sleep hook stops it
+    # pre-suspend (SMC firmware owns the fans) and restarts it on resume.
+    if command -v t2fanrd >/dev/null 2>&1; then
+      sudo stow -d "$DOTS_DIR/omarchy" -t / t2-fan-sleep
+      echo "${GREEN}T2 fans: t2fanrd released during sleep${NC}"
     fi
 
     # The T2 iBridge Ethernet (05ac:8233, cdc_ncm on the BCE VHCI) never gets a

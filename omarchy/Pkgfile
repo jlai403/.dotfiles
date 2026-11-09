@@ -22,6 +22,9 @@ keyd
 # Apple T2 hardware: Touch Bar renderer (arch-mact2 repo; depends on linux-t2,
 # already the running kernel). Drives the niraj-envision/touch-bar plugin.
 tiny-dfr
+# Fan control daemon (arch-mact2): CPU-temp curve in manual SMC mode; the
+# t2-fan-sleep hook releases it for the sleep window.
+t2fanrd
 
 # 3D printing
 # Programmer's solid 3D modeller (repo: extra, Qt5/XWayland)

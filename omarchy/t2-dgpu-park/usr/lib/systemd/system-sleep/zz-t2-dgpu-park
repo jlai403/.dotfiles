@@ -1,0 +1,21 @@
+#!/bin/bash
+# Opportunistic re-park of the AMD dGPU after resume.
+#
+# The boot-time t2-dgpu-park.service removes both Navi 14 functions (VGA
+# 0000:03:00.0 + HDMI audio 0000:03:00.1): with amdgpu blacklisted no driver
+# can runtime-suspend them, so bus-attached they sit in D0 drawing watts all
+# day and heat the chassis. The deterministic post-resume guarantee comes from
+# t2-titanridge, which now rescans only the xHCI bridges — a full bus rescan
+# would re-enumerate this device, and sleep hooks run in parallel, so no hook
+# ordering can be relied on. This script only covers anything else that
+# rescans the bus behind our back; a no-op otherwise.
+
+case "$1" in
+  post)
+    for dev in /sys/bus/pci/devices/0000:03:00.0 /sys/bus/pci/devices/0000:03:00.1; do
+      if [[ -d "$dev" && ! -e "$dev/driver" ]]; then
+        echo 1 > "$dev/remove" && echo "t2-dgpu-park: removed ${dev##*/}"
+      fi
+    done
+    ;;
+esac

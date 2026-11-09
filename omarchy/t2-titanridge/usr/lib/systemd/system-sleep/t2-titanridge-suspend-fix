@@ -10,23 +10,41 @@
 # re-initialize on resume. They carry the T2/iBridge USB path, so the desktop
 # degrades (dead Touch Bar, flapping 7-7 device events) and the machine then
 # hard-freezes within minutes. Removing them pre-suspend keeps them out of
-# d3cold entirely; the post hook rescans the PCIe bus so they re-enumerate
-# fresh (same remove/rescan pattern the t2linux wiki uses for the wifi card
-# on sibling T2 models).
+# d3cold entirely; the post hook rescans their parent bridges so they
+# re-enumerate fresh (same remove/rescan pattern the t2linux wiki uses for the
+# wifi card on sibling T2 models).
+#
+# Post-resume is scoped to the bridges instead of /sys/bus/pci/rescan: a full
+# bus rescan also re-enumerates the AMD dGPU that t2-dgpu-park keeps off the
+# bus, and systemd 262 runs sleep hooks in parallel, so no separate hook can
+# be ordered after this one to re-park it.
 #
 # Installed by `omarchy/setup.zsh` via `sudo stow` in the T2 gate.
 
-devices=(/sys/bus/pci/devices/0000:09:00.0 /sys/bus/pci/devices/0000:7f:00.0)
+xhc1=/sys/bus/pci/devices/0000:09:00.0
+xhc2=/sys/bus/pci/devices/0000:7f:00.0
+br1=/sys/bus/pci/devices/0000:07:02.0    # secondary bus hosts 0000:09:00.0
+br2=/sys/bus/pci/devices/0000:7d:02.0    # secondary bus hosts 0000:7f:00.0
 
 case "$1" in
   pre)
-    for dev in "${devices[@]}"; do
+    for dev in "$xhc1" "$xhc2"; do
       if [[ -d "$dev" ]]; then
         echo 1 > "$dev/remove" && echo "t2-titanridge: removed ${dev##*/}"
       fi
     done
     ;;
   post)
-    echo 1 > /sys/bus/pci/rescan && echo "t2-titanridge: rescanned PCIe bus"
+    if [[ -e "$br1/rescan" && -e "$br2/rescan" ]]; then
+      echo 1 > "$br1/rescan" && echo 1 > "$br2/rescan"
+      echo "t2-titanridge: rescanned xHCI bridges"
+    else
+      # Topology changed: fall back to a full bus rescan, then re-park the
+      # dGPU inline — parallel hooks make an order guarantee impossible.
+      echo 1 > /sys/bus/pci/rescan && echo "t2-titanridge: rescanned PCIe bus (bridge fallback)"
+      for dev in /sys/bus/pci/devices/0000:03:00.0 /sys/bus/pci/devices/0000:03:00.1; do
+        [[ -d "$dev" ]] && echo 1 > "$dev/remove"
+      done
+    fi
     ;;
 esac
