@@ -328,7 +328,12 @@ _os_configure() {
     # baked into the initramfs too (the kms hook autoloads amdgpu there), so
     # mkinitcpio -P runs only when the config changed; a gitignored md5 stamp
     # tracks it (kernel updates rebuild via stock hooks).
-    if lspci -nn 2>/dev/null | grep -qE '1002:7340'; then
+    # Gate on the installed blacklist as well: once t2-dgpu-park removes the
+    # device from the bus, lspci no longer lists 1002:7340 and an
+    # enumeration-only gate would skip this block on every later run (the park
+    # blinds its own detector). The file is the durable "hybrid GPU" marker.
+    if [[ -f /etc/modprobe.d/blacklist-amdgpu.conf ]] \
+      || lspci -nn 2>/dev/null | grep -qE '1002:7340|1002:ab38'; then
       # Migration: drop the previous vgaswitcheroo method (its 30s debugfs
       # wait would stall a boot where amdgpu never loads).
       sudo systemctl disable --now amdgpu-off.service 2>/dev/null
