@@ -142,16 +142,6 @@ tasks:
     cmds:
       - sudo modprobe amdgpu
 
-  face:setup:
-    desc: Install and configure facelock face unlock (sudo, polkit, lock screen)
-    cmds:
-      - "{{.DOTS_DIR}}/omarchy/face-unlock/setup.zsh"
-
-  face:remove:
-    desc: Remove facelock face unlock and its PAM wiring
-    cmds:
-      - "{{.DOTS_DIR}}/omarchy/face-unlock/remove.zsh"
-
   zen:restore:
     desc: Restore Zen browser config from dotfiles (requires Zen quit; snapshots live state first)
     vars:
