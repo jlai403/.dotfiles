@@ -20,13 +20,8 @@ Item {
   property bool pendingSessionLock: false
   property bool authenticatingPassword: false
   property bool fingerprintAuthenticating: false
-  property bool faceAuthenticating: false
-  // Gates facePam.config: Quickshell starts a PAM conversation as soon as the
-  // context has a config, so it stays empty until startFace arms a scan.
-  property bool facePamActive: false
   property bool passwordPamConfigured: false
   property bool fingerprintConfigured: false
-  property bool faceConfigured: false
   property bool previewVisible: false
   property string enteredPassword: ""
   property string pendingPassword: ""
@@ -40,7 +35,7 @@ Item {
   property bool strandedLockResolved: false
 
   readonly property bool locked: lockRequested || sessionLock.locked || sessionLock.secure
-  readonly property bool authenticating: authenticatingPassword || fingerprintAuthenticating || faceAuthenticating
+  readonly property bool authenticating: authenticatingPassword || fingerprintAuthenticating
 
   function realScreenCount() {
     var screens = Quickshell.screens || []
@@ -112,10 +107,6 @@ Item {
     if (!fingerprintCheckProc.running) fingerprintCheckProc.running = true
   }
 
-  function refreshFaceStatus() {
-    if (!faceCheckProc.running) faceCheckProc.running = true
-  }
-
   function logEvent(event) {
     lastEvent = event
     lastEventAt = new Date().toISOString()
@@ -129,12 +120,9 @@ Item {
     failedAttempts = 0
     authenticatingPassword = false
     fingerprintAuthenticating = false
-    faceAuthenticating = false
-    facePamActive = false
     fingerprintRetryTimer.stop()
     if (passwordPam.active) passwordPam.abort()
     if (fingerprintPam.active) fingerprintPam.abort()
-    abortFace()
   }
 
   function beginLock() {
@@ -152,7 +140,6 @@ Item {
     Qt.callLater(function() {
       root.refreshBackground()
       root.refreshFingerprintStatus()
-      root.refreshFaceStatus()
     })
 
     return true
@@ -217,43 +204,6 @@ Item {
     failedAttempts += 1
     failureMessage = "Authentication failed (" + failedAttempts + ")"
     runWake()
-  }
-
-  // Scans are explicit only: one per empty Enter, no retry loop and nothing on
-  // lock. An idle locked laptop must not keep waking the camera and burning CPU.
-  // The Loader's onLoaded starts the conversation; see facePamLoader.
-  function startFace() {
-    if (!lockRequested || !sessionLock.secure || !faceConfigured) return
-    if (facePamActive || faceAuthenticating || authenticatingPassword) return
-
-    faceAuthenticating = true
-    failureMessage = ""
-    facePamActive = true
-  }
-
-  function abortFace() {
-    // Clear the guard before aborting: abort may fire onCompleted, and
-    // handleFaceFinished treats "not authenticating" as a teardown, not a miss.
-    faceAuthenticating = false
-    var pam = facePamLoader.item
-    if (pam && pam.active) pam.abort()
-    facePamActive = false
-  }
-
-  function reportFaceFailure() {
-    if (!lockRequested) return
-    failureMessage = "Face not recognized"
-    runWake()
-  }
-
-  function handleFaceFinished(result) {
-    if (!faceAuthenticating) return
-    faceAuthenticating = false
-    facePamActive = false
-
-    if (!lockRequested) return
-    if (result === PamResult.Success) finishUnlock()
-    else reportFaceFailure()
   }
 
   function startFingerprint() {
@@ -321,9 +271,7 @@ Item {
         backgroundPath: root.backgroundPath
         backgroundVersion: root.backgroundVersion
         fingerprintConfigured: root.fingerprintConfigured
-        faceConfigured: root.faceConfigured
         authenticatingPassword: root.authenticatingPassword
-        faceAuthenticating: root.faceAuthenticating
         failureMessage: root.failureMessage
         failedAttempts: root.failedAttempts
         inputEnabled: root.lockRequested
@@ -331,7 +279,6 @@ Item {
         passwordText: root.enteredPassword
         onPasswordTextEdited: function(password) { root.enteredPassword = password }
         onSubmitPassword: function(password) { root.submitPassword(password) }
-        onSubmitFace: root.startFace()
         onClearFailureRequested: root.failureMessage = ""
         onWakeRequested: root.runWake()
       }
@@ -354,9 +301,7 @@ Item {
       backgroundPath: root.backgroundPath
       backgroundVersion: root.backgroundVersion
       fingerprintConfigured: root.fingerprintConfigured
-      faceConfigured: root.faceConfigured
       authenticatingPassword: false
-      faceAuthenticating: false
       failureMessage: ""
       failedAttempts: 0
       inputEnabled: false
@@ -408,40 +353,6 @@ Item {
     }
   }
 
-  // Loaded only while a scan runs. Quickshell starts the PAM conversation the
-  // moment a PamContext has a config, so a permanently mounted context would
-  // scan on every lock with no user input. The Loader tears the context down
-  // again after each scan.
-  Loader {
-    id: facePamLoader
-    active: root.facePamActive
-
-    sourceComponent: PamContext {
-      id: facePam
-      config: "omarchy-lock-face"
-      user: root.userName
-
-      onCompleted: function(result) {
-        root.handleFaceFinished(result)
-      }
-
-      onError: function(error) {
-        root.faceAuthenticating = false
-        root.facePamActive = false
-        root.reportFaceFailure()
-      }
-    }
-
-    onLoaded: {
-      if (!root.faceAuthenticating) return
-      if (!item.start()) {
-        root.faceAuthenticating = false
-        root.facePamActive = false
-        root.reportFaceFailure()
-      }
-    }
-  }
-
   Timer {
     id: fingerprintRetryTimer
     interval: 250
@@ -472,17 +383,6 @@ Item {
       root.fingerprintConfigured = String(fingerprintCheckStdout.text || "").trim() === "yes"
       if (root.lockRequested && root.fingerprintConfigured) root.startFingerprint()
       else if (!root.fingerprintConfigured && fingerprintPam.active) fingerprintPam.abort()
-    }
-  }
-
-  Process {
-    id: faceCheckProc
-    command: ["bash", "-c", "if [[ -f /etc/pam.d/omarchy-lock-face ]] && command -v facelock >/dev/null 2>&1 && facelock is-enrolled --quiet; then echo yes; else echo no; fi"]
-    stdout: StdioCollector { id: faceCheckStdout; waitForEnd: true }
-    onExited: {
-      root.faceConfigured = String(faceCheckStdout.text || "").trim() === "yes"
-      root.logEvent("face-configured=" + root.faceConfigured)
-      if (!root.faceConfigured) root.abortFace()
     }
   }
 
@@ -524,9 +424,10 @@ Item {
         root.armBlankTimer()
         return
       }
-      // Gate on the in-flight checks only; `authenticating` includes fingerprint,
-      // whose PAM stays armed for the whole lock and would hold the panel lit.
-      if (root.lockRequested && !root.authenticatingPassword && !root.faceAuthenticating) root.runBlank()
+      // Only a password check in flight should hold the display up. The
+      // fingerprint PAM stays armed for the whole lock, so gating on
+      // `authenticating` here would keep the panel lit until unlock.
+      if (root.lockRequested && !root.authenticatingPassword) root.runBlank()
     }
   }
 
@@ -580,12 +481,6 @@ Item {
     else armBlankTimer()
   }
 
-  onFaceAuthenticatingChanged: {
-    if (!lockRequested) return
-    if (faceAuthenticating) idleBlankTimer.stop()
-    else armBlankTimer()
-  }
-
   FileView {
     path: "/etc/pam.d/omarchy-lock-password"
     watchChanges: true
@@ -609,7 +504,6 @@ Item {
   Component.onCompleted: {
     refreshBackground()
     refreshFingerprintStatus()
-    refreshFaceStatus()
     checkStrandedLock()
   }
 
@@ -636,8 +530,6 @@ Item {
         realScreens: root.realScreenCount(),
         passwordPam: root.passwordPamConfigured,
         fingerprint: root.fingerprintConfigured,
-        face: root.faceConfigured,
-        faceAuthenticating: root.faceAuthenticating,
         authenticating: root.authenticating,
         lastEvent: root.lastEvent,
         lastEventAt: root.lastEventAt
@@ -647,7 +539,6 @@ Item {
     function preview(): string {
       root.refreshBackground()
       root.refreshFingerprintStatus()
-      root.refreshFaceStatus()
       root.previewVisible = true
       return "ok"
     }
