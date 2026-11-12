@@ -42,12 +42,9 @@ fi
 #################################
 # pipeline — each _os_* self-gates on its flag; order is significant
 #################################
-_os_install_apps
-_stow_portable
-_os_stow_packages
-_os_configure
-_setup_agents
-_link_zshrc
-_setup_ssh
-_setup_private
-_os_finalize
+PHASE_FAILED=0
+for phase in _os_install_apps _stow_portable _os_stow_packages _os_configure \
+             _setup_agents _link_zshrc _setup_ssh _setup_private _os_finalize; do
+  $phase || { echo "${RED}phase failed: $phase${NC}" >&2; PHASE_FAILED=1; }
+done
+exit $PHASE_FAILED

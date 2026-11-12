@@ -20,9 +20,9 @@ GNU Stow-based dotfiles repo for macOS (silicon Mac), [Omarchy](https://omarchy.
 - `global-agent-rules.md` — shared AI agent rules, symlinked to `~/.claude/CLAUDE.md`, `~/.config/opencode/AGENTS.md`, `~/.gemini/AGENTS.md`; contains the marker-fenced `CODEGRAPH_START`/`CODEGRAPH_END` block written by `codegraph install`
 
 ### Stow Packages (managed by `main.zsh`)
-Packages at repo **root** are stowed on both OSes; platform packages live under `macos/` (Darwin) or `omarchy/` (Linux) and are stowed via `_stow_platform <pkg>` (`stow -d $OS_DIR -t ~`).
+Packages at repo **root** are split two ways in `lib/shared.zsh`: `_stow_portable` (`git`, `inputrc`, `herdr`; plus `starship` everywhere except Debian, whose phone terminal cannot render its Nerd Font glyphs) runs from the main pipeline on every platform, while `_stow_gui` (terminals, editors, TUI apps, window managers) is called by `macos`/`omarchy` `_os_stow_packages`. Platform packages live under `macos/` (Darwin), `omarchy/` (Arch desktop), or `debian/` (headless LXC) and are stowed via `_stow_platform <pkg>` (`stow -d $OS_DIR -t ~`).
 
-**Root / common (all OSes):**
+**Root packages** (portable ones reach every platform; desktop ones only macOS/Omarchy):
 | Package | Target pattern | Notes |
 |---------|---------------|-------|
 | `ghostty` | `~/.config/ghostty/config` | Shared Ghostty **base** (cursor, shell-integration, CSI-u Enter binds); ends with `config-file = ~/.config/ghostty/local.conf` — platform pkgs supply `local.conf`. Includes must be `~`-absolute: ghostty resolves relative paths against the including file, and keys in a file always lose to keys from files it includes |

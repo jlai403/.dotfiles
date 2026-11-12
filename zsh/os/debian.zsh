@@ -9,5 +9,7 @@ typeset -U PATH             # keep PATH deduped across every prepend
 
 export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
 
-# Debian ships the zsh plugins as separate package directories, not one root.
-ZSH_PLUGIN_DIRS=("/usr/share/zsh-autosuggestions" "/usr/share/zsh-syntax-highlighting")
+# Debian ships each plugin as its own package directory under /usr/share
+# (`/usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh`), which is exactly
+# the layout sources.zsh expects: <dir>/<plugin>/<plugin>.zsh.
+ZSH_PLUGIN_DIRS=("/usr/share")

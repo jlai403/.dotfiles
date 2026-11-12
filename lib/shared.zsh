@@ -7,7 +7,11 @@ _stow_portable() {
   # capture app-written state: herdr logs/sockets, git's own writes, known_hosts).
   mkdir -p ~/.config/git ~/.config/herdr ~/.local/bin ~/.ssh
 
-  _stow git starship inputrc herdr
+  # starship's Tokyo Night config uses Nerd Font private-use glyphs (U+F126 and
+  # friends) that a phone terminal renders as boxes. Debian keeps stock starship;
+  # drop the `[[ "$OS_DIR" == debian ]] ||` guard to stow the themed config there.
+  [[ "$OS_DIR" == debian ]] || _stow starship
+  _stow git inputrc herdr
 }
 
 # Desktop packages: terminals, editors, TUI apps, window managers. Stowed by
