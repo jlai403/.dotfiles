@@ -5,6 +5,9 @@ unset _dots_os
 
 alias cls=clear
 
+# Default target for orphaned_symlinks when no path is given.
+: ${ZSH_ORPHAN_PATHS:=$HOME/.local/bin}
+
 function orphaned_symlinks() {
   local dry_run=false
   local paths=()
@@ -32,9 +35,9 @@ function orphaned_symlinks() {
     esac
   done
 
-  # Default path (ARM Homebrew bin)
+  # Default path: set per-OS in zsh/os/<os>.zsh (Homebrew bin on macOS).
   if [[ ${#paths[@]} -eq 0 ]]; then
-    paths=(/opt/homebrew/bin)
+    paths=(${=ZSH_ORPHAN_PATHS})
   fi
 
   # Run
