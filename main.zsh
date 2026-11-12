@@ -1,16 +1,22 @@
 #!/usr/bin/env zsh
 
 # Bootstrap entry point. OS-agnostic: the only platform branch is selecting
-# $OS_DIR below. Platform behavior lives in macos/setup.zsh | omarchy/setup.zsh,
+# $OS_DIR below. Platform behavior lives in macos/ | omarchy/ | debian/ setup.zsh,
 # shared helpers in lib/, shared config in the repo root. See README "Architecture".
 
 DOTS_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$DOTS_DIR" || exit 1            # stow reads .stowrc from the cwd
 PRIVATE_DOTS_DIR="$DOTS_DIR/../.dotfiles_private"
-OS="$(uname -s)"
-OS_DIR="$([[ "$OS" == Darwin ]] && echo macos || echo omarchy)"
 
 source "$DOTS_DIR/lib/common.zsh"
+_parse_flags "$@"
+
+OS_DIR="${PROFILE:-$(_detect_os_dir)}"
+if [[ -z "$OS_DIR" || ! -f "$DOTS_DIR/$OS_DIR/setup.zsh" ]]; then
+  echo "unsupported platform '${OS_DIR}': no $DOTS_DIR/${OS_DIR}/setup.zsh" >&2
+  echo "pass --profile macos|omarchy|debian" >&2
+  exit 1
+fi
 
 echo "${BBLUE}"
 cat << 'EOF'
@@ -27,8 +33,6 @@ echo ""
 source "$DOTS_DIR/lib/stow.zsh"
 source "$DOTS_DIR/lib/shared.zsh"
 source "$DOTS_DIR/$OS_DIR/setup.zsh"
-
-_parse_flags "$@"
 
 if [[ "$DO_SKILLS" == true ]]; then
   _install_skills
