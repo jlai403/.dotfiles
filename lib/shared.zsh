@@ -4,8 +4,8 @@
 # Packages every platform wants.
 _stow_portable() {
   # Real dirs keep stow from folding them into the repo (a folded dir would
-  # capture app-written state: herdr logs/sockets, ~/.ssh known_hosts, ...).
-  mkdir -p ~/.config/herdr ~/.local/bin ~/.ssh
+  # capture app-written state: herdr logs/sockets, git's own writes, known_hosts).
+  mkdir -p ~/.config/git ~/.config/herdr ~/.local/bin ~/.ssh
 
   _stow git starship inputrc herdr
 }
