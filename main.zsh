@@ -43,7 +43,7 @@ fi
 # pipeline — each _os_* self-gates on its flag; order is significant
 #################################
 _os_install_apps
-_stow_shared
+_stow_portable
 _os_stow_packages
 _os_configure
 _setup_agents

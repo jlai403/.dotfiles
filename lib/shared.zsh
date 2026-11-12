@@ -1,13 +1,21 @@
 # OS-agnostic bootstrap phases. Platform-specific work lives in
-# macos/setup.zsh | omarchy/setup.zsh.
+# macos/setup.zsh | omarchy/setup.zsh | debian/setup.zsh.
 
-_stow_shared() {
+# Packages every platform wants.
+_stow_portable() {
   # Real dirs keep stow from folding them into the repo (a folded dir would
-  # capture app-written state: herdr logs/sockets, herdr-app window state,
-  # ~/.ssh known_hosts, ...).
-  mkdir -p ~/.config/ghostty ~/.config/cliamp ~/.config/herdr ~/.config/herdr-app ~/.config/zed ~/.local/bin ~/.ssh
+  # capture app-written state: herdr logs/sockets, ~/.ssh known_hosts, ...).
+  mkdir -p ~/.config/herdr ~/.local/bin ~/.ssh
 
-  _stow cliamp ghostty git herdr herdr-app nvim inputrc tmux zed television starship
+  _stow git starship inputrc herdr
+}
+
+# Desktop packages: terminals, editors, TUI apps, window managers. Stowed by
+# macos/omarchy `_os_stow_packages`; headless platforms skip them.
+_stow_gui() {
+  mkdir -p ~/.config/ghostty ~/.config/cliamp ~/.config/herdr-app ~/.config/zed
+
+  _stow cliamp ghostty nvim tmux zed television herdr-app
 }
 
 _link_zshrc() {
