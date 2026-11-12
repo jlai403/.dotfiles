@@ -1,0 +1,45 @@
+# Toolchain for lxc-deb-opencode, managed by mise.
+# Stowed by main.zsh --profile debian to ~/.config/mise/config.toml.
+#
+# `node` is listed first so mise installs it before the npm-backend tools
+# (pnpm, opencode), which need a node to run.
+#
+# Fuzzy pins (majors) resolve to the newest release that is at least
+# `minimum_release_age` old (mise default: 24h), then roll forward on `mise upgrade`.
+[tools]
+node = "24"                # >= 24.11 required by Paperclip
+python = "3.14"
+deno = "2"
+bun = "1"
+pnpm = "12"
+yq = "4"
+# CLI toolchain for the dotfiles zsh layer (zsh/aliases.zsh renames baseline
+# commands: cd→z, cat→bat, grep→rg, find→fd, sed→sd, ls→eza, v→nvim, lg→lazygit;
+# git config's pager is delta). Without these the aliases go dead.
+zoxide = "0.9"
+ripgrep = "14"
+fd = "10"
+sd = "1"
+# These repos tag 0.x semver (no major-1 releases yet), so fuzzy pins on
+# "1" 404 in mise-versions. Pin the 0.x line; mise resolves the newest.
+bat = "0"
+eza = "0"
+delta = "0"
+lazygit = "0"
+neovim = "0.11"
+superfile = "1"            # TUI file manager, binary `spf` (aqua:yorukot/superfile)
+# AWS tooling. mise's registry resolves `aws-vault` to aqua:ByteNess/aws-vault
+# (the maintained fork); 99designs/aws-vault is abandoned and has no 1Password
+# backend. `op` is only for mfa_process — aws-vault talks to 1Password through
+# the SDK, so no Connect server is involved.
+aws-vault = "7"
+aws-cli = "2"
+terraform = "1"
+op = "2"
+starship = "1"
+herdr = "0.9"
+# opencode v2 (npm distribution; the aqua `opencode` backend is v1.x).
+# @opencode/cli is a recently-registered npm name (aube's reputation gate blocks
+# it) and its postinstall downloads the platform binary (aube blocks lifecycle
+# scripts by default). Both opt-ins are scoped to this package.
+"npm:@opencode/cli" = { version = "2", allow_low_downloads = true, allow_builds = ["@opencode/cli"] }
