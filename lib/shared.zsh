@@ -77,6 +77,12 @@ _setup_agents() {
   if _have herdr; then
     herdr integration install opencode >/dev/null
   fi
+
+  # Debian: the same two writers own these files at runtime (herdr rewrites
+  # tui.jsonc, the quota plugin writes the provider block into opencode.jsonc),
+  # so stowing would route their writes into this public repo. Leave them alone.
+  [[ "$OS_DIR" == debian ]] && return 0
+
   rm -f ~/.config/opencode/opencode.json ~/.config/opencode/opencode.jsonc \
     ~/.config/opencode/tui.jsonc
   _stow opencode
@@ -85,14 +91,20 @@ _setup_agents() {
 _install_skills() {
   echo "${YELLOW}Installing skills from jlai403/skills...${NC}"
   # The installer needs npx; our lazy nvm wrapper only fires interactively.
-  [ -n "$NVM_SH" ] && [ -s "$NVM_SH" ] && ! _have npx && \. "$NVM_SH"
+  [ -n "${NVM_SH:-}" ] && [ -s "$NVM_SH" ] && ! _have npx && \. "$NVM_SH"
   # Process substitution, not a pipe: under `| bash` a cold npx cache prompt
   # reads script bytes off stdin and the install dies halfway.
   bash <(curl -fsSL https://jlai.ca/skills)
 }
 
 _setup_ssh() {
-  local appends="$(cat "$DOTS_DIR/$OS_DIR/ssh/config.append")"
+  local append="$DOTS_DIR/$OS_DIR/ssh/config.append"
+  if [[ ! -f "$append" ]]; then
+    echo "${YELLOW}No $OS_DIR/ssh/config.append; leaving ~/.ssh/config alone${NC}"
+    return 0
+  fi
+  local appends="$(cat "$append")"
+  mkdir -p ~/.ssh
 
   # Only add Includes if not already present
   if ! grep -q "${appends}" ~/.ssh/config 2>/dev/null; then
