@@ -1,6 +1,6 @@
 # Dotfiles
 
-GNU Stow-based dotfiles for macOS (silicon Mac) and [Omarchy](https://omarchy.org/) (Arch Linux on an Intel Mac). Configurations for Zsh, Neovim, Ghostty, Hyprland, tmux, and more. Uses two platform dirs — `macos/` and `omarchy/` — alongside a shared root layer.
+GNU Stow-based dotfiles for macOS (silicon Mac), [Omarchy](https://omarchy.org/) (Arch Linux on an Intel Mac), and Debian (headless dev LXCs). Configurations for Zsh, Neovim, Ghostty, Hyprland, tmux, and more. Uses three platform dirs — `macos/`, `omarchy/`, `debian/` — alongside a shared root layer.
 
 ## Prerequisites
 
@@ -22,6 +22,7 @@ cd ~/.dotfiles
 | (none) | Stow all packages, update `.zshrc`, set wallpaper |
 | `--apps` | Install OS packages — `Brewfile` on macOS, `omarchy/Pkgfile` via yay on Omarchy (bootstraps `yay` if missing) — plus global bun packages |
 | `--osx` | Apply macOS defaults (Dock, trackpad, keyboard, login items) |
+| `--profile <name>` | Force a platform dir (`macos`, `omarchy`, `debian`) instead of detecting from the kernel and `/etc/os-release` |
 
 On Omarchy, `./main.zsh` additionally runs `mise install` (tools declared in `omarchy/mise/.config/mise/config.toml`), sets the login shell to zsh (`sudo chsh -s /usr/bin/zsh`), and prepends the omarchy-zsh base to `~/.zshrc` (so completion, history, and omarchy's functions load).
 
@@ -50,45 +51,45 @@ Three layers, two mechanisms:
 
 | Axis | Mechanism |
 |------|-----------|
-| shared ↔ OS | directory: repo root vs `macos/` / `omarchy/` |
+| shared ↔ OS | directory: repo root vs `macos/` / `omarchy/` / `debian/` |
 | tracked ↔ machine-local | the repo vs `~/.dotfiles_private` |
 
-`main.zsh` is a thin orchestrator. It picks `OS_DIR` (`macos` or `omarchy`) — the only platform branch — sources `lib/*.zsh` + `$OS_DIR/setup.zsh`, then runs a fixed pipeline. Platform behavior sits behind four hooks in `$OS_DIR/setup.zsh`:
+`main.zsh` is a thin orchestrator. It picks `OS_DIR` (`macos`, `omarchy`, or `debian`; `--profile` overrides the `/etc/os-release` detection) — the only platform branch — and sources `lib/*.zsh` + `$OS_DIR/setup.zsh`, then runs a fixed pipeline. Platform behavior sits behind four hooks in `$OS_DIR/setup.zsh`:
 
 - `_os_install_apps` — Homebrew (macOS) or yay + `Pkgfile` (Omarchy), both via `--apps`
 - `_os_stow_packages` — package stows unique to the OS
 - `_os_configure` — services, mise, Tailscale, privileged `/etc` stows
 - `_os_finalize` — wallpaper + macOS defaults (`--osx`)
 
-Shared steps live in `lib/shared.zsh` (`_stow_shared`, `_link_zshrc`, `_setup_agents`, `_setup_ssh`, `_setup_private`); stow helpers in `lib/stow.zsh` (`_stow` for root packages, `_stow_platform` for the current OS dir). Root packages are stowed from `_stow_shared`; every `$OS_DIR` package — including the per-OS `ghostty`/`mise`/`ssh` overrides — is stowed from that OS's `_os_stow_packages`.
+Shared steps live in `lib/shared.zsh` (`_stow_portable`, `_stow_gui`, `_link_zshrc`, `_setup_agents`, `_setup_ssh`, `_setup_private`); stow helpers in `lib/stow.zsh` (`_stow` for root packages, `_stow_platform` for the current OS dir). Root packages split in two: `_stow_portable` (every platform: `git`, `starship`, `inputrc`, `herdr`) runs from the main pipeline; `_stow_gui` (desktop terminals, editors, TUI apps) is called by `macos`/`omarchy` `_os_stow_packages`. Every `$OS_DIR` package — including the per-OS `ghostty`/`mise`/`ssh` overrides — is stowed from that OS's `_os_stow_packages`.
 
-The shell mirrors this: shared `zsh/*.zsh` modules with **one OS file per OS** — `zsh/os/darwin.zsh` / `zsh/os/linux.zsh` — each sourced if present, so the shared files contain no platform branching. `typeset -U PATH` keeps prepends deduped across re-sources and nested shells.
+The shell mirrors this: shared `zsh/*.zsh` modules with **one OS file per OS** — `zsh/os/darwin.zsh` / `zsh/os/linux.zsh` / `zsh/os/debian.zsh` — each sourced if present, so the shared files contain no platform branching. `uname -s` is `Linux` for every distro, so `linux.zsh` dispatches to `debian.zsh` when `/etc/os-release` is not Arch. `typeset -U PATH` keeps prepends deduped across re-sources and nested shells.
 
 ## Structure
 
 ### Stow Packages
 
-Symlinked to home/config directories via GNU Stow. Root packages stow on both OSes; `macos/` and `omarchy/` packages are platform-gated.
+Symlinked to home/config directories via GNU Stow. Root packages stow on every platform; `macos/` and `omarchy/` packages are platform-gated. `debian/` holds the headless platform: the `mise` manifest stowed to `~/.config/mise/config.toml`, the SSH append, and the four `_os_*` hooks.
 
 | Package | What it configures | Platform |
 |---------|--------------------|----------|
 | `aerospace` | Tiling window manager | macOS |
 | `borders` | Window border highlight | macOS |
-| `cliamp` | Spotify TUI | both |
-| `ghostty` | Terminal emulator — shared base config + per-OS `local.conf` | both |
-| `git` | Git global config | both |
-| `herdr` | Terminal multiplexer | both |
-| `inputrc` | Readline keybindings | both |
-| `nvim` | Neovim colorscheme (baseline comes from omarchy-nvim) | both |
-| `opencode` | OpenCode AI tool | both |
+| `cliamp` | Spotify TUI | desktop |
+| `ghostty` | Terminal emulator — shared base config + per-OS `local.conf` | desktop |
+| `git` | Git global config | all |
+| `herdr` | Terminal multiplexer | all |
+| `inputrc` | Readline keybindings | all |
+| `nvim` | Neovim colorscheme (baseline comes from omarchy-nvim) | desktop |
+| `opencode` | OpenCode AI tool | desktop |
 | `ssh` | SSH config (1Password agent socket; Omarchy also adds `ghjlai`/`ghstellar`/`forgejo` host aliases) | per-OS |
-| `television` | TUI fuzzy finder | both |
-| `tmux` | Tmux | both |
-| `zed` | Zed editor (Tokyo Night vendored; keymap per-OS) | both |
+| `television` | TUI fuzzy finder | desktop |
+| `tmux` | Tmux | desktop |
+| `zed` | Zed editor (Tokyo Night vendored; keymap per-OS) | desktop |
 | `ghostty` | Ghostty `local.conf` overrides (macOS keybinds/font, Omarchy include + font-size) | per-OS |
 | `hypr` | Hyprland user overrides (bindings, input, monitors) | Omarchy |
 | `omarchy-shell` | Omarchy shell config (shell.json, hooks, defaults) | Omarchy |
-| `mise` | mise tool manifest (`config.toml`) | Omarchy |
+| `mise` | mise tool manifest (`config.toml`) | Omarchy, Debian |
 | `keyd` | Hyper key (CapsLock = Hyper hold / Esc tap) | Omarchy |
 | `fcitx5` | XCompose IME | Omarchy |
 | `uwsm` | Desktop-session env | Omarchy |

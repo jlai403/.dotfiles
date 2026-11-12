@@ -11,6 +11,7 @@ _os_install_apps() {
 }
 
 _os_stow_packages() {
+  _stow_gui
   _stow_platform aerospace borders ghostty mise ssh zed
 
   # Vendored borders binary (no dotfiles-package copy step).

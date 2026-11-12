@@ -56,6 +56,7 @@ _install_omarchy_plugins() {
 }
 
 _os_stow_packages() {
+  _stow_gui
   # Per-OS packages, incl. overrides for the root ghostty/mise packages.
   _stow_platform ghostty mise ssh
   # Linux keymap overlay (mac parity); shared zed keeps settings/themes/zed-tmux.

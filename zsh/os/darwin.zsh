@@ -16,6 +16,9 @@ export PATH="$HOME/.local/bin:$HOME/.bun/bin:$PYENV_ROOT/opt/e2fsprogs/bin:$HOME
 
 ZSH_PLUGIN_DIRS=("$HOMEBREW_PREFIX/share")
 
+# orphaned_symlinks default: Homebrew's bin.
+ZSH_ORPHAN_PATHS="$HOMEBREW_PREFIX/bin"
+
 # macOS-only aliases
 alias borders-start='nohup borders active_color=0xff00cfe6 inactive_color=0xff494d64 width=4.0 > /dev/null 2>&1 &'
 alias findlock="ioreg -l -w 0 | grep SecureInput"

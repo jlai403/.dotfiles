@@ -1,6 +1,12 @@
-# Linux (Omarchy) shell layer. Sourced by the shared zsh modules
-# (aliases/exports/sources) when present; the DOTFILES_OS guard makes it run
-# once per shell.
+# Linux shell layer. Sourced by the shared zsh modules (aliases/exports/sources)
+# when present. `uname -s` is Linux for every distro, so this file dispatches:
+# Arch/Omarchy continues below, anything else (Debian) gets its own layer.
+if ! grep -qE '^ID="?(arch|omarchy)"?' /etc/os-release 2>/dev/null; then
+  source "$HOME/.dotfiles/zsh/os/debian.zsh"
+  return
+fi
+
+# Arch (Omarchy). The DOTFILES_OS guard makes it run once per shell.
 [[ -n "$DOTFILES_OS" ]] && return
 
 DOTFILES_OS=linux

@@ -1,13 +1,25 @@
 # OS-agnostic bootstrap phases. Platform-specific work lives in
-# macos/setup.zsh | omarchy/setup.zsh.
+# macos/setup.zsh | omarchy/setup.zsh | debian/setup.zsh.
 
-_stow_shared() {
+# Packages every platform wants.
+_stow_portable() {
   # Real dirs keep stow from folding them into the repo (a folded dir would
-  # capture app-written state: herdr logs/sockets, herdr-app window state,
-  # ~/.ssh known_hosts, ...).
-  mkdir -p ~/.config/ghostty ~/.config/cliamp ~/.config/herdr ~/.config/herdr-app ~/.config/zed ~/.local/bin ~/.ssh
+  # capture app-written state: herdr logs/sockets, git's own writes, known_hosts).
+  mkdir -p ~/.config/git ~/.config/herdr ~/.local/bin ~/.ssh
 
-  _stow cliamp ghostty git herdr herdr-app nvim inputrc tmux zed television starship
+  # starship's Tokyo Night config uses Nerd Font private-use glyphs (U+F126 and
+  # friends) that a phone terminal renders as boxes. Debian keeps stock starship;
+  # drop the `[[ "$OS_DIR" == debian ]] ||` guard to stow the themed config there.
+  [[ "$OS_DIR" == debian ]] || _stow starship
+  _stow git inputrc herdr
+}
+
+# Desktop packages: terminals, editors, TUI apps, window managers. Stowed by
+# macos/omarchy `_os_stow_packages`; headless platforms skip them.
+_stow_gui() {
+  mkdir -p ~/.config/ghostty ~/.config/cliamp ~/.config/herdr-app ~/.config/zed
+
+  _stow cliamp ghostty nvim tmux zed television herdr-app
 }
 
 _link_zshrc() {
@@ -69,6 +81,12 @@ _setup_agents() {
   if _have herdr; then
     herdr integration install opencode >/dev/null
   fi
+
+  # Debian: the same two writers own these files at runtime (herdr rewrites
+  # tui.jsonc, the quota plugin writes the provider block into opencode.jsonc),
+  # so stowing would route their writes into this public repo. Leave them alone.
+  [[ "$OS_DIR" == debian ]] && return 0
+
   rm -f ~/.config/opencode/opencode.json ~/.config/opencode/opencode.jsonc \
     ~/.config/opencode/tui.jsonc
   _stow opencode
@@ -77,14 +95,20 @@ _setup_agents() {
 _install_skills() {
   echo "${YELLOW}Installing skills from jlai403/skills...${NC}"
   # The installer needs npx; our lazy nvm wrapper only fires interactively.
-  [ -n "$NVM_SH" ] && [ -s "$NVM_SH" ] && ! _have npx && \. "$NVM_SH"
+  [ -n "${NVM_SH:-}" ] && [ -s "$NVM_SH" ] && ! _have npx && \. "$NVM_SH"
   # Process substitution, not a pipe: under `| bash` a cold npx cache prompt
   # reads script bytes off stdin and the install dies halfway.
   bash <(curl -fsSL https://jlai.ca/skills)
 }
 
 _setup_ssh() {
-  local appends="$(cat "$DOTS_DIR/$OS_DIR/ssh/config.append")"
+  local append="$DOTS_DIR/$OS_DIR/ssh/config.append"
+  if [[ ! -f "$append" ]]; then
+    echo "${YELLOW}No $OS_DIR/ssh/config.append; leaving ~/.ssh/config alone${NC}"
+    return 0
+  fi
+  local appends="$(cat "$append")"
+  mkdir -p ~/.ssh
 
   # Only add Includes if not already present
   if ! grep -q "${appends}" ~/.ssh/config 2>/dev/null; then
